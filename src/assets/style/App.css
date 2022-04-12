@@ -1,38 +1,372 @@
-.App {
-  text-align: center;
+
+.st {
+  width: 60px;
+  height: 70px;
+  opacity: 0.7;
+}
+.Join{
+  opacity: 0.5;
+  position: absolute; top: 80%; left: 40%;
+  margin-bottom: 4cm;
+
+}
+.blockback{
+  background-color: black;
+  opacity: 0.5;
+width: 10000%;
+height: 10000% ;
+margin-left: -25px;
+  position: absolute;
+
+}
+.scrollchat{
+  overflow: scroll;
+
+
+}
+.mhchat{
+  max-height: 20rem;
+}
+.chatback{
+background-color: #f8f7f7;
+border: 0.1px solid #BFBFBF;
+
+}
+.alr{
+  margin-left: auto;
+  direction: rtl;
+}
+.h-80 {
+  height: 90% !important;
+}
+.messageitem{
+  margin-top: 2px;
+  border: 0.1px solid #BFBFBF;;
+  border-radius: 5px;
+  background-color: #ffffff;
+  width: fit-content;
+  padding: 5px;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.w-80{
+width: 80% !important;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+
+
+.Logo{
+  width: 50px;
+  height: 50px;
+  margin-top: -0.5rem;
+  margin-bottom:  -0.5rem;  
+  background-image: url('../Mainlogo.png');
+
+  
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.CloseChat {
+  margin-left: 20px;
+ padding: 1px;
+ background-image: url('../CloseChat.png');
+
+ width: 32px;
+ height: 32px;
+}
+.OpenChat {
+  margin-left: 20px;
+ padding: 1px;
+ background-image: url('../OpenChat.png');
+
+ width: 32px;
+ height: 32px;
+}
+
+
+.stream {
+  background-image: url('../video-camera.png');
+  width: 32px;
+  height: 32px;
+  opacity: 0.7;
+  transition-property:  margin-top;
+  transition-duration: 0.11s;
+  transition-delay: 0.1s;
+ }
+
+ .send {
+   margin-left: 20px;
+  padding: 1px;
+  background-image: url('../mail_send.png');
+  width: 32px;
+  height: 32px;
+
+ }
+ .sendc {
+  margin-left: -40px;
+   padding: 1px;
+  background-image: url('../mail_send.png');
+  width: 32px;
+  height: 32px;
+
+ }
+
+ .home {
+  background-image: url('../home-page.png');
+  width: 32px;
+  height: 32px;
+  opacity: 0.7;
+  transition-property:  margin-top;
+  transition-duration: 0.11s;
+  transition-delay: 0.1s;
+ }
+.textstream{
+  float: left;
+
+
+}
+.mainstreamicon:hover{
+  opacity: 1;
+}
+.lodingstream {
+
+ /* background-image: url('../friends-loading.gif');*/
+  width: 5%;
+  height : 50%;
+}
+
+.mainstreamicon {
+  width: 256px;
+  height : 256px;
+  opacity: 0.8;
+
+  background-image: url('../online-streaming.png');
+}
+ .bighome {
+ /* background-image: url('../home-camera.png'); */ 
+  width: 280;
+  height: 280;
+  opacity: 0.7;
+  transition-property:  margin-top;
+  transition-duration: 0.11s;
+  transition-delay: 0.1s;
+ }
+
+ .home:hover {
+  margin-top: -0.1cm;
+  
+  opacity: 1;
+
+}
+
+.stream:hover {
+  margin-top: -0.1cm;
+
+  opacity: 1;
+
+}
+ 
+ 
+.st:hover {
+  width: 65px;
+  height: 75px;
+  opacity: 1;
+
+}
+.s1{
+  position: relative;
+}
+.s12{
+  margin-top: -1cm;
+  position: absolute; top: 100%; left: -50px;
+
+}
+
+.SideBarChat{
+  left: 0;
+position: absolute;
+}
+
+
+.chatbox {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  height: 60px; /* Set the fixed height of the footer here */
+  line-height: 60px; /* Vertically center the text there */
+  background-color: #f5f5f5;
+ 
+}
+.chattext{
+  width: 500px;
+}
+.chatbox2{
+  position: absolute;
+
+  padding: 0px;
+  bottom: 0;
+  width: 80%;
+  display: flex;
+  height: 60px; /* Set the fixed height of the footer here */
+  line-height: 60px; /* Vertically center the text there */
+  background-color: #f5f5f5;
 }
 
-.App-link {
-  color: #61dafb;
+/* Custom page CSS
+-------------------------------------------------- */
+/* Not required for template or sticky footer method. */
+
+.fcontainer {
+  width: auto;
+  max-width: 680px;
+  padding: 0 15px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.s2{
+  margin-top: -1cm;
+  position: absolute; top: 100%; left: 0px;
 }
+.App-header {
+  background : #e6e6e6;
+}
+
+.mhv{
+  object-fit: scale-down;
+}
+.Vd-box{
+  border: 0.5px solid #BFBFBF;;
+  box-shadow: 0px 3px 3px 0px  #888888;
+  position: relative;
+  transition-property: border;
+  transition-property:  box-shadow;
+  transition-property:  position;
+  transition-duration: 0.11s;
+  transition-delay: 0.1s;
+
+
+}
+
+.mov{
+  transition-property: margin-top;
+  transition-duration: 0.11s;
+  transition-delay: 0.1s;
+
+}
+
+.mov:hover .Join{
+  opacity: 1;
+
+}
+.mov:hover  {
+  margin-top: -0.1cm;
+
+}
+
+
+.Vd-box:hover{
+  border: 0.5px solid #BFBFBF;;
+  box-shadow: 0px 5px 5px 0px  #33ccff;
+
+}
+.BK-btn:hover {
+  background-image: linear-gradient(
+    to bottom,
+    hsl(344, 100%, 50%),
+    hsl(31, 100%, 40%)
+  );
+}
+
+.BK-btn {
+  background-image: linear-gradient(to right,
+  hsl(211, 100%, 50%),
+  hsl(179, 100%, 30%)
+);
+  transition: background-image 0.2s linear;
+
+}
+
+.BK-header {
+  box-shadow: 0px 3px 10px #888888;
+
+  background-image: linear-gradient(to right,
+  #33ccff
+  , #cc6699
+
+  );
+
+}
+
+
+.active {
+  background-color: #666;
+  border: medium none;
+  color: #fff;
+  display: block;
+  font-size: 18px;
+  left: 0;
+  margin: 0 auto;
+  padding: 8px 16px;
+  position: absolute;
+  right: 0;
+  top: 50%;
+}
+
+.gradient {
+  position: relative;
+  background-image: linear-gradient(to right,
+  #33ccff
+  , #cc6699
+
+  );
+
+  z-index: 1;
+}
+
+.gradient::before {
+  position: absolute;
+  content: "";
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-image: linear-gradient(to left,
+  #33ccff
+  , #e489b6
+
+  );
+
+  z-index: -1;
+  transition: opacity 0.2s linear;
+  opacity: 0;
+}
+.video-controls{
+  background-image: url('../3dots.png');
+  width: 30px;
+  height: 45px;
+  left: 0;
+margin: 0;
+margin-top: 1rem;
+  position:absolute;
+}
+.gradient:hover::before {
+  opacity: 1;
+}
+
+.dropdownS {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  padding: 12px 16px;
+  z-index: 1;
+}
+
+.dropdownS:hover .dropdown-content {
+  display: block;
+}
+
