@@ -1,26 +1,27 @@
-import React, { useState, useRef } from 'react';
-import io from "socket.io-client";
+import React, { useState, useRef, useEffect } from 'react';
+import socketIOClient from "socket.io-client";
+
 import Ajv from 'ajv';
-
-
+import { useUserApi } from '../lib/hooks/userApi';
 export default function Navbar() {
 
-
-
   const myRef = useRef(null);
-  const RoomName = useRef(null);
   const CallBorad = useRef(null);
-  const Warning = useRef(null);
 
   const [ajv, setAjv] = useState(new Ajv())
 
-  const [socket, setsocket] = useState(io('http://localhost:6800'))
+  const [Warning, setWarning] = useState([null, ""])
+  const [RoomName, setRoomName] = useState([null, ""])
   const [Rooms, setRooms] = useState(null)
   const [TheRoom, setTheRoom] = useState("")
   const [toggleNav, settoggleNav] = useState(true)
   const [isBoxToggleOn, setisBoxToggleOn] = useState(true)
   const [IsPublic, setIsPublic] = useState(true)
   const [IsRommeExist, setIsRommeExist] = useState(true)
+
+  const {Socket} = useUserApi();
+
+  const ENDPOINT = `http://localhost:6800`;
 
   const [schema, setschema] = useState({
     "properties":
@@ -36,7 +37,7 @@ export default function Navbar() {
   )
 
 
-
+ 
 
   //this function will take the user to the main bage
   const GoHome = () => {
@@ -59,45 +60,51 @@ export default function Navbar() {
     //  })
   }
 
+  //check api valible room name
+  const isRoomeValid = (value) => {
+    //  console.log(socket)
+
+
+    Socket.emit('IsRommeExist', '{"title":"' + value + '"}',
+      (data) => {
+
+        if (data.status) {
+          setRoomName("form-control border border-success");
+          setWarning(["form-text text-success", "the room name is valed"])
+          return
+        }
+
+        setRoomName("form-control border border-danger");
+        setWarning(["form-text text-danger", "the name is not valed " + data.room])
+
+
+
+
+      })
+
+  }
   //this function will store the value of the input in the state and vladate it
   const onchange = (e) => {
-    TheRoom(e.target.value)
+    setTheRoom(e.target.value)
+
     if ((e.target.value).length < 3) return;
 
     var valid = ajv.validate(schema, { name: e.target.value });
     if (!valid) {
 
-      RoomName.current.className = "form-control border border-danger";
-      if (ajv.errors[0].message === 'should match pattern "^[a-zA-Z0-9]{4,10}$"') {
-        Warning.current.innerHTML = "the name is not valid special character is not allowed"
+      setRoomName("form-control border border-danger")
+      if (ajv.errors[0].message === 'must match pattern "^[a-zA-Z0-9]{4,10}$"') {
+        setWarning(["form-text text-danger", "the name is not valid special character is not allowed"])
 
       } else {
-        Warning.current.innerHTML = "the name is not valed " + ajv.errors[0].message
-
+        setWarning(["form-text text-danger", "the name is not valed " + ajv.errors[0].message]);
       }
-      Warning.current.className = "form-text text-danger"
+
       return
     }
+    // console.log('emmiyedd')
 
-    socket.emit('IsRommeExist', '{"title":"' + e.target.value + '"}',
-      (data) => {
-
-        if (data.status) {
-          RoomName.current.className = "form-control border border-success";
-          setIsRommeExist(true)
-          Warning.current.innerHTML = "the room name is valed"
-          Warning.current.className = "form-text text-success"
-
-        } else {
-
-          RoomName.current.className = "form-control border border-danger";
-          setIsRommeExist(false)
-          Warning.current.innerHTML = "the name is not valed " + data.room
-          Warning.current.className = "form-text text-danger"
-
-        }
-
-      })
+    isRoomeValid(e.target.value);
   }
 
   //this function will empty the filed 
@@ -106,8 +113,8 @@ export default function Navbar() {
     RoomName.current.className = "form-control border";
     Warning.current.innerHTML = ""
     setTheRoom("")
-    GoStream()
-    ToogleRoomNameBox()
+    // GoStream()
+    // ToogleRoomNameBox()
 
   }
 
@@ -118,14 +125,6 @@ export default function Navbar() {
   }
 
   //this function will toggle the nav dilog
-  const ToogleRoomNameBox = (e) => {
-    if (isBoxToggleOn) {
-      setisBoxToggleOn(false)
-    } else {
-      setisBoxToggleOn(true)
-    }
-
-  }
 
   //this function will toggle the nav bar on small view
   const CollapsaNav = (e) => {
@@ -191,60 +190,54 @@ export default function Navbar() {
       </div>
 
 
-
-
-
-
-
     </nav>
-   
-
-   <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-   <div class="modal-dialog">
-     <div class="modal-content">
-       <div class="modal-header">
-
-         <h5 className="modal-title  text-info font-weight-bold" id="exampleModalLabel">Create a chat room</h5>
-        
-         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-
-       </div>
-       <div class="modal-body">
-         <input
-           ref={RoomName}
-           onChange={onchange} type="text"
-           value={TheRoom}
-
-           className="form-control border"
-           name="" placeholder="Room name" id="" />
-         <div >
-           <small ref={Warning} className="form-text "></small>
-
-         </div>
-       </div>
-       <div class="modal-footer">
-
-         <div className="custom-control custom-switch">
-           <input
-             onChange={UpdateCheckBox}
-             checked={IsPublic}
-             type="checkbox"
-             className="custom-control-input"
-             id="customSwitch1">
-           </input>
-           <label className="custom-control-label" htmlFor="customSwitch1">Public room (Visible for everyone)</label>
-         </div>
-         <div className=" gradient  border rounded">
-           <button onClick={StartCreatingTheRoom} className="btn text-white font-weight-bold">Stream</button>
-
-         </div>
-       </div>
-     </div>
-   </div>
- </div>
 
 
-   </>);
+    <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div className="modal-dialog">
+        <div className="modal-content">
+          <div className="modal-header">
+
+            <h5 className="modal-title  text-info font-weight-bold" id="exampleModalLabel">Create a chat room</h5>
+
+            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+          </div>
+          <div className="modal-body">
+            <input
+              onChange={e => onchange(e)} type="text"
+              value={TheRoom}
+
+              className={`form-control border ${RoomName}`}
+              name="" placeholder="Room name" id="" />
+            <div >
+              <small className={`form-text ${Warning[0] ? Warning[0] : ''} `} >{Warning[1]}</small>
+
+            </div>
+          </div>
+          <div className="modal-footer d-flex">
+
+            <div className="custom-control custom-switch">
+              <input
+                onChange={e => UpdateCheckBox(e)}
+                checked={IsPublic}
+                type="checkbox"
+                className="custom-control-input "
+                id="customSwitch1">
+              </input>
+              <label className="custom-control-label" htmlFor="customSwitch1">Public room (Visible for everyone)</label>
+            </div>
+            <div className=" gradient  border rounded">
+              <button onClick={() => StartCreatingTheRoom()} className="btn text-white font-weight-bold">Stream</button>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  </>);
 
 }
 
