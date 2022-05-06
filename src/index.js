@@ -4,7 +4,7 @@ import './assets/style/index.css';
 import "bootstrap/dist/js/bootstrap"
 import Body from './Componant/body';
 import NavBar from "./Componant/NavBar";
-//import CallBorad from "./Componant/CallBord";
+import CallBorad from "./Componant/CallBord";
 //import "bootstrap/dist/css/bootstrap.min.css";
 import 'bootstrap/dist/css/bootstrap.css';
 import "./assets/style/App.css"
@@ -26,7 +26,8 @@ root.render(
   <NavBar></NavBar>
     <Routes>
         
-          <Route path="/" element={ <Body />}>
+    <Route path="/" element={ <Body />}></Route>
+    <Route path="CallBorad/:room" element={ <CallBorad />}>
            
           </Route>
     

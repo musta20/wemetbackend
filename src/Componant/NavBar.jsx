@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import socketIOClient from "socket.io-client";
+import { useNavigate } from 'react-router-dom';
 
 import Ajv from 'ajv';
 import { useUserApi } from '../lib/hooks/userApi';
@@ -18,6 +18,7 @@ export default function Navbar() {
   const [isBoxToggleOn, setisBoxToggleOn] = useState(true)
   const [IsPublic, setIsPublic] = useState(true)
   const [IsRommeExist, setIsRommeExist] = useState(true)
+  const navigate = useNavigate();
 
   const {Socket} = useUserApi();
 
@@ -41,23 +42,27 @@ export default function Navbar() {
 
   //this function will take the user to the main bage
   const GoHome = () => {
-    //  props.history.push({
-    //    pathname: '/Switch',
+    navigate({
+        pathname: '/Switch',
+        state: { CallBorad: false }
+     })
 
-    //    state: { CallBorad: false }
-    // })
+
   }
 
   //this function will take the user to the stramin room
   const GoStream = () => {
-    //   props.history.push({
-    //     pathname: '/Switch',
+    navigate({
+      pathname: '/CallBorad/'+TheRoom,
+    state:{
+      IsPublic:  IsPublic,
+      IsViewer: false
+   }
+    })
+      
 
-    //    state: {
-    //      CallBorad: true, TheRoom: TheRoom, IsPublic: IsPublic,
-    //      IsViewer: false
-    //    }
-    //  })
+
+
   }
 
   //check api valible room name
@@ -110,10 +115,10 @@ export default function Navbar() {
   //this function will empty the filed 
   //and close the dilog and take the use to the stram
   const StartCreatingTheRoom = (e) => {
-    RoomName.current.className = "form-control border";
-    Warning.current.innerHTML = ""
+    setRoomName("form-control border")
+
     setTheRoom("")
-    // GoStream()
+    GoStream()
     // ToogleRoomNameBox()
 
   }

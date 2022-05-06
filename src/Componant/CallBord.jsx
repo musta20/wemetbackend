@@ -1,71 +1,54 @@
 
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import Modal from './Modal';
 import io from "socket.io-client";
 import { Device } from 'mediasoup-client';
-import { withRouter } from 'react-router'
+
 import Footer from './Footer';
 
 
 
 import { ToastContainer, toast } from 'react-toastify';
-class CallBord extends Component {
-  constructor(props) {
-    super(props)
 
-    this.state = initialState;
-    this.canvas = React.createRef();
-    this.photo = React.createRef();
-    this.showTost = this.showTost.bind(this);
-    this.CreateOrJoinTheRoom = this.CreateOrJoinTheRoom.bind(this)
-    this.createSendTransport = this.createSendTransport.bind(this)
-    this.createDevice = this.createDevice.bind(this);
-    this.StartUserCamra = this.StartUserCamra.bind(this);
-    this.IsVedioElemntVisble = this.IsVedioElemntVisble.bind(this);
-    this.CloseTheSideCaller = this.CloseTheSideCaller.bind(this)
-    this.AddMediaStream = this.AddMediaStream.bind(this);
-    this.GetElemntCssClass = this.GetElemntCssClass.bind(this);
-    this.ToggleElementCssClass = this.ToggleElementCssClass.bind(this);
-    this.ShowTheSideCaller = this.ShowTheSideCaller.bind(this);
-    this.ShowHistoryChat = this.ShowHistoryChat.bind(this);
-    this.SendMessageChat = this.SendMessageChat.bind(this);
-    this.onChange = this.onChange.bind(this)
-    this.TakeThumbnailImage = this.TakeThumbnailImage.bind(this)
-    this.signalNewConsumerTransport = this.signalNewConsumerTransport.bind(this)
-    this.connectRecvTransport = this.connectRecvTransport.bind(this)
-    this.completeSession = this.completeSession.bind(this)
-    this.getProducers = this.getProducers.bind(this)
-    this.isStream = this.isStream.bind(this)
-    this.KikHimOut = this.KikHimOut.bind(this)
-    this.SendPrivetMessage = this.SendPrivetMessage.bind(this)
-    this.ToogleBox = this.ToogleBox.bind(this)
-    this.LockRoom = this.LockRoom.bind(this)
-    this.HiddeTheRoom = this.HiddeTheRoom.bind(this)
-    this.JoinTheRoom = this.JoinTheRoom.bind(this)
-    this.startConncting = this.startConncting.bind(this)
+function  CallBord () {
 
-
-  }
+const [socket,setsocket] = useState(null);
+const [rtpCapabilities,setRtpCapabilities] = useState('');
+const [isFreeToJoin,setisFreeToJoin] = useState(false);
+const [HiddeTheRoom,setHiddeTheRoom] = useState(true);
+const [Lock,setLock] = useState(false);
+const [device,setDevice] = useState(null);
+const [IsViewer,setIsViewer] = useState(false);
+const [isStream,setisStream] = useState(false);
+const [producerTransport,setproducerTransport] = useState(false);
+const [consumerTransports,setConsumerTransports] = useState([]);
+const [producer,setProducer] = useState(null);
+const [BossId,setBossId] = useState(0);
+const [HistoryChat,setHistoryChat] = useState([]);
+const [guest,setGuest] = useState([[], [], [], [], []]);
+const [ChatMessage,setChatMessage] = useState("");
+const [PrivetMessage,setPrivetMessage] = useState("");
+const [First,setFirst] = useState(false);
 
   //this function will show the notftion
-  showTost(data) {
+ const showTost = (data)=> {
     toast(data)
   }
 
   //open or close the dilog for a selected user
   //identfi the user that clicked on and safe the state
   //of the box 
-  ToogleBox(guest) {
-    let Guests = [...this.state.guest]
-    let index = this.state.guest.indexOf(guest)
+ const ToogleBox =(guest)=> {
+    let Guests = [...guest]
+    let index = guest.indexOf(guest)
 
     if (guest[2]) {
       Guests[index][2] = false
-      this.setState({ guest: Guests })
+      setState({ guest: Guests })
 
     } else {
       Guests[index][2] = true
-      this.setState({ guest: Guests })
+      setState({ guest: Guests })
     }
 
   }
@@ -76,17 +59,17 @@ class CallBord extends Component {
   to HistoryChat savet to the state empty the 
   chat box and send it to the server
   */
-  SendPrivetMessage(e) {
+const  SendPrivetMessage =(e)=> {
     e.preventDefault();
-    if (this.state.PrivetMessage.trim() === "") return
+    if (PrivetMessage.trim() === "") return
 
-    let HistoryChat = [...this.state.HistoryChat]
+    let HistoryChat = [...HistoryChat]
     HistoryChat.push(<div className=" messageitem ">
-      {this.state.PrivetMessage}</div>)
-    this.setState({ HistoryChat });
-    this.setState({ PrivetMessage: "" })
-    this.state.socket.emit('SendPrivetMessage',
-      { id: e.target.id, Message: this.state.PrivetMessage }, room => {
+      {PrivetMessage}</div>)
+    setState({ HistoryChat });
+    setState({ PrivetMessage: "" })
+    socket.emit('SendPrivetMessage',
+      { id: e.target.id, Message: PrivetMessage }, room => {
         console.log(room)
       }
     )
@@ -98,18 +81,18 @@ class CallBord extends Component {
   to HistoryChat savet to the state empty the 
   chat box and send it to the server
   */
-  SendMessageChat(e) {
+  const SendMessageChat =(e) =>{
     e.preventDefault();
-    if (this.state.ChatMessage.trim() === "") return
+    if (ChatMessage.trim() === "") return
 
-    let HistoryChat = [...this.state.HistoryChat]
+    let HistoryChat = [...HistoryChat]
     HistoryChat.push(<div className=" messageitem ">
-      {this.state.ChatMessage}</div>)
-    this.setState({ HistoryChat });
-    this.setState({ ChatMessage: "" })
-    this.state.socket.emit('Message',
-      '{"title":"' + this.props.match.params.room + '"}',
-      this.state.ChatMessage,
+      {ChatMessage}</div>)
+    setState({ HistoryChat });
+    setState({ ChatMessage: "" })
+    socket.emit('Message',
+      '{"title":"' + props.match.params.room + '"}',
+      ChatMessage,
     )
 
   }
@@ -128,12 +111,12 @@ class CallBord extends Component {
   and just resice any new procuser the server send 
   */
 
-  CreateOrJoinTheRoom() {
+  const CreateOrJoinTheRoom=() =>{
     let IsViewer;
     let IsPublic = null;
 
     try {
-      if (this.props.location.state.IsViewer) {
+      if (props.location.state.IsViewer) {
         IsViewer = true
 
       } else {
@@ -145,7 +128,7 @@ class CallBord extends Component {
     }
 
     try {
-      if (!this.props.location.state.IsPublic) {
+      if (!props.location.state.IsPublic) {
         IsPublic = false;
 
       } else {
@@ -159,11 +142,11 @@ class CallBord extends Component {
     }
 
     //create room name it this way to add mor info in in the room name    
-    let FullRoomName = '{"title":"' + this.props.match.params.room +
+    let FullRoomName = '{"title":"' + props.match.params.room +
       '","IsPublic":' + IsPublic +
       ',"IsViewer":' + IsViewer + '}';
 
-    this.state.socket.emit('CreateStream', FullRoomName
+    socket.emit('CreateStream', FullRoomName
       ,
       ({ status, rtpCapabilities, BossId, room, First }) => {
 
@@ -173,20 +156,20 @@ class CallBord extends Component {
           // that mean you just gone watch  the room
           if (rtpCapabilities) {
 
-            this.showTost(room);
-            this.setState({ BossId })
+            showTost(room);
+            setState({ BossId })
 
-            this.setState({ rtpCapabilities })
-            this.setState({ IsViewer: true })
+            setState({ rtpCapabilities })
+            setState({ IsViewer: true })
 
             // once we have rtpCapabilities from the Router, create Device
-            this.createDevice()
+            createDevice()
 
             return
           }
           // if error happen quit the app and got to home page
           setTimeout(function () {
-            this.showTost("The room is not strmed");
+            showTost("The room is not strmed");
             document.location.href = "/"
           }, 2000);
           return
@@ -194,81 +177,81 @@ class CallBord extends Component {
 
         //if this value came as true you are the admin of this room
         if (First) {
-          this.setState({ First: true })
-          this.setState({ BossId: this.state.socket.id })
-          this.setState({ HiddeTheRoom: IsPublic })
+          setState({ First: true })
+          setState({ BossId: socket.id })
+          setState({ HiddeTheRoom: IsPublic })
         } else {
-          this.setState({ BossId })
+          setState({ BossId })
         }
 
-        this.showTost(room);
-        this.setState({ rtpCapabilities })
-        this.createDevice()
+        showTost(room);
+        setState({ rtpCapabilities })
+        createDevice()
       })
 
     //this event new-prouducer triggerd a new user is joined the room and 
     // you gone resive his stream via producerId and socketId is his socket id
-    this.state.socket.on('new-producer', async ({ producerId, socketId }) => {
-     //console.log(this.state.queueGuest)
-     //if(this.state.queueGuest[socketId]) return
-     //this.setState({queueGuest:[...this.state.queueGuest,socketId]})
-      await this.signalNewConsumerTransport(producerId, socketId)
+    socket.on('new-producer', async ({ producerId, socketId }) => {
+     //console.log(queueGuest)
+     //if(queueGuest[socketId]) return
+     //setState({queueGuest:[...queueGuest,socketId]})
+      await signalNewConsumerTransport(producerId, socketId)
 
     })
     //this event triggred when user colse his stram you shuld close 
     //the connection to prevent memory leak
-    this.state.socket.on('producer-closed', ({ remoteProducerId, socketId }) => {
+    socket.on('producer-closed', ({ remoteProducerId, socketId }) => {
       //find the specifc transport and close it
       try {
-        const producerToClose = this.state.consumerTransports.find(transportData => transportData.producerId === remoteProducerId)
+        const producerToClose = consumerTransports.find(transportData => transportData.producerId === remoteProducerId)
         producerToClose.consumerTransport.close()
         producerToClose.consumer.close()
       } catch (e) {
         console.error(e)
       }
       // remove the consumer transport from the list
-      let consumerTransports = [...this.state.consumerTransports.filter(transportData => transportData.producerId !== remoteProducerId)]
-      this.setState({ consumerTransports })
+      let consumerTransports = [...consumerTransports.filter(transportData => transportData.producerId !== remoteProducerId)]
+      setState({ consumerTransports })
       // hide the video div element
-      this.completeSession(socketId)
+      completeSession(socketId)
 
     })
 
     //this event triggerd to notify you there is chance to join the room
-    this.state.socket.on('FreeToJoin', ({ status }) => {
+    socket.on('FreeToJoin', ({ status }) => {
 
       if (status) {
-        this.setState({ isFreeToJoin: true })
+        setState({ isFreeToJoin: true })
         return
       }
 
-      this.setState({ isFreeToJoin: false })
+      setState({ isFreeToJoin: false })
 
     })
 
     //this event triggerd when the room admin ban you from the room
-    this.state.socket.on('GoOut', () => {
-      this.showTost("the admin drop you from this room");
+    socket.on('GoOut', () => {
+      showTost("the admin drop you from this room");
       setTimeout(function () {
         document.location.href = "/"
       }, 200);
     })
 
     //this event triggred when you becam admin and the room setting seted 
-    this.state.socket.on('switchAdminSetting', ({ isRoomLocked, isStream, IsPublic }) => {
-      this.setState({ isRoomLocked, isStream, IsPublic })
-      this.setState({ HiddeTheRoom: IsPublic })
+    socket.on('switchAdminSetting', ({ isRoomLocked, isStream, IsPublic }) => {
+      setState({ isRoomLocked, isStream, IsPublic })
+      setState({ HiddeTheRoom: IsPublic })
 
     })
 
     //this event triggred when admin switch to another youser
-    this.state.socket.on('switchAdmin', ({ admin }) => {
-      this.setState({ BossId: admin })
+    socket.on('switchAdmin', ({ admin }) => {
+      setState({ BossId: admin })
 
       // if you are the new admin set you as admin
-      if (admin === this.state.socket.id) {
+      if (admin === socket.id) {
 
-        this.setState({ First: true })
+        setState({ First: true })
 
       }
       /* 
@@ -276,73 +259,73 @@ class CallBord extends Component {
       his view to the big view and clear his 
       postion in the guest list
       */
-      let UsersGuest = [...this.state.guest]
+      let UsersGuest = [...guest]
       let posthion;
       UsersGuest.forEach(User => {
-        if (User[1] === this.state.BossId) {
+        if (User[1] === BossId) {
           UsersGuest[0][0].current.srcObject = User[0].current.srcObject
-          UsersGuest[0][1] = this.state.BossId
+          UsersGuest[0][1] = BossId
           posthion = UsersGuest.indexOf(User)
           User[1] = 0
         }
 
       })
 
-      this.setState({ guest: UsersGuest })
-      this.CloseTheSideCaller(posthion);
+      setState({ guest: UsersGuest })
+      CloseTheSideCaller(posthion);
 
 
     })
 
     //this event triggerd when you recive a privet message
     //it will save to HistoryChat
-    this.state.socket.on('PrivetMessage', function (Message) {
-      let HistoryChat = [...this.state.HistoryChat]
+    socket.on('PrivetMessage', function (Message) {
+      let HistoryChat = [...HistoryChat]
 
       HistoryChat.push(<div className="alr messageitem ">{Message}</div>)
 
-      this.setState({ HistoryChat });
+      setState({ HistoryChat });
     }.bind(this));
 
     //this event triggerd when you recive a  message
     //it will save to HistoryChat
-    this.state.socket.on('Message', function (Message) {
+    socket.on('Message', function (Message) {
 
-      let HistoryChat = [...this.state.HistoryChat]
+      let HistoryChat = [...HistoryChat]
 
       HistoryChat.push(<div className="alr messageitem ">{Message.Message}</div>)
 
-      this.setState({ HistoryChat });
+      setState({ HistoryChat });
     }.bind(this));
   }
 
   //this function take the value and the name
   //from the input and save it to the state
-  onChange(e) {
-    this.setState({ [e.target.name]: e.target.value })
+  const onChange=(e) =>{
+    setState({ [e.target.name]: e.target.value })
   }
 
   //this function take small imge from the user video
   // and send it to the server as a thumnail imge
-  TakeThumbnailImage() {
-    var context = this.canvas.current.getContext('2d');
+ const TakeThumbnailImage = () =>{
+    var context = canvas.current.getContext('2d');
 
-    context.drawImage(this.state.guest[0][0].current, 0, 0, 280, 200);
+    context.drawImage(guest[0][0].current, 0, 0, 280, 200);
 
-    var data = this.canvas.current.toDataURL('image/png', 0.1);
+    var data = canvas.current.toDataURL('image/png', 0.1);
 
-    this.state.socket.emit('saveimg', data,
+    socket.emit('saveimg', data,
       (data) => { }
     )
 
   }
 
 
-  componentWillUnmount() {
+  const componentWillUnmount =() =>{
 
     try {
       // disconnect from the socket server
-      this.state.socket.disconnect()
+      socket.disconnect()
 
     } catch (e) {
       console.log(e)
@@ -351,10 +334,10 @@ class CallBord extends Component {
 
     try {
       //close all the consumer transport
-      console.log(this.state.consumerTransports.length)
-      if(!this.state.consumerTransports.length) return
+      console.log(consumerTransports.length)
+      if(!consumerTransports.length) return
 
-      this.state.consumerTransports.forEach(Transports => {
+      consumerTransports.forEach(Transports => {
         if(Transports===null) return
 
         Transports.consumerTransport.close()
@@ -368,9 +351,9 @@ class CallBord extends Component {
 
     try {
       //close the send  producer transport
-      console.log(this.state.producerTransport)
-      if(this.state.producerTransport===null) return
-      this.state.producerTransport.close()
+      console.log(producerTransport)
+      if(producerTransport===null) return
+      producerTransport.close()
     } catch (e) {
       console.log(e)
 
@@ -381,7 +364,7 @@ class CallBord extends Component {
     console.log('Leving this component');
     try {
       //when leave the page close the cam 
-      let newgist = [...this.state.guest]
+      let newgist = [...guest]
 
       newgist.forEach(guest => {
 
@@ -396,7 +379,7 @@ class CallBord extends Component {
 
       })
 
-      this.setState({ guest: newgist })
+      setState({ guest: newgist })
 
     } catch (e) {
 
@@ -412,42 +395,42 @@ class CallBord extends Component {
   //this function will connecect the socketio server 
   // and save some initail date to the state
   // this function shuld run after the component have mounted
-  startConncting = async () => {
-    await this.setState({ socket: io('http://localhost:6800') });
+ const startConncting = async () => {
+    await setState({ socket: io('http://localhost:6800') });
 
     //set all css view cases the false excpit the frist one
-    let CaseEditer = [...this.state.case]
-    this.state.case.forEach((c, i) => {
-      CaseEditer[i] = false
-      if (i === 0) CaseEditer[i] = true;
-    })
+ //   let CaseEditer = [...case]
+ //   case.forEach((c, i) => {
+ //     CaseEditer[i] = false
+ //     if (i === 0) CaseEditer[i] = true;
+ //   })
 
-    this.setState({ case: CaseEditer })
+    setState({ case: CaseEditer })
 
-    let GuestEditer = [...this.state.guest]
-    this.state.guest.forEach((g, i) => {
+    let GuestEditer = [...guest]
+    guest.forEach((g, i) => {
       GuestEditer[i][0] = React.createRef();
       GuestEditer[i][1] = 0;
       GuestEditer[i][2] = true;
     })
-    this.setState({ guest: GuestEditer });
+    setState({ guest: GuestEditer });
 
 
     try {
       //if the isviewer came as true dont run the cam 
       //star connection to the server to watch the stream
-      if (this.props.location.state.IsViewer) {
-        this.CreateOrJoinTheRoom()
+      if (props.location.state.IsViewer) {
+        CreateOrJoinTheRoom()
 
       } else {
         //run the cam and the the  StartUserCamra function will connect to the server
-        this.StartUserCamra(0);
+        StartUserCamra(0);
       }
     }
 
     catch (e) {
       console.log(e)
-      this.StartUserCamra(0);
+      StartUserCamra(0);
 
     }
 
@@ -455,13 +438,13 @@ class CallBord extends Component {
 
   }
 
-  componentDidMount() {
+  const componentDidMount =()=> {
     //when the component is mounted start connecting to the server
-    this.startConncting();
+    startConncting();
   }
 
   //this check if the id if 0 it visible 
-  IsVedioElemntVisble(id) {
+ const IsVedioElemntVisble=(id) =>{
     if (id === 0) return false
 
     return true
@@ -471,7 +454,7 @@ class CallBord extends Component {
   //this function will start accessing the webcam
   //and make it avalbe if the user is viewer will not connect to
   // to the server if not will connect to the server and 
-  StartUserCamra(i) {
+ const StartUserCamra=(i)=> {
     navigator.mediaDevices.getUserMedia({
       audio: false,
       video: {
@@ -487,30 +470,30 @@ class CallBord extends Component {
     })
       .then(function (stream) {
         let track = stream.getVideoTracks()[0]
-        let params = this.state.params
+        let params = params
         params = {
           track,
           ...params
         }
-        this.setState({ params })
+        setState({ params })
 
-        var guestList = [...this.state.guest]
-        if (this.state.socket.id) {
-          guestList[i][1] = this.state.socket.id
+        var guestList = [...guest]
+        if (socket.id) {
+          guestList[i][1] = socket.id
         }
         guestList[i][0].current.srcObject = stream;
 
-        this.setState({ guest: guestList });
+        setState({ guest: guestList });
         if (i === 0) {
-          this.CreateOrJoinTheRoom();
+          CreateOrJoinTheRoom();
         }
         //whait a bit to let the cam load and then
         //take a ThumbnailImage if the user is admin
         setTimeout(() => {
 
-          if (this.state.First) {
+          if (First) {
 
-            this.TakeThumbnailImage();
+            TakeThumbnailImage();
           }
         }, 500);
 
@@ -525,41 +508,41 @@ class CallBord extends Component {
 
   //this function will lock the room
   // the server will check if you are the admin
-  LockRoom(e) {
-    this.setState({ Lock: e.target.checked })
-    this.state.socket.emit('LockTheRoom', this.state.Lock, data => { })
+ const LockRoom = (e) =>{
+    setState({ Lock: e.target.checked })
+    socket.emit('LockTheRoom', Lock, data => { })
   }
 
   //this function will prevent the roomfrom streaming to the public
   // the server will check if you are the admin
-  isStream(e) {
-    this.setState({ isStream: e.target.checked })
-    this.state.socket.emit('isStream', this.state.isStream, data => { })
+  const isStream  = (e) =>{
+    setState({ isStream: e.target.checked })
+    socket.emit('isStream', isStream, data => { })
   }
 
 
   //this function will hide the room
   // the server will check if you are the admin
-  HiddeTheRoom(e) {
-    this.setState({ HiddeTheRoom: e.target.checked })
-    this.state.socket.emit('HiddeTheRoom', this.state.Lock, data => { })
+ const HiddeTheRoom = (e) =>{
+    setState({ HiddeTheRoom: e.target.checked })
+    socket.emit('HiddeTheRoom', Lock, data => { })
   }
 
   //this function will ban a spesifc user apssed 
   // to it the server will check if you are the admin
-  KikHimOut(socketid) {
-    let guest = this.state.guest.find((geust, i) => geust[1] === socketid)
-    this.ToogleBox(guest)
-    this.state.socket.emit('kik', socketid, data => { })
+ const KikHimOut = (socketid) => {
+    let guest = guest.find((geust, i) => geust[1] === socketid)
+    ToogleBox(guest)
+    socket.emit('kik', socketid, data => { })
   }
 
   //this function wil just go
   // to the same page to allow the user
   // to join this room
-  JoinTheRoom() {
-    this.props.history.push({
+  const JoinTheRoom =()=> {
+    props.history.push({
       pathname: '/Switch',
-      state: {IsPublic:false, IsViewer: false, CallBorad: true, TheRoom: this.props.match.params.room }
+      state: {IsPublic:false, IsViewer: false, CallBorad: true, TheRoom: props.match.params.room }
     })
   }
   /*
@@ -567,30 +550,30 @@ class CallBord extends Component {
   and display it and if the user comming is admin
   it will put it in the main view
   */
-  AddMediaStream(userid, stream) {
+const  AddMediaStream = (userid, stream)=> {
 
-    let guestlist = [...this.state.guest]
+    let guestlist = [...guest]
 
     for (let i = 1; i < guestlist.length; i++) {
 
-      if (userid === this.state.BossId) {
+      if (userid === BossId) {
 
         guestlist[0][0].current.srcObject = stream;
         guestlist[0][1] = userid;
 
-        if (this.state.IsViewer) break;
+        if (IsViewer) break;
 
         for (let i = 1; i < guestlist.length; i++) {
           if (guestlist[i][1] === 0) {
 
-            guestlist[i][1] = this.state.socket.id;
+            guestlist[i][1] = socket.id;
 
-            if (!this.state.IsViewer) {
+            if (!IsViewer) {
 
-              this.StartUserCamra(i);
+              StartUserCamra(i);
 
             }
-            this.ShowTheSideCaller(i)
+            ShowTheSideCaller(i)
             break;
           }
         }
@@ -600,52 +583,52 @@ class CallBord extends Component {
       if (guestlist[i][1] === 0) {
         guestlist[i][0].current.srcObject = stream;
         guestlist[i][1] = userid;
-        this.ShowTheSideCaller(i)
+        ShowTheSideCaller(i)
         break;
       }
     }
 
-    this.setState({ guest: guestlist })
+    setState({ guest: guestlist })
 
   }
 
   //this function will will show the messages from the state
-  ShowHistoryChat() {
-    return this.state.HistoryChat.forEach(m => <div> {m}</div>)
+ const ShowHistoryChat = () =>{
+    return HistoryChat.forEach(m => <div> {m}</div>)
   }
 
   //this function will close the side bar when no active view in it
-  CloseTheSideCaller(i) {
+ const CloseTheSideCaller = (i) =>{
 
-    if ((i === 1 || i === 2) && this.state.guest[1][1] === 0 && this.state.guest[2][1] === 0) {
+    if ((i === 1 || i === 2) && guest[1][1] === 0 && guest[2][1] === 0) {
 
-      this.ToggleElementCssClass(1)
+      ToggleElementCssClass(1)
 
     }
 
-    if ((i === 3 || i === 4) && this.state.guest[3][1] === 0 && this.state.guest[4][1] === 0) {
-      this.ToggleElementCssClass(2)
+    if ((i === 3 || i === 4) && guest[3][1] === 0 && guest[4][1] === 0) {
+      ToggleElementCssClass(2)
     }
 
 
   }
 
   // this function will get the css class from view depnd on the current case
-  GetElemntCssClass(Postion) {
+ const GetElemntCssClass = (Postion) =>{
 
-    return this.state.view[Postion][this.state.case.indexOf(true)]
+    return view[Postion][case.indexOf(true)]
   }
 
   //this function will open the side bar when there is active view in it
-  ShowTheSideCaller(i) {
+ const ShowTheSideCaller = (i) =>{
     if (i !== 0) {
-      let iscase = this.state.case.indexOf(true);
+      let iscase = case.indexOf(true);
       if ((i === 1 || i === 2) && ![2, 3, 4, 5].includes(iscase)) {
-        this.ToggleElementCssClass(1)
+        ToggleElementCssClass(1)
       }
 
       if ((i === 3 || i === 4) && ![3, 4, 6, 7].includes(iscase)) {
-        this.ToggleElementCssClass(2)
+        ToggleElementCssClass(2)
 
       }
     }
@@ -653,47 +636,47 @@ class CallBord extends Component {
 
   //this fuction will check the css cass and
   //toggle it to its oppessit case in the cases arry
-  ToggleElementCssClass(i) {
-    let stv = this.state.case.indexOf(true)
+  const ToggleElementCssClass=(i)=> {
+    let stv = case.indexOf(true)
 
-    let nev = this.state.ChangeStatVale[i][stv]
+    let nev = ChangeStatVale[i][stv]
 
-    let cc = [...this.state.case]
+    let cc = [...case]
 
     cc[stv] = false
     cc[nev] = true
-    this.setState({ case: cc });
+    setState({ case: cc });
   }
 
   //this function will create a device for mediasoup api
-  createDevice = async () => {
+ const createDevice = async () => {
     try {
       let device = new Device()
 
       // https://mediasoup.org/documentation/v3/mediasoup-client/api/#device-load
       // Loads the device with RTP capabilities of the Router (server side)
-      // let routerRtpCapabilities = this.state.rtpCapabilities
+      // let routerRtpCapabilities = rtpCapabilities
 
-      await device.load({ routerRtpCapabilities: this.state.rtpCapabilities });
+      await device.load({ routerRtpCapabilities: rtpCapabilities });
       console.log(device)
-      this.setState({ device })
+      setState({ device })
       device = null;
 
       //if the user is not viewr create send transport
-      if (!this.state.IsViewer) {
+      if (!IsViewer) {
         // once the device loads, create transport
-        this.createSendTransport()
+        createSendTransport()
 
       } else {
 
         //get the current producers and chek if joining the room is avaliple
-        this.getProducers()
+        getProducers()
 
-        this.state.socket.emit('isFreeToJoin', { roomName: this.props.match.params.room }, (data) => {
+        socket.emit('isFreeToJoin', { roomName: props.match.params.room }, (data) => {
           if (data.status) {
-            this.setState({ isFreeToJoin: true })
+            setState({ isFreeToJoin: true })
           } else {
-            this.setState({ isFreeToJoin: false })
+            setState({ isFreeToJoin: false })
 
           }
 
@@ -712,9 +695,9 @@ class CallBord extends Component {
   the remotpruducer and socketid create a recive transport
   and tell the server to create a consumer transport 
   */
-  signalNewConsumerTransport = async (remoteProducerId, socketId) => {
+  const signalNewConsumerTransport = async (remoteProducerId, socketId) => {
 
-    await this.state.socket.emit('createWebRtcTransport', { consumer: true }, ({ params }) => {
+    await socket.emit('createWebRtcTransport', { consumer: true }, ({ params }) => {
       // The server sends back params needed 
       // to create Send Transport on the client side
       if (params.error) {
@@ -725,7 +708,7 @@ class CallBord extends Component {
 
       let consumerTransport
       try {
-        consumerTransport = this.state.device.createRecvTransport(params)
+        consumerTransport = device.createRecvTransport(params)
       } catch (error) {
         // exceptions: 
         // {InvalidStateError} if not loaded
@@ -738,7 +721,7 @@ class CallBord extends Component {
         try {
           // Signal local DTLS parameters to the server side transport
           // see server's socket.on('transport-recv-connect', ...)
-          await this.state.socket.emit('transport-recv-connect', {
+          await socket.emit('transport-recv-connect', {
             dtlsParameters,
             serverConsumerTransportId: params.id,
           })
@@ -751,15 +734,15 @@ class CallBord extends Component {
         }
       })
       // after createing the tranpsort connect to it
-      this.connectRecvTransport(consumerTransport, remoteProducerId, socketId, params.id)
+      connectRecvTransport(consumerTransport, remoteProducerId, socketId, params.id)
     })
     //if viewr check if room is avalipee to join
-    if (this.state.IsViewer) {
-      this.state.socket.emit('isFreeToJoin', { roomName: this.props.match.params.room }, (data) => {
+    if (IsViewer) {
+      socket.emit('isFreeToJoin', { roomName: props.match.params.room }, (data) => {
         if (data.status) {
-          this.setState({ isFreeToJoin: true })
+          setState({ isFreeToJoin: true })
         } else {
-          this.setState({ isFreeToJoin: false })
+          setState({ isFreeToJoin: false })
 
         }
 
@@ -768,10 +751,10 @@ class CallBord extends Component {
   }
 
   //this function will create transport to send your strean
-  createSendTransport = () => {
+  const createSendTransport = () => {
     // see server's socket.on('createWebRtcTransport', sender?, ...)
     // this is a call from Producer, so sender = true
-    this.state.socket.emit('createWebRtcTransport', { consumer: false }, ({ params }) => {
+    socket.emit('createWebRtcTransport', { consumer: false }, ({ params }) => {
       // The server sends back params needed 
       // to create Send Transport on the client side
       if (params.error) {
@@ -784,16 +767,16 @@ class CallBord extends Component {
       // creates a new WebRTC Transport to send media
       // based on the server's producer transport params
       // https://mediasoup.org/documentation/v3/mediasoup-client/api/#TransportOptions
-      this.setState({ producerTransport: this.state.device.createSendTransport(params) })
+      setState({ producerTransport: device.createSendTransport(params) })
 
       // https://mediasoup.org/documentation/v3/communication-between-client-and-server/#producing-media
       // this event is raised when a first call to transport.produce() is made
       // see connectSendTransport() below
-      this.state.producerTransport.on('connect', async ({ dtlsParameters }, callback, errback) => {
+      producerTransport.on('connect', async ({ dtlsParameters }, callback, errback) => {
         try {
           // Signal local DTLS parameters to the server side transport
           // see server's socket.on('transport-connect', ...)
-          await this.state.socket.emit('transport-connect', {
+          await socket.emit('transport-connect', {
             dtlsParameters,
           })
 
@@ -805,7 +788,7 @@ class CallBord extends Component {
         }
       })
 
-      this.state.producerTransport.on('produce', async (parameters, callback, errback) => {
+      producerTransport.on('produce', async (parameters, callback, errback) => {
         console.log(parameters)
 
         try {
@@ -813,7 +796,7 @@ class CallBord extends Component {
           // with the following parameters and produce
           // and expect back a server side producer id
           // see server's socket.on('transport-produce', ...)
-          await this.state.socket.emit('transport-produce', {
+          await socket.emit('transport-produce', {
             kind: parameters.kind,
             rtpParameters: parameters.rtpParameters,
             appData: parameters.appData,
@@ -823,38 +806,38 @@ class CallBord extends Component {
             callback({ id })
 
             // if producers exist, then join room
-            if (producersExist) this.getProducers()
+            if (producersExist) getProducers()
           })
         } catch (error) {
           errback(error)
         }
       })
 
-      this.connectSendTransport()
+      connectSendTransport()
     })
   }
 
   //this function will get all 
   // current producer from the server and counsume them
-  getProducers = () => {
-    this.state.socket.emit('getProducers', {
-      isViewr: this.state.IsViewer,
-      roomName: this.props.match.params.room
+  const getProducers = () => {
+    socket.emit('getProducers', {
+      isViewr: IsViewer,
+      roomName: props.match.params.room
     }, producerIds => {
       console.log(producerIds)
       // for each of the producer create a consumer
       // producerIds.forEach(id => signalNewConsumerTransport(id))
-      producerIds.forEach(producer => this.signalNewConsumerTransport(producer[0], producer[1]))
+      producerIds.forEach(producer => signalNewConsumerTransport(producer[0], producer[1]))
     })
   }
 
   //connect the rescv transport
-  connectRecvTransport = async (consumerTransport, remoteProducerId, socketId, serverConsumerTransportId) => {
+  const connectRecvTransport = async (consumerTransport, remoteProducerId, socketId, serverConsumerTransportId) => {
     // for consumer, we need to tell the server first
     // to create a consumer based on the rtpCapabilities and consume
     // if the router can consume, it will send back a set of params as below
-    await this.state.socket.emit('consume', {
-      rtpCapabilities: this.state.device.rtpCapabilities,
+    await socket.emit('consume', {
+      rtpCapabilities: device.rtpCapabilities,
       remoteProducerId,
       serverConsumerTransportId,
     }, async ({ params }) => {
@@ -875,7 +858,7 @@ class CallBord extends Component {
       })
 
       let consumerTransports = [
-        ...this.state.consumerTransports,
+        ...consumerTransports,
         {
           consumerTransport,
           serverConsumerTransportId: params.id,
@@ -883,34 +866,34 @@ class CallBord extends Component {
           consumer,
         },
       ]
-      this.setState({ consumerTransports })
+      setState({ consumerTransports })
       const { track } = consumer
 
       //add the new stream to the view 
-      this.AddMediaStream(socketId, new MediaStream([track]))
+      AddMediaStream(socketId, new MediaStream([track]))
 
       // the server consumer started with media paused
       // so we need to inform the server to resume
-      this.state.socket.emit('consumer-resume', { serverConsumerId: params.serverConsumerId })
+      socket.emit('consumer-resume', { serverConsumerId: params.serverConsumerId })
     })
   }
 
   //this function will connect our send transport to the server
-  connectSendTransport = async () => {
+  const connectSendTransport = async () => {
     // we now call produce() to instruct the producer transport
     // to send media to the Router
     // https://mediasoup.org/documentation/v3/mediasoup-client/api/#transport-produce
     // this action will trigger the 'connect' and 'produce' events above
-    console.log(this.state.params)
-    let producer = await this.state.producerTransport.produce(this.state.params)
-    this.setState({ producer })
-    this.state.producer.on('trackended', () => {
+    console.log(params)
+    let producer = await producerTransport.produce(params)
+    setState({ producer })
+    producer.on('trackended', () => {
       console.log('track ended')
 
       // close video track
     })
 
-    this.state.producer.on('transportclose', () => {
+    producer.on('transportclose', () => {
       console.log('transport ended')
 
       // close video track
@@ -920,11 +903,11 @@ class CallBord extends Component {
   //this function called when user quit the room
   // it will clear his postion it the guist list
   // and close the side bar
-  completeSession(id) {
+ const completeSession = (id) => {
     //remove the socket from thw queu list
-    //if(this.state.queueGuest[id]) this.setState({queueGuest:[...this.state.queueGuest.filter(guest=>guest!==id)]})
+    //if(queueGuest[id]) setState({queueGuest:[...queueGuest.filter(guest=>guest!==id)]})
 
-    var guestList = [...this.state.guest];
+    var guestList = [...guest];
 
     let thegustid;
 
@@ -938,22 +921,21 @@ class CallBord extends Component {
 
     })
 
-    this.setState({ guest: guestList })
-    this.CloseTheSideCaller(thegustid);
+    setState({ guest: guestList })
+    CloseTheSideCaller(thegustid);
 
 
   };
 
 
 
-  render() {
 
     return (
-      <React.Fragment>
+      <>
 
         <ToastContainer />
 
-        <canvas ref={this.canvas} className='d-none' width='280' height='200' id="canvas"></canvas>
+        <canvas ref={canvas} className='d-none' width='280' height='200' id="canvas"></canvas>
 
         <div className="container-fluid	">
 
@@ -964,21 +946,21 @@ class CallBord extends Component {
           </div>
           <br></br>
 
-          <div style={!this.state.IsViewer ? { display: 'none' } : { display: 'block' }} className="custom-control custom-switch">
-            <div style={!this.state.isFreeToJoin ? { display: 'none' } : { display: 'block' }} className="custom-control custom-switch">
+          <div style={!IsViewer ? { display: 'none' } : { display: 'block' }} className="custom-control custom-switch">
+            <div style={!isFreeToJoin ? { display: 'none' } : { display: 'block' }} className="custom-control custom-switch">
               <span
-                onClick={this.JoinTheRoom} className="badge badge-primary btn ">
+                onClick={JoinTheRoom} className="badge badge-primary btn ">
                 Free window To Join
 
               </span>
             </div>
           </div>
 
-            <div  style={!this.state.First ? { display: 'none' } : { display: 'block' }} className="custom-control custom-switch">
+            <div  style={!First ? { display: 'none' } : { display: 'block' }} className="custom-control custom-switch">
               <input
-                onChange={this.LockRoom}
+                onChange={LockRoom}
                 type="checkbox"
-                checked={this.state.Lock}
+                checked={Lock}
                 className=" custom-control-input"
                 name="Lock"
 
@@ -988,11 +970,11 @@ class CallBord extends Component {
             </div>
 
 
-            <div  style={!this.state.First ? { display: 'none' } : { display: 'block' }} className="custom-control custom-switch">
+            <div  style={!First ? { display: 'none' } : { display: 'block' }} className="custom-control custom-switch">
               <input
-                onChange={this.HiddeTheRoom}
+                onChange={HiddeTheRoom}
                 type="checkbox"
-                checked={this.state.HiddeTheRoom}
+                checked={HiddeTheRoom}
                 className="d- custom-control-input"
                 name="HiddeTheRoom"
 
@@ -1001,11 +983,11 @@ class CallBord extends Component {
               <label className="custom-control-label" htmlFor="customSwitch4">the rooms is not hidden</label>
             </div>
 
-            <div  style={!this.state.First ? { display: 'none' } : { display: 'block' }} className="custom-control custom-switch">
+            <div  style={!First ? { display: 'none' } : { display: 'block' }} className="custom-control custom-switch">
               <input
-                onChange={this.isStream}
+                onChange={isStream}
                 type="checkbox"
-                checked={this.state.isStream}
+                checked={isStream}
                 className="  custom-control-input"
                 name="HiddeTheRoom"
 
@@ -1018,88 +1000,88 @@ class CallBord extends Component {
           <div className="  row no-gutters   justify-content-md-center h-100 ">
 
 
-            <div className={this.GetElemntCssClass(0) + ` chatback`}>
+            <div className={GetElemntCssClass(0) + ` chatback`}>
               <form className="form-inline h-80 justify-content-md-center ">
                 <div className="h-100 w-80 overflow-auto">
                   <div className='mhchat'>
-                    {this.state.HistoryChat}
+                    {HistoryChat}
 
                   </div>
                 </div>
                 <input
-                  onChange={this.onChange}
+                  onChange={onChange}
 
                   type="text" className="w-80 form-control"
-                  value={this.state.ChatMessage}
+                  value={ChatMessage}
                   name="ChatMessage" placeholder="Chat here">
 
                 </input>
 
                 <button type="submit"
-                  onClick={this.SendMessageChat} className=" btn sendc">
+                  onClick={SendMessageChat} className=" btn sendc">
                 </button>
                 <div className="input-group-prepend"></div>
               </form>
             </div>
 
-            <div className={this.GetElemntCssClass(1)}>
+            <div className={GetElemntCssClass(1)}>
 
               <div
-                className={`${this.IsVedioElemntVisble(this.state.guest[1][1]) ? 'visible' : 'd-none'}  `}>
+                className={`${IsVedioElemntVisble(guest[1][1]) ? 'visible' : 'd-none'}  `}>
                 <video
-                  ref={this.state.guest[1][0]}
+                  ref={guest[1][0]}
                   className="Vd-box h-0 w-100" autoPlay >
                 </video>
-                <span onClick={() => this.ToogleBox(this.state.guest[1])} className=" video-controls btn"></span>
+                <span onClick={() => ToogleBox(guest[1])} className=" video-controls btn"></span>
 
               </div>
 
               <div
-                className={`${this.IsVedioElemntVisble(this.state.guest[2][1]) ? 'visible' : 'd-none'}  `}>
-                <video ref={this.state.guest[2][0]} className="Vd-box h-0 w-100" autoPlay>
+                className={`${IsVedioElemntVisble(guest[2][1]) ? 'visible' : 'd-none'}  `}>
+                <video ref={guest[2][0]} className="Vd-box h-0 w-100" autoPlay>
                 </video>
 
-                <span onClick={() => this.ToogleBox(this.state.guest[2])} className="  video-controls btn"></span>
+                <span onClick={() => ToogleBox(guest[2])} className="  video-controls btn"></span>
 
               </div>
 
             </div>
 
 
-            <div className={this.GetElemntCssClass(2) + ` `}>
+            <div className={GetElemntCssClass(2) + ` `}>
 
 
               <video
-                ref={this.state.guest[0][0]} autoPlay
+                ref={guest[0][0]} autoPlay
                 className="Vd-box h-0 w-100 ">
               </video>
               <span
-                onClick={() => this.ToogleBox(this.state.guest[0])}
-                className={`${!this.state.First ? 'visible' : 'd-none'}  video-controls btn `}
+                onClick={() => ToogleBox(guest[0])}
+                className={`${!First ? 'visible' : 'd-none'}  video-controls btn `}
               ></span>
 
             </div>
 
-            <div className={this.GetElemntCssClass(3)}>
+            <div className={GetElemntCssClass(3)}>
 
 
 
               <div
-                className={`${this.IsVedioElemntVisble(this.state.guest[3][1]) ? 'visible' : 'd-none'}  `}>
-                <video ref={this.state.guest[3][0]} className="Vd-box h-0 w-100" autoPlay>
+                className={`${IsVedioElemntVisble(guest[3][1]) ? 'visible' : 'd-none'}  `}>
+                <video ref={guest[3][0]} className="Vd-box h-0 w-100" autoPlay>
                 </video>
 
-                <span onClick={() => this.ToogleBox(this.state.guest[3])} className="  video-controls btn"></span>
+                <span onClick={() => ToogleBox(guest[3])} className="  video-controls btn"></span>
 
               </div>
 
 
               <div
-                className={`${this.IsVedioElemntVisble(this.state.guest[4][1]) ? 'visible' : 'd-none'}  `}>
-                <video ref={this.state.guest[4][0]} className="Vd-box h-0 w-100" autoPlay>
+                className={`${IsVedioElemntVisble(guest[4][1]) ? 'visible' : 'd-none'}  `}>
+                <video ref={guest[4][0]} className="Vd-box h-0 w-100" autoPlay>
                 </video>
 
-                <span onClick={() => this.ToogleBox(this.state.guest[4])} className="  video-controls btn"></span>
+                <span onClick={() => ToogleBox(guest[4])} className="  video-controls btn"></span>
 
               </div>
 
@@ -1108,63 +1090,89 @@ class CallBord extends Component {
             <div className="SideBarChat">
 
 
-              <button type="submit" onClick={() => this.ToggleElementCssClass(0)}
-                className={`${this.GetElemntCssClass(0) === 'd-none' ? 'OpenChat' : 'CloseChat'} btn`}></button>
+              <button type="submit" onClick={() => ToggleElementCssClass(0)}
+                className={`${GetElemntCssClass(0) === 'd-none' ? 'OpenChat' : 'CloseChat'} btn`}></button>
             </div>
           </div>
         </div>
         <Footer></Footer>
-        <Modal admin={this.state.First}
-          Id={this.state.guest[0]}
-          KikHimOut={this.KikHimOut}
-          onChange={this.onChange}
-          ToogleBox={this.ToogleBox}
-          PrivetMessage={this.state.PrivetMessage}
-          SendPrivetMessage={this.SendPrivetMessage}
-          removeUserFromRoom={this.removeUserFromRoom}></Modal>
+        <Modal admin={First}
+          Id={guest[0]}
+          KikHimOut={KikHimOut}
+          onChange={onChange}
+          ToogleBox={ToogleBox}
+          PrivetMessage={PrivetMessage}
+          SendPrivetMessage={SendPrivetMessage}
+          removeUserFromRoom={removeUserFromRoom}></Modal>
 
-        <Modal admin={this.state.First}
-          Id={this.state.guest[1]}
-          KikHimOut={this.KikHimOut}
-          onChange={this.onChange}
-          ToogleBox={this.ToogleBox}
-          PrivetMessage={this.state.PrivetMessage}
-          SendPrivetMessage={this.SendPrivetMessage}
-          removeUserFromRoom={this.removeUserFromRoom}></Modal>
+        <Modal admin={First}
+          Id={guest[1]}
+          KikHimOut={KikHimOut}
+          onChange={onChange}
+          ToogleBox={ToogleBox}
+          PrivetMessage={PrivetMessage}
+          SendPrivetMessage={SendPrivetMessage}
+          removeUserFromRoom={removeUserFromRoom}></Modal>
 
-        <Modal admin={this.state.First}
-          onChange={this.onChange}
-          Id={this.state.guest[2]}
-          KikHimOut={this.KikHimOut}
-          ToogleBox={this.ToogleBox}
-          PrivetMessage={this.state.PrivetMessage}
-          SendPrivetMessage={this.SendPrivetMessage}
-          removeUserFromRoom={this.removeUserFromRoom}></Modal>
-
-
-        <Modal admin={this.state.First}
-          Id={this.state.guest[3]}
-          onChange={this.onChange}
-          KikHimOut={this.KikHimOut}
-          ToogleBox={this.ToogleBox}
-          PrivetMessage={this.state.PrivetMessage}
-          SendPrivetMessage={this.SendPrivetMessage}
-          removeUserFromRoom={this.removeUserFromRoom}></Modal>
+        <Modal admin={First}
+          onChange={onChange}
+          Id={guest[2]}
+          KikHimOut={KikHimOut}
+          ToogleBox={ToogleBox}
+          PrivetMessage={PrivetMessage}
+          SendPrivetMessage={SendPrivetMessage}
+          removeUserFromRoom={removeUserFromRoom}></Modal>
 
 
-        <Modal admin={this.state.First}
-          onChange={this.onChange}
-          Id={this.state.guest[4]}
-          KikHimOut={this.KikHimOut}
-          ToogleBox={this.ToogleBox}
-          PrivetMessage={this.state.PrivetMessage}
-          SendPrivetMessage={this.SendPrivetMessage}
-          removeUserFromRoom={this.removeUserFromRoom}></Modal>
+        <Modal admin={First}
+          Id={guest[3]}
+          onChange={onChange}
+          KikHimOut={KikHimOut}
+          ToogleBox={ToogleBox}
+          PrivetMessage={PrivetMessage}
+          SendPrivetMessage={SendPrivetMessage}
+          removeUserFromRoom={removeUserFromRoom}></Modal>
 
-      </React.Fragment>
+
+        <Modal admin={First}
+          onChange={onChange}
+          Id={guest[4]}
+          KikHimOut={KikHimOut}
+          ToogleBox={ToogleBox}
+          PrivetMessage={PrivetMessage}
+          SendPrivetMessage={SendPrivetMessage}
+          removeUserFromRoom={removeUserFromRoom}></Modal>
+
+      </>
     );
-  }
+  
 
+    }
+
+
+const   params  ={   // mediasoup configratio params 
+
+  encodings: [
+    {
+      rid: 'r0',
+      maxBitrate: 100000,
+      scalabilityMode: 'S1T3',
+    },
+    {
+      rid: 'r1',
+      maxBitrate: 300000,
+      scalabilityMode: 'S1T3',
+    },
+    {
+      rid: 'r2',
+      maxBitrate: 900000,
+      scalabilityMode: 'S1T3',
+    },
+  ],
+  // https://mediasoup.org/documentation/v3/mediasoup-client/api/#ProducerCodecOptions
+  codecOptions: {
+    videoGoogleStartBitrate: 1000
+  }
 }
 
 const initialState = {
@@ -1199,35 +1207,11 @@ const initialState = {
       ['d-none', 'd-none', 'col-md-3', 'col-md-2', 'col-md-3', 'col-md-4', 'd-none,d-none'],
       ['col-md-7', 'col-md-6', 'col-md-5', 'col-md-4', 'col-md-6', 'col-md-6', 'col-md-6', 'col-md-5'],
       ['d-none', 'd-none', 'd-none', 'col-md-2', 'col-md-3', 'd-none', 'col-md-4', 'col-md-3']]
-  ,
-  params:                     // mediasoup configratio params
-  {
+  
 
-    encodings: [
-      {
-        rid: 'r0',
-        maxBitrate: 100000,
-        scalabilityMode: 'S1T3',
-      },
-      {
-        rid: 'r1',
-        maxBitrate: 300000,
-        scalabilityMode: 'S1T3',
-      },
-      {
-        rid: 'r2',
-        maxBitrate: 900000,
-        scalabilityMode: 'S1T3',
-      },
-    ],
-    // https://mediasoup.org/documentation/v3/mediasoup-client/api/#ProducerCodecOptions
-    codecOptions: {
-      videoGoogleStartBitrate: 1000
-    }
-  }
 
 }
-export default withRouter(CallBord);
+export default CallBord;
 
 
 /*
