@@ -1043,9 +1043,9 @@ const  AddMediaStream = (userid, stream)=> {
 
             <div  style={!First ? { display: 'none' } : { display: 'block' }} className="custom-control custom-switch">
               <input
-                onChange={isStream}
+                onChange={(e)=>isStream(e)}
                 type="checkbox"
-                checked={isStream}
+                checked={IsStream}
                 className="  custom-control-input"
                 name="HiddeTheRoom"
 
@@ -1067,7 +1067,7 @@ const  AddMediaStream = (userid, stream)=> {
                   </div>
                 </div>
                 <input
-                  onChange={onChange}
+                  onChange={(e)=>setChatMessage(e.target.value)}
 
                   type="text" className="w-80 form-control"
                   value={ChatMessage}
@@ -1157,53 +1157,49 @@ const  AddMediaStream = (userid, stream)=> {
         <Modal admin={First}
           Id={guest[0]}
           KikHimOut={KikHimOut}
-          onChange={onChange}
           ToogleBox={ToogleBox}
           PrivetMessage={PrivetMessage}
           SendPrivetMessage={SendPrivetMessage}
-       //   removeUserFromRoom={removeUserFromRoom}
+          setPrivetMessage={setPrivetMessage}
           ></Modal>
 
         <Modal admin={First}
           Id={guest[1]}
           KikHimOut={KikHimOut}
-          onChange={onChange}
           ToogleBox={ToogleBox}
           PrivetMessage={PrivetMessage}
           SendPrivetMessage={SendPrivetMessage}
-      //    removeUserFromRoom={removeUserFromRoom}
+          setPrivetMessage={setPrivetMessage}
       ></Modal>
 
-        <Modal admin={First}
-          onChange={onChange}
+        <Modal 
+          admin={First}
           Id={guest[2]}
           KikHimOut={KikHimOut}
           ToogleBox={ToogleBox}
           PrivetMessage={PrivetMessage}
           SendPrivetMessage={SendPrivetMessage}
-          //removeUserFromRoom={removeUserFromRoom}
+          setPrivetMessage={setPrivetMessage}
           ></Modal>
 
 
         <Modal admin={First}
           Id={guest[3]}
-          onChange={onChange}
           KikHimOut={KikHimOut}
           ToogleBox={ToogleBox}
           PrivetMessage={PrivetMessage}
           SendPrivetMessage={SendPrivetMessage}
-          //removeUserFromRoom={removeUserFromRoom}
+          setPrivetMessage={setPrivetMessage}
           ></Modal>
 
 
         <Modal admin={First}
-          onChange={onChange}
           Id={guest[4]}
           KikHimOut={KikHimOut}
           ToogleBox={ToogleBox}
           PrivetMessage={PrivetMessage}
           SendPrivetMessage={SendPrivetMessage}
-        //  removeUserFromRoom={removeUserFromRoom}
+          setPrivetMessage={setPrivetMessage}
           ></Modal>
 
       </>
