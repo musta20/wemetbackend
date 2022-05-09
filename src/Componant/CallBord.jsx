@@ -44,11 +44,11 @@ const [First,setFirst] = useState(false);
 
     if (guest[2]) {
       Guests[index][2] = false
-      setState({ guest: Guests })
+      setGuest(Guests)
 
     } else {
       Guests[index][2] = true
-      setState({ guest: Guests })
+      setGuest(Guests)
     }
 
   }
@@ -66,8 +66,8 @@ const  SendPrivetMessage =(e)=> {
     let HistoryChat = [...HistoryChat]
     HistoryChat.push(<div className=" messageitem ">
       {PrivetMessage}</div>)
-    setState({ HistoryChat });
-    setState({ PrivetMessage: "" })
+    setHistoryChat(HistoryChat);
+    setPrivetMessage("")
     socket.emit('SendPrivetMessage',
       { id: e.target.id, Message: PrivetMessage }, room => {
         console.log(room)
@@ -88,8 +88,8 @@ const  SendPrivetMessage =(e)=> {
     let HistoryChat = [...HistoryChat]
     HistoryChat.push(<div className=" messageitem ">
       {ChatMessage}</div>)
-    setState({ HistoryChat });
-    setState({ ChatMessage: "" })
+    setHistoryChat(HistoryChat);
+    setChatMessage("")
     socket.emit('Message',
       '{"title":"' + props.match.params.room + '"}',
       ChatMessage,
@@ -157,10 +157,10 @@ const  SendPrivetMessage =(e)=> {
           if (rtpCapabilities) {
 
             showTost(room);
-            setState({ BossId })
+            setBossId( BossId )
 
-            setState({ rtpCapabilities })
-            setState({ IsViewer: true })
+            setrtpCapabilities(rtpCapabilities )
+            setIsViewer(true)
 
             // once we have rtpCapabilities from the Router, create Device
             createDevice()
@@ -177,15 +177,15 @@ const  SendPrivetMessage =(e)=> {
 
         //if this value came as true you are the admin of this room
         if (First) {
-          setState({ First: true })
-          setState({ BossId: socket.id })
-          setState({ HiddeTheRoom: IsPublic })
+          setFirst(true)
+          setBossId( socket.id )
+          setHiddeTheRoom( IsPublic )
         } else {
-          setState({ BossId })
+          setBossId( BossId )
         }
 
         showTost(room);
-        setState({ rtpCapabilities })
+        setrtpCapabilities( rtpCapabilities )
         createDevice()
       })
 
@@ -211,7 +211,7 @@ const  SendPrivetMessage =(e)=> {
       }
       // remove the consumer transport from the list
       let consumerTransports = [...consumerTransports.filter(transportData => transportData.producerId !== remoteProducerId)]
-      setState({ consumerTransports })
+      setconsumerTransports( consumerTransports )
       // hide the video div element
       completeSession(socketId)
 
@@ -221,11 +221,11 @@ const  SendPrivetMessage =(e)=> {
     socket.on('FreeToJoin', ({ status }) => {
 
       if (status) {
-        setState({ isFreeToJoin: true })
+        setisFreeToJoin( true )
         return
       }
 
-      setState({ isFreeToJoin: false })
+      setisFreeToJoin( false )
 
     })
 
@@ -239,19 +239,21 @@ const  SendPrivetMessage =(e)=> {
 
     //this event triggred when you becam admin and the room setting seted 
     socket.on('switchAdminSetting', ({ isRoomLocked, isStream, IsPublic }) => {
-      setState({ isRoomLocked, isStream, IsPublic })
-      setState({ HiddeTheRoom: IsPublic })
+      setisRoomLocked(isRoomLocked)
+      setisStream(isStream)
+      setIsPublic(IsPublic)
+      setHiddeTheRoom( IsPublic )
 
     })
 
     //this event triggred when admin switch to another youser
     socket.on('switchAdmin', ({ admin }) => {
-      setState({ BossId: admin })
+      setBossId( admin )
 
       // if you are the new admin set you as admin
       if (admin === socket.id) {
 
-        setState({ First: true })
+        setFirst( true )
 
       }
       /* 
@@ -271,7 +273,7 @@ const  SendPrivetMessage =(e)=> {
 
       })
 
-      setState({ guest: UsersGuest })
+      setguest(UsersGuest )
       CloseTheSideCaller(posthion);
 
 
@@ -284,7 +286,7 @@ const  SendPrivetMessage =(e)=> {
 
       HistoryChat.push(<div className="alr messageitem ">{Message}</div>)
 
-      setState({ HistoryChat });
+      setHistoryChat( HistoryChat );
     }.bind(this));
 
     //this event triggerd when you recive a  message
@@ -295,7 +297,7 @@ const  SendPrivetMessage =(e)=> {
 
       HistoryChat.push(<div className="alr messageitem ">{Message.Message}</div>)
 
-      setState({ HistoryChat });
+      setHistoryChat( HistoryChat );
     }.bind(this));
   }
 
@@ -379,7 +381,7 @@ const  SendPrivetMessage =(e)=> {
 
       })
 
-      setState({ guest: newgist })
+      setguest( newgist )
 
     } catch (e) {
 
@@ -516,7 +518,7 @@ const  SendPrivetMessage =(e)=> {
   //this function will prevent the roomfrom streaming to the public
   // the server will check if you are the admin
   const isStream  = (e) =>{
-    setState({ isStream: e.target.checked })
+    setIsStream( e.target.checked )
     socket.emit('isStream', isStream, data => { })
   }
 
@@ -524,7 +526,7 @@ const  SendPrivetMessage =(e)=> {
   //this function will hide the room
   // the server will check if you are the admin
  const HiddeTheRoom = (e) =>{
-    setState({ HiddeTheRoom: e.target.checked })
+    setHiddeTheRoom( e.target.checked )
     socket.emit('HiddeTheRoom', Lock, data => { })
   }
 
@@ -588,7 +590,7 @@ const  AddMediaStream = (userid, stream)=> {
       }
     }
 
-    setState({ guest: guestlist })
+    setguest( guestlist )
 
   }
 
@@ -658,8 +660,8 @@ const  AddMediaStream = (userid, stream)=> {
       // let routerRtpCapabilities = rtpCapabilities
 
       await device.load({ routerRtpCapabilities: rtpCapabilities });
-      console.log(device)
-      setState({ device })
+
+      setDevice(device )
       device = null;
 
       //if the user is not viewr create send transport
@@ -674,9 +676,9 @@ const  AddMediaStream = (userid, stream)=> {
 
         socket.emit('isFreeToJoin', { roomName: props.match.params.room }, (data) => {
           if (data.status) {
-            setState({ isFreeToJoin: true })
+            setIsFreeToJoin( true )
           } else {
-            setState({ isFreeToJoin: false })
+            setIsFreeToJoin( false )
 
           }
 
@@ -684,7 +686,7 @@ const  AddMediaStream = (userid, stream)=> {
       }
 
     } catch (error) {
-      console.log(error)
+
       if (error.name === 'UnsupportedError')
         console.warn('browser not supported')
     }
@@ -740,9 +742,9 @@ const  AddMediaStream = (userid, stream)=> {
     if (IsViewer) {
       socket.emit('isFreeToJoin', { roomName: props.match.params.room }, (data) => {
         if (data.status) {
-          setState({ isFreeToJoin: true })
+          setIsFreeToJoin( true )
         } else {
-          setState({ isFreeToJoin: false })
+          setIsFreeToJoin( false )
 
         }
 
@@ -767,7 +769,7 @@ const  AddMediaStream = (userid, stream)=> {
       // creates a new WebRTC Transport to send media
       // based on the server's producer transport params
       // https://mediasoup.org/documentation/v3/mediasoup-client/api/#TransportOptions
-      setState({ producerTransport: device.createSendTransport(params) })
+      setProducerTransport(device.createSendTransport(params))
 
       // https://mediasoup.org/documentation/v3/communication-between-client-and-server/#producing-media
       // this event is raised when a first call to transport.produce() is made
@@ -866,7 +868,8 @@ const  AddMediaStream = (userid, stream)=> {
           consumer,
         },
       ]
-      setState({ consumerTransports })
+      setconsumerTransports(consumerTransports)
+
       const { track } = consumer
 
       //add the new stream to the view 
@@ -886,7 +889,8 @@ const  AddMediaStream = (userid, stream)=> {
     // this action will trigger the 'connect' and 'produce' events above
     console.log(params)
     let producer = await producerTransport.produce(params)
-    setState({ producer })
+
+    setProducer(producer)
     producer.on('trackended', () => {
       console.log('track ended')
 
@@ -921,7 +925,7 @@ const  AddMediaStream = (userid, stream)=> {
 
     })
 
-    setState({ guest: guestList })
+    setGuest(guestList)
     CloseTheSideCaller(thegustid);
 
 
