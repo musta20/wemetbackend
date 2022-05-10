@@ -3,20 +3,19 @@ import {React} from 'react';
 
 function Modal ({admin , Id , KikHimOut ,PrivetMessage , SendPrivetMessage , setPrivetMessage , ToogleBox}) {
 
-
+console.log(Id[2])
     return (
-      <div className={Id[2] ? "modal fade" : "modal fade show"}
-        id="exampleModal" tabIndex="-1"
+      <div className= "modal fade" 
+        id={`${Id[2]}Modal`} tabIndex="-1"
         role="dialog" aria-labelledby="exampleModalLabel"
         aria-hidden={Id[2] ? "true" : ""}
-        style=
-        {Id[2] ? { display: 'none' } :
-          { display: 'block', paddingRight: '15px' }}>
+      
+          >
 
         <div className="modal-dialog" role="document">
           <div className="rounded-0 modal-content">
             <div className="modal-header">
-              <button onClick={() => ToogleBox(Id)}
+              <button data-bs-dismiss="modal"
                 type="button" className="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>

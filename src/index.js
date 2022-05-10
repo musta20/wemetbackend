@@ -8,6 +8,9 @@ import CallBorad from "./Componant/CallBord";
 //import "bootstrap/dist/css/bootstrap.min.css";
 import 'bootstrap/dist/css/bootstrap.css';
 import "./assets/style/App.css"
+ 
+import {SocketContext, socket} from "./context/socket"
+
 //import Terms from "./Componant/Terms"
 //import Guidelines from './Componant/Guidelines';
 //import Privacy from './Componant/Privacy';
@@ -23,14 +26,18 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <>
   <BrowserRouter>
-  <NavBar></NavBar>
+  
+  <SocketContext.Provider value={socket}> <NavBar></NavBar>  </SocketContext.Provider>
+
     <Routes>
-        
-    <Route path="/" element={ <Body />}></Route>
-    <Route path="CallBorad/:room" element={ <CallBorad />}>
+    
+   
+
+
+    <Route path="/" element={ <SocketContext.Provider value={socket}>  <Body />  </SocketContext.Provider>}></Route>
+    <Route path="CallBorad/:room" element={ <SocketContext.Provider value={socket}>  <CallBorad />  </SocketContext.Provider> }>
            
           </Route>
-    
 </Routes>
 </BrowserRouter>
 

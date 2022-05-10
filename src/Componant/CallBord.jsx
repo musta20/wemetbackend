@@ -1,23 +1,26 @@
 
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState ,useContext } from 'react';
 import Modal from './Modal';
 import { Device } from 'mediasoup-client';
+import {SocketContext} from "../context/socket"
+
 
 import Footer from './Footer';
-import { useUserApi } from '../lib/hooks/userApi';
+//import { useUserApi } from '../lib/hooks/userApi';
 
 
 
 import { ToastContainer, toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+//import { useNavigate } from 'react-router-dom';
+import { useLocation , useParams } from 'react-router-dom';
 
 function  CallBord () {
 
-  const navigate = useNavigate();
-
   const canvas = useRef();
+  //const { Socket } = useUserApi();
+  const Socket = useContext(SocketContext);
 
-  const {Socket} = useUserApi();
+  const { Room } = useParams();
 
 //const [socket,setsocket] = useState(null);
 const [rtpCapabilities,setRtpCapabilities] = useState('');
@@ -78,11 +81,9 @@ const [view,setview] = useState( //the array of class in each cases[
     }
     );
 
-    
+    const navigate = useLocation();
+
   
-
-//the curren case of the view
-
   //this function will show the notftion
  const showTost = (data)=> {
     toast(data)
@@ -144,7 +145,7 @@ const  SendPrivetMessage =(e)=> {
     setHistoryChat(HistoryChat);
     setChatMessage("")
     Socket.emit('Message',
-      '{"title":"' + navigate.params.room + '"}',
+      '{"title":"' + Room + '"}',
       ChatMessage,
     )
 
@@ -169,7 +170,7 @@ const  SendPrivetMessage =(e)=> {
     let IsPublic = null;
 
     try {
-      if (navigate.location .state.IsViewer) {
+      if (navigate .state.IsViewer) {
         IsViewer = true
 
       } else {
@@ -181,7 +182,7 @@ const  SendPrivetMessage =(e)=> {
     }
 
     try {
-      if (!navigate.location .state.IsPublic) {
+      if (!navigate .state.IsPublic) {
         IsPublic = false;
 
       } else {
@@ -195,7 +196,7 @@ const  SendPrivetMessage =(e)=> {
     }
 
     //create room name it this way to add mor info in in the room name    
-    let FullRoomName = '{"title":"' + navigate.params.room +
+    let FullRoomName = '{"title":"' + Room +
       '","IsPublic":' + IsPublic +
       ',"IsViewer":' + IsViewer + '}';
 
@@ -339,7 +340,7 @@ const  SendPrivetMessage =(e)=> {
       HistoryChat.push(<div className="alr messageitem ">{Message}</div>)
 
       setHistoryChat( HistoryChat );
-    }.bind(this));
+    });
 
     //this event triggerd when you recive a  message
     //it will save to HistoryChat
@@ -350,13 +351,7 @@ const  SendPrivetMessage =(e)=> {
       HistoryChat.push(<div className="alr messageitem ">{Message.Message}</div>)
 
       setHistoryChat( HistoryChat );
-    }.bind(this));
-  }
-
-  //this function take the value and the name
-  //from the input and save it to the state
-  const onChange=(e) =>{
-   // setState({ [e.target.name]: e.target.value })
+    });
   }
 
   //this function take small imge from the user video
@@ -473,7 +468,8 @@ const  SendPrivetMessage =(e)=> {
     try {
       //if the isviewer came as true dont run the cam 
       //star connection to the server to watch the stream
-      if (navigate.location .state.IsViewer) {
+      console.log(navigate)
+      if (navigate.state.IsViewer) {
         CreateOrJoinTheRoom()
 
       } else {
@@ -492,10 +488,15 @@ const  SendPrivetMessage =(e)=> {
 
   }
 
-  const componentDidMount =()=> {
-    //when the component is mounted start connecting to the server
-    startConncting();
-  }
+
+  useEffect(()=>{
+
+        //when the component is mounted start connecting to the server
+        startConncting();
+
+
+        return ()=>componentWillUnmount()
+  },[])
 
   //this check if the id if 0 it visible 
  const IsVedioElemntVisble=(id) =>{
@@ -524,16 +525,18 @@ const  SendPrivetMessage =(e)=> {
     })
       .then(function (stream) {
         let track = stream.getVideoTracks()[0]
-        let params = params
-        params = {
+       // let params = params
+       let Params = {
           track,
           ...params
         }
-        setParam(params)
+        setParam(Params)
         
 
         var guestList = [...guest]
         if (Socket.id) {
+          console.log(Socket.id)
+
           guestList[i][1] = Socket.id
         }
         guestList[i][0].current.srcObject = stream;
@@ -552,7 +555,7 @@ const  SendPrivetMessage =(e)=> {
           }
         }, 500);
 
-      }.bind(this))
+      })
 
       .catch(function (err) {
 
@@ -597,7 +600,7 @@ const  SendPrivetMessage =(e)=> {
   const JoinTheRoom =()=> {
     navigate({
       pathname: '/Switch',
-      state: {IsPublic:false, IsViewer: false, CallBorad: true, TheRoom: navigate.params.room }
+      state: {IsPublic:false, IsViewer: false, CallBorad: true, TheRoom: Room }
     })
   }
   /*
@@ -727,7 +730,7 @@ const  AddMediaStream = (userid, stream)=> {
         //get the current producers and chek if joining the room is avaliple
         getProducers()
 
-        Socket.emit('isFreeToJoin', { roomName: navigate.params.room }, (data) => {
+        Socket.emit('isFreeToJoin', { roomName: Room }, (data) => {
           if (data.status) {
             setisFreeToJoin( true )
           } else {
@@ -793,7 +796,7 @@ const  AddMediaStream = (userid, stream)=> {
     })
     //if viewr check if room is avalipee to join
     if (IsViewer) {
-      Socket.emit('isFreeToJoin', { roomName: navigate.params.room }, (data) => {
+      Socket.emit('isFreeToJoin', { roomName: Room }, (data) => {
         if (data.status) {
           setisFreeToJoin( true )
         } else {
@@ -877,7 +880,7 @@ const  AddMediaStream = (userid, stream)=> {
   const getProducers = () => {
     Socket.emit('getProducers', {
       isViewr: IsViewer,
-      roomName: navigate.params.room
+      roomName: Room
     }, producerIds => {
       console.log(producerIds)
       // for each of the producer create a consumer
@@ -1016,7 +1019,7 @@ const  AddMediaStream = (userid, stream)=> {
 
             <div  style={!First ? { display: 'none' } : { display: 'block' }} className="custom-control custom-switch">
               <input
-                onChange={LockRoom}
+                onChange={(e)=>LockRoom(e)}
                 type="checkbox"
                 checked={Lock}
                 className=" custom-control-input"
@@ -1030,7 +1033,7 @@ const  AddMediaStream = (userid, stream)=> {
 
             <div  style={!First ? { display: 'none' } : { display: 'block' }} className="custom-control custom-switch">
               <input
-                onChange={HiddeTheRoom}
+                onChange={(e)=>doHiddeTheRoom(e)}
                 type="checkbox"
                 checked={HiddeTheRoom}
                 className="d- custom-control-input"

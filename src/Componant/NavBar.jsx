@@ -1,12 +1,15 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Ajv from 'ajv';
-import { useUserApi } from '../lib/hooks/userApi';
+//import { useUserApi } from '../lib/hooks/userApi';
+import {SocketContext} from "../context/socket"
+
 export default function Navbar() {
 
   const myRef = useRef(null);
   const CallBorad = useRef(null);
+  const Socket = useContext(SocketContext);
 
   const [ajv, setAjv] = useState(new Ajv())
 
@@ -20,7 +23,7 @@ export default function Navbar() {
   const [IsRommeExist, setIsRommeExist] = useState(true)
   const navigate = useNavigate();
 
-  const {Socket} = useUserApi();
+ // const {Socket} = useUserApi();
 
   const ENDPOINT = `http://localhost:6800`;
 
@@ -52,13 +55,12 @@ export default function Navbar() {
 
   //this function will take the user to the stramin room
   const GoStream = () => {
-    navigate({
-      pathname: '/CallBorad/'+TheRoom,
-    state:{
+    navigate('/CallBorad/'+TheRoom,
+    {state:{
       IsPublic:  IsPublic,
       IsViewer: false
-   }
-    })
+   
+    }})
       
 
 
@@ -233,7 +235,10 @@ export default function Navbar() {
               <label className="custom-control-label" htmlFor="customSwitch1">Public room (Visible for everyone)</label>
             </div>
             <div className=" gradient  border rounded">
-              <button onClick={() => StartCreatingTheRoom()} className="btn text-white font-weight-bold">Stream</button>
+              <button 
+              data-bs-toggle="modal"
+              data-bs-target="#exampleModal"
+              onClick={() => StartCreatingTheRoom()} className="btn text-white font-weight-bold">Stream</button>
 
             </div>
           </div>
