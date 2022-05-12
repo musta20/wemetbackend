@@ -24,24 +24,30 @@ import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <>
+  <> 
   <BrowserRouter>
-  
-  <SocketContext.Provider value={socket}> <NavBar></NavBar>  </SocketContext.Provider>
+  <NavBar />
 
     <Routes>
     
    
 
 
-    <Route path="/" element={ <SocketContext.Provider value={socket}>  <Body />  </SocketContext.Provider>}></Route>
-    <Route path="CallBorad/:room" element={ <SocketContext.Provider value={socket}>  <CallBorad />  </SocketContext.Provider> }>
+    <Route path="/" element={ 
+      <Body />  
+    }>
+
+    </Route>
+    
+    <Route path="CallBorad/:Room" element={ 
+       <CallBorad />
+   }>
            
-          </Route>
+      </Route>
 </Routes>
 </BrowserRouter>
 
-  </>
+</>
 );
 
 // If you want to start measuring performance in your app, pass a function

@@ -1,26 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import io from "socket.io-client";
+import React, { useEffect, useState  } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
 import BodyFooter from "./BodyFooter";
+import { useUserApi } from '../lib/hooks/userApi';
 
 
 export default function Body (){
 
   
     const [TheRoom,setTheRoom] = useState('');
-    const [socket,setSocket] = useState(io('http://localhost:6800'));
     const [Rooms,setRooms] = useState([]);
 
+    const { Socket } = useUserApi();
 
 
   
 
   //this function initae a server connection and set event lisner
  const connectAndGetRooms = async () => {
-    await setSocket(io('http://localhost:6800') )
 
     //this event delete a room from the list 
-    socket.on('DelteRoom', ({ TheroomName }) => {
+    Socket.on('DelteRoom', ({ TheroomName }) => {
       console.log('DelteRoom')
       console.log(Rooms)
       if (Rooms.length === 0) return
@@ -31,7 +30,7 @@ export default function Body (){
     })
 
     //this event add a room from the list 
-    socket.on('AddRoom', ({ roomName }) => {
+    Socket.on('AddRoom', ({ roomName }) => {
       console.log('AddRoom')
 
       console.log(Rooms)
@@ -47,7 +46,7 @@ export default function Body (){
     })
 
     //request the currnt live room in the server
-    socket.emit('getroom', 'mainrrom',
+    Socket.emit('getroom', 'mainrrom',
       (data) => {
         setRooms( data )
       })
@@ -55,20 +54,7 @@ export default function Body (){
 
   }
 
-  useEffect(()=>{
-    connectAndGetRooms()
 
-    return ()=>{
-
-    try {
-      socket.disconnect()
-
-    } catch (e) {
-      console.error(e)
-    }
-    }
-
-  },[])
 
 
 

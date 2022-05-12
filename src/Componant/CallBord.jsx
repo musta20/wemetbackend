@@ -1,12 +1,13 @@
-
-import React, { useEffect, useRef, useState ,useContext } from 'react';
+import React, { useEffect, useRef, useState ,useContext ,useCallback} from 'react';
 import Modal from './Modal';
 import { Device } from 'mediasoup-client';
-import {SocketContext} from "../context/socket"
+//import { SocketContext } from "../context/socket"
+
+//import {io} from 'socket.io-client';
 
 
 import Footer from './Footer';
-//import { useUserApi } from '../lib/hooks/userApi';
+import { useUserApi } from '../lib/hooks/userApi';
 
 
 
@@ -15,10 +16,13 @@ import { ToastContainer, toast } from 'react-toastify';
 import { useLocation , useParams } from 'react-router-dom';
 
 function  CallBord () {
+  //const [Socket,setSocket] = useState({});
 
-  const canvas = useRef();
-  //const { Socket } = useUserApi();
-  const Socket = useContext(SocketContext);
+
+
+  const CanvasImg = useRef(null);
+  const { Socket , SocketId} = useUserApi();
+  //const Socket = useContext(SocketContext);
 
   const { Room } = useParams();
 
@@ -43,6 +47,67 @@ const [First,setFirst] = useState(false);
 const [Case , setCase] = useState([true, false, false,    //the curren case of the view
 false, false, false]) 
 
+const createStreamCallBack =  ({ status, rtpCapabilities , BossId, room , First }) => {
+
+  console.log("SHOW THE RESULT ")
+  console.log(rtpCapabilities)
+  console.log(BossId)
+  console.log(room)
+  console.log(First)
+
+  if (!status) {
+    //if status came with wrong result and rtpCapabilities
+    // that mean you just gone watch  the room
+    if (rtpCapabilities) {
+
+      showTost(room);
+      setBossId( BossId )
+
+      setRtpCapabilities(rtpCapabilities )
+      setIsViewer(true)
+
+      // once we have rtpCapabilities from the Router, create Device
+      createDevice()
+
+      return
+    }
+    // if error happen quit the app and got to home page
+    setTimeout(function () {
+      showTost("The room is not strmed");
+    //  document.location.href = "/"
+    }, 2000);
+    return
+  }
+
+  //if this value came as true you are the admin of this room
+  try {
+    let i =  Socket.id
+
+  } catch (error) {
+    console.log(error)
+  }
+  if (First) {
+    setFirst(true)
+    setBossId( Socket.id )
+  //  setHiddeTheRoom( IsPublic )
+  } else {
+    setBossId( BossId )
+  }
+
+  showTost(room);
+  setRtpCapabilities( rtpCapabilities )
+  createDevice()
+}
+
+const connectToServer = async ()=> {
+
+ // const newSocket = await io(`http://localhost:6800`);
+   
+ // setSocket(newSocket);
+  
+ //newSocket.on('connect',()=>{  console.log("CONNECTINGED HOOKS") })
+
+}
 const [ChangeStatVale,setChangeStatVale] = useState([             //the vlue of the css case classes
 [1, 0, 5, 4, 3, 2, 7, 6],
 [5, 2, 1, 7, 6, 0, 4, 3],
@@ -194,54 +259,22 @@ const  SendPrivetMessage =(e)=> {
       IsPublic = true;
 
     }
-
+console.log("THE ROOM TESTED FOR ")
+console.log(Room)
     //create room name it this way to add mor info in in the room name    
     let FullRoomName = '{"title":"' + Room +
       '","IsPublic":' + IsPublic +
       ',"IsViewer":' + IsViewer + '}';
+console.log(FullRoomName)
+try {
+  console.log(Socket)
+  console.log("Socket");
 
-    Socket.emit('CreateStream', FullRoomName
-      ,
-      ({ status, rtpCapabilities, BossId, room, First }) => {
+  Socket.emit('CreateStream', FullRoomName , createStreamCallBack )
 
-
-        if (!status) {
-          //if status came with wrong result and rtpCapabilities
-          // that mean you just gone watch  the room
-          if (rtpCapabilities) {
-
-            showTost(room);
-            setBossId( BossId )
-
-            setRtpCapabilities(rtpCapabilities )
-            setIsViewer(true)
-
-            // once we have rtpCapabilities from the Router, create Device
-            createDevice()
-
-            return
-          }
-          // if error happen quit the app and got to home page
-          setTimeout(function () {
-            showTost("The room is not strmed");
-            document.location.href = "/"
-          }, 2000);
-          return
-        }
-
-        //if this value came as true you are the admin of this room
-        if (First) {
-          setFirst(true)
-          setBossId( Socket.id )
-          setHiddeTheRoom( IsPublic )
-        } else {
-          setBossId( BossId )
-        }
-
-        showTost(room);
-        setRtpCapabilities( rtpCapabilities )
-        createDevice()
-      })
+} catch (error) {
+  console.log(error)
+}
 
     //this event new-prouducer triggerd a new user is joined the room and 
     // you gone resive his stream via producerId and socketId is his socket id
@@ -357,14 +390,17 @@ const  SendPrivetMessage =(e)=> {
   //this function take small imge from the user video
   // and send it to the server as a thumnail imge
  const TakeThumbnailImage = () =>{
-    var context = canvas.current.getContext('2d');
+    var context = CanvasImg.current.getContext('2d');
 
     context.drawImage(guest[0][0].current, 0, 0, 280, 200);
 
-    var data = canvas.current.toDataURL('image/png', 0.1);
+    var data = CanvasImg.current.toDataURL('image/png', 0.1);
+    console.log('IMGE EMITED TO SERVER ')
 
     Socket.emit('saveimg', data,
-      (data) => { }
+      (data) => {
+        console.log('IMGE EMITED TO SERVER ')
+       }
     )
 
   }
@@ -372,14 +408,7 @@ const  SendPrivetMessage =(e)=> {
 
   const componentWillUnmount =() =>{
 
-    try {
-      // disconnect from the socket server
-      Socket.disconnect()
-
-    } catch (e) {
-      console.log(e)
-
-    }
+   
 
     try {
       //close all the consumer transport
@@ -444,10 +473,11 @@ const  SendPrivetMessage =(e)=> {
   //this function will connecect the socketio server 
   // and save some initail date to the state
   // this function shuld run after the component have mounted
- const startConncting = async () => {
+ const startConncting = () => {
  //   await setState({ socket: io('http://localhost:6800') });
 
     //set all css view cases the false excpit the frist one
+    connectToServer()
     let CaseEditer = [...Case]
     Case.forEach((c, i) => {
       CaseEditer[i] = false
@@ -462,6 +492,7 @@ const  SendPrivetMessage =(e)=> {
       GuestEditer[i][1] = 0;
       GuestEditer[i][2] = true;
     })
+    
     setGuest( GuestEditer );
 
 
@@ -492,11 +523,15 @@ const  SendPrivetMessage =(e)=> {
   useEffect(()=>{
 
         //when the component is mounted start connecting to the server
-        startConncting();
+        console.log('START CALL BORAD USEEFFECT')
+        if(SocketId){
+          startConncting();
+
+        }
 
 
         return ()=>componentWillUnmount()
-  },[])
+  },[SocketId])
 
   //this check if the id if 0 it visible 
  const IsVedioElemntVisble=(id) =>{
@@ -548,7 +583,7 @@ const  SendPrivetMessage =(e)=> {
         //whait a bit to let the cam load and then
         //take a ThumbnailImage if the user is admin
         setTimeout(() => {
-
+          console.log(First)
           if (First) {
 
             TakeThumbnailImage();
@@ -996,7 +1031,7 @@ const  AddMediaStream = (userid, stream)=> {
 
         <ToastContainer />
 
-        <canvas ref={canvas} className='d-none' width='280' height='200' id="canvas"></canvas>
+        <canvas ref={CanvasImg} className='d-none' width='280' height='200' id="canvas"></canvas>
 
         <div className="container-fluid	">
 
