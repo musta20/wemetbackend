@@ -47,57 +47,6 @@ const [First,setFirst] = useState(false);
 const [Case , setCase] = useState([true, false, false,    //the curren case of the view
 false, false, false]) 
 
-const createStreamCallBack =  ({ status, rtpCapabilities , BossId, room , First }) => {
-
-  console.log("SHOW THE RESULT ")
-  console.log(rtpCapabilities)
-  console.log(BossId)
-  console.log(room)
-  console.log(First)
-
-  if (!status) {
-    //if status came with wrong result and rtpCapabilities
-    // that mean you just gone watch  the room
-    if (rtpCapabilities) {
-
-      showTost(room);
-      setBossId( BossId )
-
-      setRtpCapabilities(rtpCapabilities )
-      setIsViewer(true)
-
-      // once we have rtpCapabilities from the Router, create Device
-      createDevice()
-
-      return
-    }
-    // if error happen quit the app and got to home page
-    setTimeout(function () {
-      showTost("The room is not strmed");
-    //  document.location.href = "/"
-    }, 2000);
-    return
-  }
-
-  //if this value came as true you are the admin of this room
-  try {
-    let i =  Socket.id
-
-  } catch (error) {
-    console.log(error)
-  }
-  if (First) {
-    setFirst(true)
-    setBossId( Socket.id )
-  //  setHiddeTheRoom( IsPublic )
-  } else {
-    setBossId( BossId )
-  }
-
-  showTost(room);
-  setRtpCapabilities( rtpCapabilities )
-  createDevice()
-}
 
 const connectToServer = async ()=> {
 
@@ -270,7 +219,60 @@ try {
   console.log(Socket)
   console.log("Socket");
 
-  Socket.emit('CreateStream', FullRoomName , createStreamCallBack )
+  Socket.emit('CreateStream', FullRoomName , 
+    ({ status, rtpCapabilities , BossId, room , First }) => {
+  
+    console.log("SHOW THE RESULT ")
+    console.log(rtpCapabilities)
+    console.log(BossId)
+    console.log(room)
+    console.log(First)
+  
+    if (!status) {
+      //if status came with wrong result and rtpCapabilities
+      // that mean you just gone watch  the room
+      if (rtpCapabilities) {
+  
+        showTost(room);
+        setBossId( BossId )
+  
+        setRtpCapabilities(rtpCapabilities )
+        setIsViewer(true)
+  
+        // once we have rtpCapabilities from the Router, create Device
+        createDevice()
+  
+        return
+      }
+      // if error happen quit the app and got to home page
+      setTimeout(function () {
+        showTost("The room is not strmed");
+      //  document.location.href = "/"
+      }, 2000);
+      return
+    }
+  
+    //if this value came as true you are the admin of this room
+    try {
+      let i =  Socket.id
+  
+    } catch (error) {
+      console.log(error)
+    }
+    if (First) {
+      console.log('setting The Frist VALUE :::::::::::');
+      console.log(First)
+      setFirst(true)
+      setBossId( Socket.id )
+    //  setHiddeTheRoom( IsPublic )
+    } else {
+      setBossId( BossId )
+    }
+  
+    showTost(room);
+    setRtpCapabilities( rtpCapabilities )
+    createDevice()
+  } )
 
 } catch (error) {
   console.log(error)
@@ -339,7 +341,7 @@ try {
       // if you are the new admin set you as admin
       if (admin === Socket.id) {
 
-        setFirst( true )
+        setFirst(true)
 
       }
       /* 
@@ -531,7 +533,7 @@ try {
 
 
         return ()=>componentWillUnmount()
-  },[SocketId])
+  },[SocketId,First])
 
   //this check if the id if 0 it visible 
  const IsVedioElemntVisble=(id) =>{
@@ -582,9 +584,12 @@ try {
         }
         //whait a bit to let the cam load and then
         //take a ThumbnailImage if the user is admin
+        console.log(First)
+
         setTimeout(() => {
           console.log(First)
           if (First) {
+            console.log("TakeThumbnailImage :");
 
             TakeThumbnailImage();
           }

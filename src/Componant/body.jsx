@@ -9,7 +9,6 @@ export default function Body (){
   
     const [TheRoom,setTheRoom] = useState('');
     const [Rooms,setRooms] = useState([]);
-
     const { Socket } = useUserApi();
 
 
