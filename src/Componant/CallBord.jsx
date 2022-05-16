@@ -1,15 +1,13 @@
 import React, { useEffect, useRef, useState ,useContext ,useCallback} from 'react';
 import Modal from './Modal';
 import { Device } from 'mediasoup-client';
-//import { SocketContext } from "../context/socket"
+import { SocketContext } from "../context/socket"
 
 //import {io} from 'socket.io-client';
 
 
 import Footer from './Footer';
-import { useUserApi } from '../lib/hooks/userApi';
-
-
+//import { useUserApi } from '../lib/hooks/userApi';
 
 import { ToastContainer, toast } from 'react-toastify';
 //import { useNavigate } from 'react-router-dom';
@@ -18,11 +16,13 @@ import { useLocation , useParams } from 'react-router-dom';
 function  CallBord () {
   //const [Socket,setSocket] = useState({});
 
+//  const [SocketId,setSocketId] = useState(null);
 
+//  const [Socket,setSocket] = useState();
 
   const CanvasImg = useRef(null);
-  const { Socket , SocketId} = useUserApi();
-  //const Socket = useContext(SocketContext);
+//  const { Socket , SocketId} = useUserApi();
+  const Socket = useContext(SocketContext);
 
   const { Room } = useParams();
 
@@ -33,6 +33,7 @@ const [isFreeToJoin,setisFreeToJoin] = useState(false);
 const [HiddeTheRoom,setHiddeTheRoom] = useState(true);
 const [Lock,setLock] = useState(false);
 const [device,setDevice] = useState(null);
+const [Connected,setConnected] = useState(false);
 const [IsViewer,setIsViewer] = useState(false);
 const [IsStream,setisStream] = useState(false);
 const [producerTransport,setproducerTransport] = useState(false);
@@ -48,15 +49,7 @@ const [Case , setCase] = useState([true, false, false,    //the curren case of t
 false, false, false]) 
 
 
-const connectToServer = async ()=> {
 
- // const newSocket = await io(`http://localhost:6800`);
-   
- // setSocket(newSocket);
-  
- //newSocket.on('connect',()=>{  console.log("CONNECTINGED HOOKS") })
-
-}
 const [ChangeStatVale,setChangeStatVale] = useState([             //the vlue of the css case classes
 [1, 0, 5, 4, 3, 2, 7, 6],
 [5, 2, 1, 7, 6, 0, 4, 3],
@@ -264,6 +257,16 @@ try {
       console.log(First)
       setFirst(true)
       setBossId( Socket.id )
+
+
+      setTimeout(() => {
+        console.log(First)
+          console.log("TakeThumbnailImage :");
+
+          TakeThumbnailImage();
+        
+      }, 500);
+    
     //  setHiddeTheRoom( IsPublic )
     } else {
       setBossId( BossId )
@@ -472,68 +475,26 @@ try {
 
   }
 
-  //this function will connecect the socketio server 
-  // and save some initail date to the state
-  // this function shuld run after the component have mounted
- const startConncting = () => {
- //   await setState({ socket: io('http://localhost:6800') });
 
-    //set all css view cases the false excpit the frist one
-    connectToServer()
-    let CaseEditer = [...Case]
-    Case.forEach((c, i) => {
-      CaseEditer[i] = false
-      if (i === 0) CaseEditer[i] = true;
-    })
+const seekSocketServer = async()=>{
 
- setCase( CaseEditer )
-
-    let GuestEditer = [...guest]
-    guest.forEach((g, i) => {
-      GuestEditer[i][0] = React.createRef();
-      GuestEditer[i][1] = 0;
-      GuestEditer[i][2] = true;
-    })
-    
-    setGuest( GuestEditer );
-
-
-    try {
-      //if the isviewer came as true dont run the cam 
-      //star connection to the server to watch the stream
-      console.log(navigate)
-      if (navigate.state.IsViewer) {
-        CreateOrJoinTheRoom()
-
-      } else {
-        //run the cam and the the  StartUserCamra function will connect to the server
-        StartUserCamra(0);
-      }
-    }
-
-    catch (e) {
-      console.log(e)
-      StartUserCamra(0);
-
-    }
-
-
-
-  }
-
+  //const newSocket = await io(`http://localhost:6800`);
+       
+  //setSocket(newSocket);
+   // if(newSocket.id)setSocketId(newSocket.id)
+    // startConncting();
+}
 
   useEffect(()=>{
+    if(Socket) startConncting(Case,navigate , CreateOrJoinTheRoom , StartUserCamra , guest , setCase , setGuest , Connected , setConnected);
+    //   //when the component is mounted start connecting to the server
+    // seekSocketServer()
+    // return ()=>componentWillUnmount()
+  },[])
 
-        //when the component is mounted start connecting to the server
-        console.log('START CALL BORAD USEEFFECT')
-        if(SocketId){
-          startConncting();
-
-        }
-
-
-        return ()=>componentWillUnmount()
-  },[SocketId,First])
+  useEffect(()=>{
+    console.log(First)
+  },[First])
 
   //this check if the id if 0 it visible 
  const IsVedioElemntVisble=(id) =>{
@@ -560,7 +521,7 @@ try {
         }
       }
     })
-      .then(function (stream) {
+      .then( (stream) =>{
         let track = stream.getVideoTracks()[0]
        // let params = params
        let Params = {
@@ -586,14 +547,6 @@ try {
         //take a ThumbnailImage if the user is admin
         console.log(First)
 
-        setTimeout(() => {
-          console.log(First)
-          if (First) {
-            console.log("TakeThumbnailImage :");
-
-            TakeThumbnailImage();
-          }
-        }, 500);
 
       })
 
@@ -1036,7 +989,8 @@ const  AddMediaStream = (userid, stream)=> {
 
         <ToastContainer />
 
-        <canvas ref={CanvasImg} className='d-none' width='280' height='200' id="canvas"></canvas>
+        <canvas ref={CanvasImg} className='d-none'
+         width='280' height='200' id="canvas"></canvas>
 
         <div className="container-fluid	">
 
@@ -1250,6 +1204,90 @@ const  AddMediaStream = (userid, stream)=> {
   
 
     }
+
+
+  //this function will connecect the socketio server 
+  // and save some initail date to the state
+  // this function shuld run after the component have mounted
+  const startConncting = (Case,navigate , CreateOrJoinTheRoom , StartUserCamra , guest , setCase , setGuest , Connected , setConnected)  => {
+    if(Connected)return
+    setConnected(false)
+  //   await setState({ socket: io('http://localhost:6800') });
+ 
+     //set all css view cases the false excpit the frist one
+ 
+     let CaseEditer = [...Case]
+     Case.forEach((c, i) => {
+       CaseEditer[i] = false
+       if (i === 0) CaseEditer[i] = true;
+     })
+ 
+  setCase( CaseEditer )
+ 
+     let GuestEditer = [...guest]
+     guest.forEach((g, i) => {
+       GuestEditer[i][0] = React.createRef();
+       GuestEditer[i][1] = 0;
+       GuestEditer[i][2] = true;
+     })
+     
+     setGuest( GuestEditer );
+ 
+ 
+     try {
+       //if the isviewer came as true dont run the cam 
+       //star connection to the server to watch the stream
+       console.log(navigate)
+       if (navigate.state.IsViewer) {
+         CreateOrJoinTheRoom()
+ 
+       } else {
+         //run the cam and the the  StartUserCamra function will connect to the server
+         StartUserCamra(0);
+       }
+     }
+ 
+     catch (e) {
+       console.log(e)
+       StartUserCamra(0);
+ 
+     }
+ 
+ 
+ 
+   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 const   params  ={   // mediasoup configratio params 

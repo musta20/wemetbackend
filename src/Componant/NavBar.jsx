@@ -2,13 +2,13 @@ import React, { useState, useRef, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Ajv from 'ajv';
-import { useUserApi } from '../lib/hooks/userApi';
-//import {SocketContext} from "../context/socket"
+//import { useUserApi } from '../lib/hooks/userApi';
+import {SocketContext} from "../context/socket"
 
 export default function Navbar() {
 
 
-  //const Socket = useContext(SocketContext);
+  const Socket = useContext(SocketContext);
 
   const [ajv, setAjv] = useState(new Ajv())
 
@@ -22,7 +22,7 @@ export default function Navbar() {
   const [IsRommeExist, setIsRommeExist] = useState(true)
   const navigate = useNavigate();
 
-  const {Socket} = useUserApi();
+  //const {Socket} = useUserApi();
 
   const ENDPOINT = `http://localhost:6800`;
 

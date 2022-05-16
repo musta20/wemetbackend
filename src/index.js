@@ -24,16 +24,13 @@ import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <> 
+   
+  <SocketContext.Provider value={socket}>
   <BrowserRouter>
   <NavBar />
 
     <Routes>
-    
-   
-
-
-    <Route path="/" element={ 
+      <Route path="/" element={ 
       <Body />  
     }>
 
@@ -47,7 +44,7 @@ root.render(
 </Routes>
 </BrowserRouter>
 
-</>
+</SocketContext.Provider>
 );
 
 // If you want to start measuring performance in your app, pass a function
