@@ -265,7 +265,7 @@ try {
 
           TakeThumbnailImage();
         
-      }, 500);
+      }, 700);
     
     //  setHiddeTheRoom( IsPublic )
     } else {
@@ -989,7 +989,8 @@ const  AddMediaStream = (userid, stream)=> {
 
         <ToastContainer />
 
-        <canvas ref={CanvasImg} className='d-none'
+        <canvas ref={CanvasImg}
+         className='d-none'
          width='280' height='200' id="canvas"></canvas>
 
         <div className="container-fluid	">

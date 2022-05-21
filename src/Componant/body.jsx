@@ -1,7 +1,8 @@
-import React, { useEffect, useState  } from 'react';
+import React, {useContext, useEffect, useState  } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
 import BodyFooter from "./BodyFooter";
-import { useUserApi } from '../lib/hooks/userApi';
+//import { useUserApi } from '../lib/hooks/userApi';
+import { SocketContext } from "../context/socket"
 
 
 export default function Body (){
@@ -9,13 +10,15 @@ export default function Body (){
   
     const [TheRoom,setTheRoom] = useState('');
     const [Rooms,setRooms] = useState([]);
-    const { Socket } = useUserApi();
+   // const { Socket } = useUserApi();
 
+    const Socket = useContext(SocketContext);
 
   
 
-  //this function initae a server connection and set event lisner
- const connectAndGetRooms = async () => {
+
+
+useEffect(()=>{
 
     //this event delete a room from the list 
     Socket.on('DelteRoom', ({ TheroomName }) => {
@@ -50,10 +53,7 @@ export default function Body (){
         setRooms( data )
       })
 
-
-  }
-
-
+},[])
 
 
 
