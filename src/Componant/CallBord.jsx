@@ -14,7 +14,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { useLocation , useParams } from 'react-router-dom';
 
 function  CallBord () {
-  //const [Socket,setSocket] = useState({});
+//const [Socket,setSocket] = useState({});
 
 //  const [SocketId,setSocketId] = useState(null);
 

@@ -17,7 +17,6 @@ export default function Body (){
   
 
 
-
 useEffect(()=>{
 
     //this event delete a room from the list 
@@ -32,24 +31,26 @@ useEffect(()=>{
     })
 
     //this event add a room from the list 
-    Socket.on('AddRoom', ({ roomName }) => {
+    Socket.on('AddRoom',({ roomName }) => {
       console.log('AddRoom')
-
+    
       console.log(Rooms)
       if (Rooms.length === 0) {
-        let Rooms = [roomName]
+        let theRooms = [roomName]
         
-        setRooms( Rooms )
+        setRooms( theRooms )
         return
       }
-      let Rooms = [...Rooms, roomName]
-
-      setRooms( Rooms )
+      let theRooms = [...Rooms, roomName]
+    
+      setRooms( theRooms )
     })
 
     //request the currnt live room in the server
     Socket.emit('getroom', 'mainrrom',
       (data) => {
+        console.log("THE DATA RETREVED FROM THE SERVER")
+        console.log(data)
         setRooms( data )
       })
 
@@ -154,8 +155,8 @@ const  ShowRooms = ()=> {
             <br></br>
             <br></br>
             <div className=''>
-              <button id={room} onClick={this.GoToCallRoomWatch} className="m-1 btn btn-sm  btn-primary">just watch</button>
-              <button id={room} onClick={this.join} className="m-1 btn btn-sm btn-primary">join this room</button>
+              <button id={room} onClick={()=>this.GoToCallRoomWatch()} className="m-1 btn btn-sm  btn-primary">just watch</button>
+              <button id={room} onClick={()=>this.join()} className="m-1 btn btn-sm btn-primary">join this room</button>
             </div>
           </div>
         </div>
