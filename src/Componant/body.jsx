@@ -2,12 +2,15 @@ import React, {useContext, useEffect, useState  } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
 import BodyFooter from "./BodyFooter";
 //import { useUserApi } from '../lib/hooks/userApi';
+import { useNavigate } from 'react-router-dom';
+
 import { SocketContext } from "../context/socket"
 
 
 export default function Body (){
 
-  
+  const navigate = useNavigate();
+
     const [TheRoom,setTheRoom] = useState('');
     const [Rooms,setRooms] = useState([]);
    // const { Socket } = useUserApi();
@@ -83,7 +86,7 @@ useEffect(()=>{
   const GoToCallRoomWatch = (e) =>{
     let roomName = e.target.id;
 
-    this.props.history.push({
+    navigate({
       pathname: '/CallBorad/'+roomName,
       state: {
         IsPublic: false,
@@ -98,7 +101,7 @@ useEffect(()=>{
  const join = (e) =>{
     let roomName = e.target.id;
 
-    this.props.history.push({
+    navigate({
       pathname: '/CallBorad/'+roomName,
       state: {
         IsPublic: false,
@@ -155,8 +158,8 @@ const  ShowRooms = ()=> {
             <br></br>
             <br></br>
             <div className=''>
-              <button id={room} onClick={()=>this.GoToCallRoomWatch()} className="m-1 btn btn-sm  btn-primary">just watch</button>
-              <button id={room} onClick={()=>this.join()} className="m-1 btn btn-sm btn-primary">join this room</button>
+              <button id={room} onClick={()=>GoToCallRoomWatch()} className="m-1 btn btn-sm  btn-primary">just watch</button>
+              <button id={room} onClick={(e)=>join(e)} className="m-1 btn btn-sm btn-primary">join this room</button>
             </div>
           </div>
         </div>
@@ -167,7 +170,7 @@ const  ShowRooms = ()=> {
 
 
     return (
-      <React.Fragment>
+      <>
         <br></br>
         <br></br>
         <br></br>
@@ -185,7 +188,7 @@ const  ShowRooms = ()=> {
 
         </div>
         <BodyFooter></BodyFooter>
-      </React.Fragment>
+      </>
     );
   
 
