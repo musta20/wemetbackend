@@ -86,28 +86,27 @@ useEffect(()=>{
   const GoToCallRoomWatch = (e) =>{
     let roomName = e.target.id;
 
-    navigate({
-      pathname: '/CallBorad/'+roomName,
-      state: {
+    navigate( '/CallBorad/'+roomName,
+   {   state: {
         IsPublic: false,
         IsViewer: true
-      }
-    })
+      }}
+    )
 
 
   }
 
   //this function will take the user to room as memper
  const join = (e) =>{
+
     let roomName = e.target.id;
 
-    navigate({
-      pathname: '/CallBorad/'+roomName,
-      state: {
+    navigate( '/CallBorad/'+roomName,
+     { state: {
         IsPublic: false,
         IsViewer: false
-      }
-    })
+      }}
+    )
 
 
   }

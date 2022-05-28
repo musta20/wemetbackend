@@ -55,7 +55,8 @@ export default function Navbar() {
   //this function will take the user to the stramin room
   const GoStream = () => {
     navigate('/CallBorad/'+TheRoom,
-    {state:{
+    {
+      state:{
       IsPublic:  IsPublic,
       IsViewer: false
    

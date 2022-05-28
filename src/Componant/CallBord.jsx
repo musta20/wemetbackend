@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState ,useContext ,useCallback} from 'react';
+import React, { useEffect, useRef, useState ,useContext , useCallback} from 'react';
 import Modal from './Modal';
 import { Device } from 'mediasoup-client';
 import { SocketContext } from "../context/socket"
@@ -32,9 +32,9 @@ const [rtpCapabilities,setRtpCapabilities] = useState('');
 const [isFreeToJoin,setisFreeToJoin] = useState(false);
 const [HiddeTheRoom,setHiddeTheRoom] = useState(true);
 const [Lock,setLock] = useState(false);
-const [device,setDevice] = useState(null);
 const [Connected,setConnected] = useState(false);
 const [IsViewer,setIsViewer] = useState(false);
+const [IsPublic,setIsPublic] = useState(false);
 const [IsStream,setisStream] = useState(false);
 const [producerTransport,setproducerTransport] = useState(false);
 const [consumerTransports,setConsumerTransports] = useState([]);
@@ -88,7 +88,7 @@ const [view,setview] = useState( //the array of class in each cases[
     }
     );
 
-    const navigate = useLocation();
+const navigate = useLocation();
 
   
   //this function will show the notftion
@@ -173,53 +173,38 @@ const  SendPrivetMessage =(e)=> {
   */
 
   const CreateOrJoinTheRoom=() =>{
-    let IsViewer;
-    let IsPublic = null;
+   let IsPublic  = false;
+   let IsViewer = false
 
     try {
       if (navigate .state.IsViewer) {
+        setIsViewer(true)
         IsViewer = true
-
-      } else {
-        IsViewer = false
       }
+
+      if (navigate .state.IsPublic){
+         setIsPublic(true)
+         IsPublic = true
+
+        }
+
+      
     } catch (e) {
-      IsViewer = false
 
     }
 
-    try {
-      if (!navigate .state.IsPublic) {
-        IsPublic = false;
-
-      } else {
-        IsPublic = true;
-
-      }
-    }
-    catch (e) {
-      IsPublic = true;
-
-    }
-console.log("THE ROOM TESTED FOR ")
-console.log(Room)
+  
     //create room name it this way to add mor info in in the room name    
     let FullRoomName = '{"title":"' + Room +
       '","IsPublic":' + IsPublic +
       ',"IsViewer":' + IsViewer + '}';
-console.log(FullRoomName)
-try {
-  console.log(Socket)
-  console.log("Socket");
 
+      
+try {
   Socket.emit('CreateStream', FullRoomName , 
     ({ status, rtpCapabilities , BossId, room , First }) => {
   
-    console.log("SHOW THE RESULT ")
-    console.log(rtpCapabilities)
-    console.log(BossId)
-    console.log(room)
-    console.log(First)
+ 
   
     if (!status) {
       //if status came with wrong result and rtpCapabilities
@@ -233,7 +218,7 @@ try {
         setIsViewer(true)
   
         // once we have rtpCapabilities from the Router, create Device
-        createDevice()
+        createDevice(rtpCapabilities)
   
         return
       }
@@ -274,7 +259,7 @@ try {
   
     showTost(room);
     setRtpCapabilities( rtpCapabilities )
-    createDevice()
+    createDevice(rtpCapabilities)
   } )
 
 } catch (error) {
@@ -283,7 +268,9 @@ try {
 
     //this event new-prouducer triggerd a new user is joined the room and 
     // you gone resive his stream via producerId and socketId is his socket id
+    console.log('SET THE NEW PRODUCER');
     Socket.on('new-producer', async ({ producerId, socketId }) => {
+      console.log('NEW PERSON JUST JOINED THE MEETING ===================>>>>>>>>>>>>>>>>>>>>>')
      //console.log(queueGuest)
      //if(queueGuest[socketId]) return
      //setState({queueGuest:[...queueGuest,socketId]})
@@ -292,6 +279,7 @@ try {
     })
     //this event triggred when user colse his stram you shuld close 
     //the connection to prevent memory leak
+    console.log('SET PRODUCER CLOSED');
     Socket.on('producer-closed', ({ remoteProducerId, socketId }) => {
       //find the specifc transport and close it
       try {
@@ -310,6 +298,7 @@ try {
     })
 
     //this event triggerd to notify you there is chance to join the room
+    
     Socket.on('FreeToJoin', ({ status }) => {
 
       if (status) {
@@ -485,16 +474,6 @@ const seekSocketServer = async()=>{
     // startConncting();
 }
 
-  useEffect(()=>{
-    if(Socket) startConncting(Case,navigate , CreateOrJoinTheRoom , StartUserCamra , guest , setCase , setGuest , Connected , setConnected);
-    //   //when the component is mounted start connecting to the server
-    // seekSocketServer()
-    // return ()=>componentWillUnmount()
-  },[])
-
-  useEffect(()=>{
-    console.log(First)
-  },[First])
 
   //this check if the id if 0 it visible 
  const IsVedioElemntVisble=(id) =>{
@@ -508,6 +487,7 @@ const seekSocketServer = async()=>{
   //and make it avalbe if the user is viewer will not connect to
   // to the server if not will connect to the server and 
  const StartUserCamra=(i)=> {
+
     navigator.mediaDevices.getUserMedia({
       audio: false,
       video: {
@@ -700,23 +680,28 @@ const  AddMediaStream = (userid, stream)=> {
   }
 
   //this function will create a device for mediasoup api
- const createDevice = async () => {
+ const createDevice = async (routerRtpCapabilities) => {
+   console.log('START CREATING THE DIVICE')
     try {
       let device = new Device()
 
       // https://mediasoup.org/documentation/v3/mediasoup-client/api/#device-load
       // Loads the device with RTP capabilities of the Router (server side)
       // let routerRtpCapabilities = rtpCapabilities
-
-      await device.load({ routerRtpCapabilities: rtpCapabilities });
+     // let cap = {routerRtpCapabilities: rtpCapabilities};
+      console.error('rtp capapltet')
+      console.log(routerRtpCapabilities)
+      
+      await device.load({routerRtpCapabilities});
 
       setDevice(device )
-      device = null;
 
+      console.log('CHECKING THE VIEWER STATUS BEFOR CREATE SEND TEANSPORT')
+      console.log(`the viewr case IS: ${IsViewer}`)
       //if the user is not viewr create send transport
       if (!IsViewer) {
         // once the device loads, create transport
-        createSendTransport()
+        createSendTransport(device)
 
       } else {
 
@@ -735,7 +720,8 @@ const  AddMediaStream = (userid, stream)=> {
       }
 
     } catch (error) {
-
+      console.warn('browser not supported')
+      console.log(error)
       if (error.name === 'UnsupportedError')
         console.warn('browser not supported')
     }
@@ -802,7 +788,7 @@ const  AddMediaStream = (userid, stream)=> {
   }
 
   //this function will create transport to send your strean
-  const createSendTransport = () => {
+  const createSendTransport = (device) => {
     // see server's Socket.on('createWebRtcTransport', sender?, ...)
     // this is a call from Producer, so sender = true
     Socket.emit('createWebRtcTransport', { consumer: false }, ({ params }) => {
@@ -814,16 +800,18 @@ const  AddMediaStream = (userid, stream)=> {
       }
 
       console.log(params)
+      console.log(device)
 
       // creates a new WebRTC Transport to send media
       // based on the server's producer transport params
       // https://mediasoup.org/documentation/v3/mediasoup-client/api/#TransportOptions
-      setproducerTransport(device.createSendTransport(params))
-
+      //setproducerTransport(device.createSendTransport(params))
+let producerTransport = device.createSendTransport(params)
       // https://mediasoup.org/documentation/v3/communication-between-client-and-server/#producing-media
       // this event is raised when a first call to transport.produce() is made
       // see connectSendTransport() below
       producerTransport.on('connect', async ({ dtlsParameters }, callback, errback) => {
+        console.log('PRODUCER TRANSPORT CONNECTION FIRED')
         try {
           // Signal local DTLS parameters to the server side transport
           // see server's Socket.on('transport-connect', ...)
@@ -840,6 +828,8 @@ const  AddMediaStream = (userid, stream)=> {
       })
 
       producerTransport.on('produce', async (parameters, callback, errback) => {
+        console.log('IAM STARTING TO PRODUCE')
+
         console.log(parameters)
 
         try {
@@ -864,7 +854,7 @@ const  AddMediaStream = (userid, stream)=> {
         }
       })
 
-      connectSendTransport()
+      connectSendTransport(producerTransport)
     })
   }
 
@@ -932,12 +922,14 @@ const  AddMediaStream = (userid, stream)=> {
   }
 
   //this function will connect our send transport to the server
-  const connectSendTransport = async () => {
+  const connectSendTransport = async (producerTransport) => {
     // we now call produce() to instruct the producer transport
     // to send media to the Router
     // https://mediasoup.org/documentation/v3/mediasoup-client/api/#transport-produce
     // this action will trigger the 'connect' and 'produce' events above
+    console.log('CONNECT THE SEND TRANSPORT')
     console.log(params)
+
     let producer = await producerTransport.produce(params)
 
     setProducer(producer)
@@ -981,6 +973,73 @@ const  AddMediaStream = (userid, stream)=> {
 
   };
 
+
+
+  //this function will connecect the socketio server 
+  // and save some initail date to the state
+  // this function shuld run after the component have mounted
+  const startConncting = ()  => {
+    if(Connected)return
+    setConnected(false)
+  //   await setState({ socket: io('http://localhost:6800') });
+ 
+     //set all css view cases the false excpit the frist one
+ 
+     let CaseEditer = [...Case]
+     Case.forEach((c, i) => {
+       CaseEditer[i] = false
+       if (i === 0) CaseEditer[i] = true;
+     })
+ 
+  setCase( CaseEditer )
+ 
+     let GuestEditer = [...guest]
+     guest.forEach((g, i) => {
+       GuestEditer[i][0] = React.createRef();
+       GuestEditer[i][1] = 0;
+       GuestEditer[i][2] = true;
+     })
+     
+     setGuest( GuestEditer );
+ 
+ 
+     try {
+       //if the isviewer came as true dont run the cam 
+       //star connection to the server to watch the stream
+       console.log(navigate)
+       if (navigate .state.IsViewe) {
+         CreateOrJoinTheRoom()
+ 
+       } else {
+         //run the cam and the the  StartUserCamra function will connect to the server
+         StartUserCamra(0);
+       }
+     }
+ 
+     catch (e) {
+       console.log(e)
+       StartUserCamra(0);
+ 
+     }
+ 
+ 
+ 
+   }
+
+
+
+
+   useEffect(()=>{
+    if(Socket) startConncting()
+      //startConncting(Case,navigate , CreateOrJoinTheRoom , StartUserCamra , guest , setCase , setGuest , Connected , setConnected);
+      //   //when the component is mounted start connecting to the server
+      // seekSocketServer()
+      // return ()=>componentWillUnmount()
+    },[])
+
+  useEffect(()=>{
+
+  },[params])
 
 
 
@@ -1205,60 +1264,6 @@ const  AddMediaStream = (userid, stream)=> {
   
 
     }
-
-
-  //this function will connecect the socketio server 
-  // and save some initail date to the state
-  // this function shuld run after the component have mounted
-  const startConncting = (Case,navigate , CreateOrJoinTheRoom , StartUserCamra , guest , setCase , setGuest , Connected , setConnected)  => {
-    if(Connected)return
-    setConnected(false)
-  //   await setState({ socket: io('http://localhost:6800') });
- 
-     //set all css view cases the false excpit the frist one
- 
-     let CaseEditer = [...Case]
-     Case.forEach((c, i) => {
-       CaseEditer[i] = false
-       if (i === 0) CaseEditer[i] = true;
-     })
- 
-  setCase( CaseEditer )
- 
-     let GuestEditer = [...guest]
-     guest.forEach((g, i) => {
-       GuestEditer[i][0] = React.createRef();
-       GuestEditer[i][1] = 0;
-       GuestEditer[i][2] = true;
-     })
-     
-     setGuest( GuestEditer );
- 
- 
-     try {
-       //if the isviewer came as true dont run the cam 
-       //star connection to the server to watch the stream
-       console.log(navigate)
-       if (navigate.state.IsViewer) {
-         CreateOrJoinTheRoom()
- 
-       } else {
-         //run the cam and the the  StartUserCamra function will connect to the server
-         StartUserCamra(0);
-       }
-     }
- 
-     catch (e) {
-       console.log(e)
-       StartUserCamra(0);
- 
-     }
- 
- 
- 
-   }
-
-
 
 
 
