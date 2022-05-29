@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState ,useContext , useCallback} from 'react';
 import Modal from './Modal';
-import { Device } from 'mediasoup-client';
 import { SocketContext } from "../context/socket"
-
+import { useMediaSoupHelper } from '../lib/mediaSoupHelper';
 //import {io} from 'socket.io-client';
 
 
@@ -36,8 +35,6 @@ const [Connected,setConnected] = useState(false);
 const [IsViewer,setIsViewer] = useState(false);
 const [IsPublic,setIsPublic] = useState(false);
 const [IsStream,setisStream] = useState(false);
-const [producerTransport,setproducerTransport] = useState(false);
-const [consumerTransports,setConsumerTransports] = useState([]);
 const [producer,setProducer] = useState(null);
 const [BossId,setBossId] = useState(0);
 const [HistoryChat,setHistoryChat] = useState([]);
@@ -61,33 +58,63 @@ const [view,setview] = useState( //the array of class in each cases[
   ['col-md-7', 'col-md-6', 'col-md-5', 'col-md-4', 'col-md-6', 'col-md-6', 'col-md-6', 'col-md-5'],
   ['d-none', 'd-none', 'd-none', 'col-md-2', 'col-md-3', 'd-none', 'col-md-4', 'col-md-3']]);
 
-  const [params,setParam] = useState(
-    {   // mediasoup configratio params 
-    
-      encodings: [
-        {
-          rid: 'r0',
-          maxBitrate: 100000,
-          scalabilityMode: 'S1T3',
-        },
-        {
-          rid: 'r1',
-          maxBitrate: 300000,
-          scalabilityMode: 'S1T3',
-        },
-        {
-          rid: 'r2',
-          maxBitrate: 900000,
-          scalabilityMode: 'S1T3',
-        },
-      ],
-      // https://mediasoup.org/documentation/v3/mediasoup-client/api/#ProducerCodecOptions
-      codecOptions: {
-        videoGoogleStartBitrate: 1000
+  const  AddMediaStream = (userid, stream ,kok)=> {
+
+    let guestlist = [...guest]
+    console.log('AddMediaStream AddMediaStream AddMediaStream AddMediaStream')
+    console.log(guestlist)
+    console.log(userid)
+    console.log(stream)
+    console.log(BossId)
+    console.log(IsViewer)
+    for (let i = 1; i < guestlist.length; i++) {
+
+      if (userid === BossId) {
+
+        guestlist[0][0].current.srcObject = stream;
+        guestlist[0][1] = userid;
+
+        if (IsViewer) break;
+
+        for (let i = 1; i < guestlist.length; i++) {
+          if (guestlist[i][1] === 0) {
+
+            guestlist[i][1] = Socket.id;
+
+            if (!IsViewer) {
+              console.log(  'should i start user came')
+              console.log(IsViewer)
+              console.log(i)
+            //  if(kok) return
+
+              StartUserCamra(i);
+
+            }
+            ShowTheSideCaller(i)
+            break;
+          }
+        }
+        break;
+      }
+
+      if (guestlist[i][1] === 0) {
+        guestlist[i][0].current.srcObject = stream;
+        guestlist[i][1] = userid;
+        ShowTheSideCaller(i)
+        break;
       }
     }
-    );
 
+    setGuest( guestlist )
+
+  }
+
+
+  const { 
+    startStreming  ,
+    setParam
+  } = useMediaSoupHelper(Socket,IsViewer,Room,setisFreeToJoin,AddMediaStream);
+  
 const navigate = useLocation();
 
   
@@ -218,8 +245,8 @@ try {
         setIsViewer(true)
   
         // once we have rtpCapabilities from the Router, create Device
-        createDevice(rtpCapabilities)
-  
+        startStreming(rtpCapabilities)
+        
         return
       }
       // if error happen quit the app and got to home page
@@ -259,43 +286,14 @@ try {
   
     showTost(room);
     setRtpCapabilities( rtpCapabilities )
-    createDevice(rtpCapabilities)
+    startStreming(rtpCapabilities)
   } )
 
 } catch (error) {
   console.log(error)
 }
 
-    //this event new-prouducer triggerd a new user is joined the room and 
-    // you gone resive his stream via producerId and socketId is his socket id
-    console.log('SET THE NEW PRODUCER');
-    Socket.on('new-producer', async ({ producerId, socketId }) => {
-      console.log('NEW PERSON JUST JOINED THE MEETING ===================>>>>>>>>>>>>>>>>>>>>>')
-     //console.log(queueGuest)
-     //if(queueGuest[socketId]) return
-     //setState({queueGuest:[...queueGuest,socketId]})
-      await signalNewConsumerTransport(producerId, socketId)
 
-    })
-    //this event triggred when user colse his stram you shuld close 
-    //the connection to prevent memory leak
-    console.log('SET PRODUCER CLOSED');
-    Socket.on('producer-closed', ({ remoteProducerId, socketId }) => {
-      //find the specifc transport and close it
-      try {
-        const producerToClose = consumerTransports.find(transportData => transportData.producerId === remoteProducerId)
-        producerToClose.consumerTransport.close()
-        producerToClose.consumer.close()
-      } catch (e) {
-        console.error(e)
-      }
-      // remove the consumer transport from the list
-      let consumerTransports = [...consumerTransports.filter(transportData => transportData.producerId !== remoteProducerId)]
-      setConsumerTransports( consumerTransports )
-      // hide the video div element
-      completeSession(socketId)
-
-    })
 
     //this event triggerd to notify you there is chance to join the room
     
@@ -402,7 +400,7 @@ try {
 
   const componentWillUnmount =() =>{
 
-   
+   /* 
 
     try {
       //close all the consumer transport
@@ -459,7 +457,7 @@ try {
 
     }
 
-
+ */
 
 
   }
@@ -581,47 +579,8 @@ const seekSocketServer = async()=>{
   and display it and if the user comming is admin
   it will put it in the main view
   */
-const  AddMediaStream = (userid, stream)=> {
 
-    let guestlist = [...guest]
 
-    for (let i = 1; i < guestlist.length; i++) {
-
-      if (userid === BossId) {
-
-        guestlist[0][0].current.srcObject = stream;
-        guestlist[0][1] = userid;
-
-        if (IsViewer) break;
-
-        for (let i = 1; i < guestlist.length; i++) {
-          if (guestlist[i][1] === 0) {
-
-            guestlist[i][1] = Socket.id;
-
-            if (!IsViewer) {
-
-              StartUserCamra(i);
-
-            }
-            ShowTheSideCaller(i)
-            break;
-          }
-        }
-        break;
-      }
-
-      if (guestlist[i][1] === 0) {
-        guestlist[i][0].current.srcObject = stream;
-        guestlist[i][1] = userid;
-        ShowTheSideCaller(i)
-        break;
-      }
-    }
-
-    setGuest( guestlist )
-
-  }
 
   //this function will will show the messages from the state
  const ShowHistoryChat = () =>{
@@ -679,272 +638,7 @@ const  AddMediaStream = (userid, stream)=> {
     setCase( cc );
   }
 
-  //this function will create a device for mediasoup api
- const createDevice = async (routerRtpCapabilities) => {
-   console.log('START CREATING THE DIVICE')
-    try {
-      let device = new Device()
-
-      // https://mediasoup.org/documentation/v3/mediasoup-client/api/#device-load
-      // Loads the device with RTP capabilities of the Router (server side)
-      // let routerRtpCapabilities = rtpCapabilities
-     // let cap = {routerRtpCapabilities: rtpCapabilities};
-      console.error('rtp capapltet')
-      console.log(routerRtpCapabilities)
-      
-      await device.load({routerRtpCapabilities});
-
-      setDevice(device )
-
-      console.log('CHECKING THE VIEWER STATUS BEFOR CREATE SEND TEANSPORT')
-      console.log(`the viewr case IS: ${IsViewer}`)
-      //if the user is not viewr create send transport
-      if (!IsViewer) {
-        // once the device loads, create transport
-        createSendTransport(device)
-
-      } else {
-
-        //get the current producers and chek if joining the room is avaliple
-        getProducers()
-
-        Socket.emit('isFreeToJoin', { roomName: Room }, (data) => {
-          if (data.status) {
-            setisFreeToJoin( true )
-          } else {
-            setisFreeToJoin( false )
-
-          }
-
-        })
-      }
-
-    } catch (error) {
-      console.warn('browser not supported')
-      console.log(error)
-      if (error.name === 'UnsupportedError')
-        console.warn('browser not supported')
-    }
-  }
-
-  /*
-  this function used when new user joied the room and it take
-  the remotpruducer and socketid create a recive transport
-  and tell the server to create a consumer transport 
-  */
-  const signalNewConsumerTransport = async (remoteProducerId, socketId) => {
-
-    await Socket.emit('createWebRtcTransport', { consumer: true }, ({ params }) => {
-      // The server sends back params needed 
-      // to create Send Transport on the client side
-      if (params.error) {
-        console.log(params.error)
-        return
-      }
-      console.log(`PARAMS... ${params}`)
-
-      let consumerTransport
-      try {
-        consumerTransport = device.createRecvTransport(params)
-      } catch (error) {
-        // exceptions: 
-        // {InvalidStateError} if not loaded
-        // {TypeError} if wrong arguments.
-        console.log(error)
-        return
-      }
-
-      consumerTransport.on('connect', async ({ dtlsParameters }, callback, errback) => {
-        try {
-          // Signal local DTLS parameters to the server side transport
-          // see server's Socket.on('transport-recv-connect', ...)
-          await Socket.emit('transport-recv-connect', {
-            dtlsParameters,
-            serverConsumerTransportId: params.id,
-          })
-
-          // Tell the transport that parameters were transmitted.
-          callback()
-        } catch (error) {
-          // Tell the transport that something was wrong
-          errback(error)
-        }
-      })
-      // after createing the tranpsort connect to it
-      connectRecvTransport(consumerTransport, remoteProducerId, socketId, params.id)
-    })
-    //if viewr check if room is avalipee to join
-    if (IsViewer) {
-      Socket.emit('isFreeToJoin', { roomName: Room }, (data) => {
-        if (data.status) {
-          setisFreeToJoin( true )
-        } else {
-          setisFreeToJoin( false )
-
-        }
-
-      })
-    }
-  }
-
-  //this function will create transport to send your strean
-  const createSendTransport = (device) => {
-    // see server's Socket.on('createWebRtcTransport', sender?, ...)
-    // this is a call from Producer, so sender = true
-    Socket.emit('createWebRtcTransport', { consumer: false }, ({ params }) => {
-      // The server sends back params needed 
-      // to create Send Transport on the client side
-      if (params.error) {
-        console.log(params.error)
-        return
-      }
-
-      console.log(params)
-      console.log(device)
-
-      // creates a new WebRTC Transport to send media
-      // based on the server's producer transport params
-      // https://mediasoup.org/documentation/v3/mediasoup-client/api/#TransportOptions
-      //setproducerTransport(device.createSendTransport(params))
-let producerTransport = device.createSendTransport(params)
-      // https://mediasoup.org/documentation/v3/communication-between-client-and-server/#producing-media
-      // this event is raised when a first call to transport.produce() is made
-      // see connectSendTransport() below
-      producerTransport.on('connect', async ({ dtlsParameters }, callback, errback) => {
-        console.log('PRODUCER TRANSPORT CONNECTION FIRED')
-        try {
-          // Signal local DTLS parameters to the server side transport
-          // see server's Socket.on('transport-connect', ...)
-          await Socket.emit('transport-connect', {
-            dtlsParameters,
-          })
-
-          // Tell the transport that parameters were transmitted.
-          callback()
-
-        } catch (error) {
-          errback(error)
-        }
-      })
-
-      producerTransport.on('produce', async (parameters, callback, errback) => {
-        console.log('IAM STARTING TO PRODUCE')
-
-        console.log(parameters)
-
-        try {
-          // tell the server to create a Producer
-          // with the following parameters and produce
-          // and expect back a server side producer id
-          // see server's Socket.on('transport-produce', ...)
-          await Socket.emit('transport-produce', {
-            kind: parameters.kind,
-            rtpParameters: parameters.rtpParameters,
-            appData: parameters.appData,
-          }, ({ id, producersExist }) => {
-            // Tell the transport that parameters were transmitted and provide it with the
-            // server side producer's id.
-            callback({ id })
-
-            // if producers exist, then join room
-            if (producersExist) getProducers()
-          })
-        } catch (error) {
-          errback(error)
-        }
-      })
-
-      connectSendTransport(producerTransport)
-    })
-  }
-
-  //this function will get all 
-  // current producer from the server and counsume them
-  const getProducers = () => {
-    Socket.emit('getProducers', {
-      isViewr: IsViewer,
-      roomName: Room
-    }, producerIds => {
-      console.log(producerIds)
-      // for each of the producer create a consumer
-      // producerIds.forEach(id => signalNewConsumerTransport(id))
-      producerIds.forEach(producer => signalNewConsumerTransport(producer[0], producer[1]))
-    })
-  }
-
-  //connect the rescv transport
-  const connectRecvTransport = async (consumerTransport, remoteProducerId, socketId, serverConsumerTransportId) => {
-    // for consumer, we need to tell the server first
-    // to create a consumer based on the rtpCapabilities and consume
-    // if the router can consume, it will send back a set of params as below
-    await Socket.emit('consume', {
-      rtpCapabilities: device.rtpCapabilities,
-      remoteProducerId,
-      serverConsumerTransportId,
-    }, async ({ params }) => {
-      if (params.error) {
-        console.log('Cannot Consume')
-        return
-      }
-
-      console.log(`Consumer Params ${params}`)
-      console.log(params)
-      // then consume with the local consumer transport
-      // which creates a consumer
-      const consumer = await consumerTransport.consume({
-        id: params.id,
-        producerId: params.producerId,
-        kind: params.kind,
-        rtpParameters: params.rtpParameters
-      })
-
-      let consumerTransports = [
-        ...consumerTransports,
-        {
-          consumerTransport,
-          serverConsumerTransportId: params.id,
-          producerId: remoteProducerId,
-          consumer,
-        },
-      ]
-
-      setConsumerTransports(consumerTransports)
-
-      const { track } = consumer
-
-      //add the new stream to the view 
-      AddMediaStream(socketId, new MediaStream([track]))
-
-      // the server consumer started with media paused
-      // so we need to inform the server to resume
-      Socket.emit('consumer-resume', { serverConsumerId: params.serverConsumerId })
-    })
-  }
-
-  //this function will connect our send transport to the server
-  const connectSendTransport = async (producerTransport) => {
-    // we now call produce() to instruct the producer transport
-    // to send media to the Router
-    // https://mediasoup.org/documentation/v3/mediasoup-client/api/#transport-produce
-    // this action will trigger the 'connect' and 'produce' events above
-    console.log('CONNECT THE SEND TRANSPORT')
-    console.log(params)
-
-    let producer = await producerTransport.produce(params)
-
-    setProducer(producer)
-    producer.on('trackended', () => {
-      console.log('track ended')
-
-      // close video track
-    })
-
-    producer.on('transportclose', () => {
-      console.log('transport ended')
-
-      // close video track
-    })
-  }
+  
 
   //this function called when user quit the room
   // it will clear his postion it the guist list
@@ -1036,10 +730,6 @@ let producerTransport = device.createSendTransport(params)
       // seekSocketServer()
       // return ()=>componentWillUnmount()
     },[])
-
-  useEffect(()=>{
-
-  },[params])
 
 
 
