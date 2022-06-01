@@ -1,76 +1,101 @@
-import React, { useEffect, useRef, useState ,useContext , useCallback} from 'react';
-import Modal from './Modal';
-import { SocketContext } from "../context/socket"
-import { useMediaSoupHelper } from '../lib/mediaSoupHelper';
-//import {io} from 'socket.io-client';
+import React, { useEffect, useRef, useState, useContext } from "react";
+import Modal from "./Modal";
+import { SocketContext } from "../context/socket";
+import { useMediaSoupHelper } from "../lib/mediaSoupHelper";
 
+import Footer from "./Footer";
 
-import Footer from './Footer';
-//import { useUserApi } from '../lib/hooks/userApi';
+import { ToastContainer, toast } from "react-toastify";
+import { useLocation, useParams } from "react-router-dom";
+import Layout from "./layout/Layout";
+import ControlePanle from "./layout/ControlePanle";
+import VideoCards from "./layout/VideoCards";
 
-import { ToastContainer, toast } from 'react-toastify';
-//import { useNavigate } from 'react-router-dom';
-import { useLocation , useParams } from 'react-router-dom';
-
-function  CallBord () {
-//const [Socket,setSocket] = useState({});
-
-//  const [SocketId,setSocketId] = useState(null);
-
-//  const [Socket,setSocket] = useState();
-
+function CallBord() {
   const CanvasImg = useRef(null);
-//  const { Socket , SocketId} = useUserApi();
+
   const Socket = useContext(SocketContext);
 
   const { Room } = useParams();
 
-//const [socket,setsocket] = useState(null);
-const [rtpCapabilities,setRtpCapabilities] = useState('');
-                    
-const [isFreeToJoin,setisFreeToJoin] = useState(false);
-const [HiddeTheRoom,setHiddeTheRoom] = useState(true);
-const [Lock,setLock] = useState(false);
-const [Connected,setConnected] = useState(false);
-const [IsViewer,setIsViewer] = useState(false);
-const [IsPublic,setIsPublic] = useState(false);
-const [IsStream,setisStream] = useState(false);
-const [producer,setProducer] = useState(null);
-const [BossId,setBossId] = useState(0);
-const [HistoryChat,setHistoryChat] = useState([]);
-const [guest,setGuest] = useState([[], [], [], [], []]);
-const [ChatMessage,setChatMessage] = useState("");
-const [PrivetMessage,setPrivetMessage] = useState("");
-const [First,setFirst] = useState(false);
-const [Case , setCase] = useState([true, false, false,    //the curren case of the view
-false, false, false]) 
+  const [isFreeToJoin, setisFreeToJoin] = useState(false);
+  const [HiddeTheRoom, setHiddeTheRoom] = useState(true);
+  const [Lock, setLock] = useState(false);
+  const [Connected, setConnected] = useState(false);
+  const [IsViewer, setIsViewer] = useState(false);
+  const [IsPublic, setIsPublic] = useState(false);
+  const [IsStream, setisStream] = useState(false);
+  const [BossId, setBossId] = useState(0);
+  const [HistoryChat, setHistoryChat] = useState([]);
+  const [guest, setGuest] = useState([[], [], [], [], []]);
+  const [ChatMessage, setChatMessage] = useState("");
+  const [PrivetMessage, setPrivetMessage] = useState("");
+  const [First, setFirst] = useState(false);
+  const [Case, setCase] = useState([
+    true,
+    false,
+    false, //the curren case of the view
+    false,
+    false,
+    false,
+  ]);
 
+  const [ChangeStatVale, setChangeStatVale] = useState([
+    //the vlue of the css case classes
+    [1, 0, 5, 4, 3, 2, 7, 6],
+    [5, 2, 1, 7, 6, 0, 4, 3],
+    [6, 7, 3, 2, 5, 4, 0, 1],
+  ]);
 
+  const view =
+    //the array of class in each cases[
+    [
+      [
+        "d-none",
+        "col-md-6",
+        "col-md-4",
+        "col-md-4",
+        "d-none",
+        "d-none",
+        "d-none",
+        "col-md-4",
+      ],
+      [
+        "d-none",
+        "d-none",
+        "col-md-3",
+        "col-md-2",
+        "col-md-3",
+        "col-md-4",
+        "d-none,d-none",
+      ],
+      [
+        "col-md-7",
+        "col-md-6",
+        "col-md-5",
+        "col-md-4",
+        "col-md-6",
+        "col-md-6",
+        "col-md-6",
+        "col-md-5",
+      ],
+      [
+        "d-none",
+        "d-none",
+        "d-none",
+        "col-md-2",
+        "col-md-3",
+        "d-none",
+        "col-md-4",
+        "col-md-3",
+      ],
+    ];
 
-const [ChangeStatVale,setChangeStatVale] = useState([             //the vlue of the css case classes
-[1, 0, 5, 4, 3, 2, 7, 6],
-[5, 2, 1, 7, 6, 0, 4, 3],
-[6, 7, 3, 2, 5, 4, 0, 1]]);
+  const AddMediaStream = (userid, stream, kok) => {
+    let guestlist = [...guest];
 
-const [view,setview] = useState( //the array of class in each cases[
- [ ['d-none', 'col-md-6', 'col-md-4', 'col-md-4', 'd-none', 'd-none', 'd-none', 'col-md-4'],
-  ['d-none', 'd-none', 'col-md-3', 'col-md-2', 'col-md-3', 'col-md-4', 'd-none,d-none'],
-  ['col-md-7', 'col-md-6', 'col-md-5', 'col-md-4', 'col-md-6', 'col-md-6', 'col-md-6', 'col-md-5'],
-  ['d-none', 'd-none', 'd-none', 'col-md-2', 'col-md-3', 'd-none', 'col-md-4', 'col-md-3']]);
-
-  const  AddMediaStream = (userid, stream ,kok)=> {
-
-    let guestlist = [...guest]
-    console.log('AddMediaStream AddMediaStream AddMediaStream AddMediaStream')
-    console.log(guestlist)
-    console.log(userid)
-    console.log(stream)
-    console.log(BossId)
-    console.log(IsViewer)
     for (let i = 1; i < guestlist.length; i++) {
-
       if (userid === BossId) {
-
         guestlist[0][0].current.srcObject = stream;
         guestlist[0][1] = userid;
 
@@ -78,19 +103,12 @@ const [view,setview] = useState( //the array of class in each cases[
 
         for (let i = 1; i < guestlist.length; i++) {
           if (guestlist[i][1] === 0) {
-
             guestlist[i][1] = Socket.id;
 
             if (!IsViewer) {
-              console.log(  'should i start user came')
-              console.log(IsViewer)
-              console.log(i)
-            //  if(kok) return
-
               StartUserCamra(i);
-
             }
-            ShowTheSideCaller(i)
+            ShowTheSideCaller(i);
             break;
           }
         }
@@ -100,46 +118,65 @@ const [view,setview] = useState( //the array of class in each cases[
       if (guestlist[i][1] === 0) {
         guestlist[i][0].current.srcObject = stream;
         guestlist[i][1] = userid;
-        ShowTheSideCaller(i)
+        ShowTheSideCaller(i);
         break;
       }
     }
 
-    setGuest( guestlist )
+    setGuest(guestlist);
+  };
 
-  }
+    //this function called when user quit the room
+  // it will clear his postion it the guist list
+  // and close the side bar
+  const completeSession = (id) => {
+    let guestList = [...guest];
 
+    let thegustid;
 
-  const { 
-    startStreming  ,
-    setParam
-  } = useMediaSoupHelper(Socket,IsViewer,Room,setisFreeToJoin,AddMediaStream);
-  
-const navigate = useLocation();
+    guestList.forEach((geist, i) => {
+      if (geist[1] === id) {
+        console.log(i);
+        geist[1] = 0;
+        thegustid = i;
+      }
+    });
 
-  
+    setGuest(guestList);
+    CloseTheSideCaller(thegustid);
+  };
+
+  const { startStreming, params, setParam } = useMediaSoupHelper(
+    Socket,
+    IsViewer,
+    Room,
+    setisFreeToJoin,
+    AddMediaStream,
+    completeSession
+  );
+
+  const navigate = useLocation();
+
   //this function will show the notftion
- const showTost = (data)=> {
-    toast(data)
-  }
+  const showTost = (data) => {
+    toast(data);
+  };
 
   //open or close the dilog for a selected user
   //identfi the user that clicked on and safe the state
-  //of the box 
- const ToogleBox =(guest)=> {
-    let Guests = [...guest]
-    let index = guest.indexOf(guest)
+  //of the box
+  const ToogleBox = (guest) => {
+    let Guests = [...guest];
+    let index = guest.indexOf(guest);
 
     if (guest[2]) {
-      Guests[index][2] = false
-      setGuest(Guests)
-
+      Guests[index][2] = false;
+      setGuest(Guests);
     } else {
-      Guests[index][2] = true
-      setGuest(Guests)
+      Guests[index][2] = true;
+      setGuest(Guests);
     }
-
-  }
+  };
 
   /*
   send a Privet message to user
@@ -147,21 +184,22 @@ const navigate = useLocation();
   to HistoryChat savet to the state empty the 
   chat box and send it to the server
   */
-const  SendPrivetMessage =(e)=> {
+  const SendPrivetMessage = (e) => {
     e.preventDefault();
-    if (PrivetMessage.trim() === "") return
+    if (PrivetMessage.trim() === "") return;
 
-    let HistoryChat = [...HistoryChat]
-    HistoryChat.push(<div className=" messageitem ">
-      {PrivetMessage}</div>)
+    let HistoryChat = [...HistoryChat];
+    HistoryChat.push(<div className=" messageitem ">{PrivetMessage}</div>);
     setHistoryChat(HistoryChat);
-    setPrivetMessage("")
-    Socket.emit('SendPrivetMessage',
-      { id: e.target.id, Message: PrivetMessage }, room => {
-        console.log(room)
+    setPrivetMessage("");
+    Socket.emit(
+      "SendPrivetMessage",
+      { id: e.target.id, Message: PrivetMessage },
+      (room) => {
+        console.log(room);
       }
-    )
-  }
+    );
+  };
 
   /*
   send message to public chat board
@@ -169,21 +207,16 @@ const  SendPrivetMessage =(e)=> {
   to HistoryChat savet to the state empty the 
   chat box and send it to the server
   */
-  const SendMessageChat =(e) =>{
+  const SendMessageChat = (e) => {
     e.preventDefault();
-    if (ChatMessage.trim() === "") return
+    if (ChatMessage.trim() === "") return;
 
-    let HistoryChat = [...HistoryChat]
-    HistoryChat.push(<div className=" messageitem ">
-      {ChatMessage}</div>)
+    let HistoryChat = [...HistoryChat];
+    HistoryChat.push(<div className=" messageitem ">{ChatMessage}</div>);
     setHistoryChat(HistoryChat);
-    setChatMessage("")
-    Socket.emit('Message',
-      '{"title":"' + Room + '"}',
-      ChatMessage,
-    )
-
-  }
+    setChatMessage("");
+    Socket.emit("Message", '{"title":"' + Room + '"}', ChatMessage);
+  };
 
   /*
   this function is gone take the room name that 
@@ -199,243 +232,184 @@ const  SendPrivetMessage =(e)=> {
   and just resice any new procuser the server send 
   */
 
-  const CreateOrJoinTheRoom=() =>{
-   let IsPublic  = false;
-   let IsViewer = false
+  const CreateOrJoinTheRoom = () => {
+    let IsPublic = true;
+    let IsViewer = false;
 
-    try {
-      if (navigate .state.IsViewer) {
-        setIsViewer(true)
-        IsViewer = true
+   
+      if (navigate?.state?.IsViewer) {
+        setIsViewer(true);
+        IsViewer = true;
       }
 
-      if (navigate .state.IsPublic){
-         setIsPublic(true)
-         IsPublic = true
+      if (!navigate?.state?.IsPublic) {
+        setIsPublic(true);
+        IsPublic = true;
+      }
+   
 
+    //create room name it this way to add mor info in in the room name
+    let FullRoomName =
+      '{"title":"' +
+      Room +
+      '","IsPublic":' +
+      IsPublic +
+      ',"IsViewer":' +
+      IsViewer +
+      "}";
+
+
+      Socket.emit(
+        "CreateStream",
+        FullRoomName,
+        ({ status, rtpCapabilities, BossId, room, First }) => {
+          if (!status) {
+            //if status came with wrong result and rtpCapabilities
+            // that mean you just gone watch  the room
+            if (rtpCapabilities) {
+              showTost(room);
+              setBossId(BossId);
+
+              setIsViewer(true);
+
+              // once we have rtpCapabilities from the Router, create Device
+              startStreming(rtpCapabilities);
+
+              return;
+            }
+            // if error happen quit the app and got to home page
+            setTimeout(function () {
+              showTost("The room is not strmed");
+              //  document.location.href = "/"
+            }, 2000);
+            return;
+          }
+
+          //if this value came as true you are the admin of this room
+         
+          if (First) {
+            console.log("setting The Frist VALUE :::::::::::");
+            console.log(First);
+            setFirst(true);
+            setBossId(Socket.id);
+
+            setTimeout(() => {
+              console.log(First);
+
+              TakeThumbnailImage();
+            }, 700);
+
+            //  setHiddeTheRoom( IsPublic )
+          } else {
+            setBossId(BossId);
+          }
+
+          showTost(room);
+          startStreming(rtpCapabilities);
         }
-
-      
-    } catch (e) {
-
-    }
-
+      );
   
-    //create room name it this way to add mor info in in the room name    
-    let FullRoomName = '{"title":"' + Room +
-      '","IsPublic":' + IsPublic +
-      ',"IsViewer":' + IsViewer + '}';
-
-      
-try {
-  Socket.emit('CreateStream', FullRoomName , 
-    ({ status, rtpCapabilities , BossId, room , First }) => {
-  
- 
-  
-    if (!status) {
-      //if status came with wrong result and rtpCapabilities
-      // that mean you just gone watch  the room
-      if (rtpCapabilities) {
-  
-        showTost(room);
-        setBossId( BossId )
-  
-        setRtpCapabilities(rtpCapabilities )
-        setIsViewer(true)
-  
-        // once we have rtpCapabilities from the Router, create Device
-        startStreming(rtpCapabilities)
-        
-        return
-      }
-      // if error happen quit the app and got to home page
-      setTimeout(function () {
-        showTost("The room is not strmed");
-      //  document.location.href = "/"
-      }, 2000);
-      return
-    }
-  
-    //if this value came as true you are the admin of this room
-    try {
-      let i =  Socket.id
-  
-    } catch (error) {
-      console.log(error)
-    }
-    if (First) {
-      console.log('setting The Frist VALUE :::::::::::');
-      console.log(First)
-      setFirst(true)
-      setBossId( Socket.id )
-
-
-      setTimeout(() => {
-        console.log(First)
-          console.log("TakeThumbnailImage :");
-
-          TakeThumbnailImage();
-        
-      }, 700);
-    
-    //  setHiddeTheRoom( IsPublic )
-    } else {
-      setBossId( BossId )
-    }
-  
-    showTost(room);
-    setRtpCapabilities( rtpCapabilities )
-    startStreming(rtpCapabilities)
-  } )
-
-} catch (error) {
-  console.log(error)
-}
-
-
 
     //this event triggerd to notify you there is chance to join the room
-    
-    Socket.on('FreeToJoin', ({ status }) => {
 
+    Socket.on("FreeToJoin", ({ status }) => {
       if (status) {
-        setisFreeToJoin( true )
-        return
+        setisFreeToJoin(true);
+        return;
       }
 
-      setisFreeToJoin( false )
-
-    })
+      setisFreeToJoin(false);
+    });
 
     //this event triggerd when the room admin ban you from the room
-    Socket.on('GoOut', () => {
+    Socket.on("GoOut", () => {
       showTost("the admin drop you from this room");
       setTimeout(function () {
-        document.location.href = "/"
+        document.location.href = "/";
       }, 200);
-    })
+    });
 
-    //this event triggred when you becam admin and the room setting seted 
-    Socket.on('switchAdminSetting', ({ isRoomLocked, isStream, IsPublic }) => {
-      setLock(isRoomLocked)
-      setisStream(isStream)
-      setHiddeTheRoom( IsPublic )
-
-    })
+    //this event triggred when you becam admin and the room setting seted
+    Socket.on("switchAdminSetting", ({ isRoomLocked, isStream, IsPublic }) => {
+      setLock(isRoomLocked);
+      setisStream(isStream);
+      setHiddeTheRoom(IsPublic);
+    });
 
     //this event triggred when admin switch to another youser
-    Socket.on('switchAdmin', ({ admin }) => {
-      setBossId( admin )
+    Socket.on("switchAdmin", ({ admin }) => {
+      setBossId(admin);
 
       // if you are the new admin set you as admin
       if (admin === Socket.id) {
-
-        setFirst(true)
-
+        setFirst(true);
       }
       /* 
       find the new admin in the room and set
       his view to the big view and clear his 
       postion in the guest list
       */
-      let UsersGuest = [...guest]
+      let UsersGuest = [...guest];
       let posthion;
-      UsersGuest.forEach(User => {
+      UsersGuest.forEach((User) => {
         if (User[1] === BossId) {
-          UsersGuest[0][0].current.srcObject = User[0].current.srcObject
-          UsersGuest[0][1] = BossId
-          posthion = UsersGuest.indexOf(User)
-          User[1] = 0
+          UsersGuest[0][0].current.srcObject = User[0].current.srcObject;
+          UsersGuest[0][1] = BossId;
+          posthion = UsersGuest.indexOf(User);
+          User[1] = 0;
         }
+      });
 
-      })
-
-      setGuest(UsersGuest )
+      setGuest(UsersGuest);
       CloseTheSideCaller(posthion);
-
-
-    })
+    });
 
     //this event triggerd when you recive a privet message
     //it will save to HistoryChat
-    Socket.on('PrivetMessage', function (Message) {
-      let HistoryChat = [...HistoryChat]
+    Socket.on("PrivetMessage", function (Message) {
+      let HistoryChat = [...HistoryChat];
 
-      HistoryChat.push(<div className="alr messageitem ">{Message}</div>)
+      HistoryChat.push(<div className="alr messageitem ">{Message}</div>);
 
-      setHistoryChat( HistoryChat );
+      setHistoryChat(HistoryChat);
     });
 
     //this event triggerd when you recive a  message
     //it will save to HistoryChat
-    Socket.on('Message', function (Message) {
+    Socket.on("Message", function (Message) {
+      let HistoryChat = [...HistoryChat];
 
-      let HistoryChat = [...HistoryChat]
+      HistoryChat.push(
+        <div className="alr messageitem ">{Message.Message}</div>
+      );
 
-      HistoryChat.push(<div className="alr messageitem ">{Message.Message}</div>)
-
-      setHistoryChat( HistoryChat );
+      setHistoryChat(HistoryChat);
     });
-  }
+  };
 
   //this function take small imge from the user video
   // and send it to the server as a thumnail imge
- const TakeThumbnailImage = () =>{
-    var context = CanvasImg.current.getContext('2d');
+  const TakeThumbnailImage = () => {
+    var context = CanvasImg.current.getContext("2d");
 
     context.drawImage(guest[0][0].current, 0, 0, 280, 200);
 
-    var data = CanvasImg.current.toDataURL('image/png', 0.1);
-    console.log('IMGE EMITED TO SERVER ')
+    var data = CanvasImg.current.toDataURL("image/png", 0.1);
+    console.log("IMGE EMITED TO SERVER ");
 
-    Socket.emit('saveimg', data,
-      (data) => {
-        console.log('IMGE EMITED TO SERVER ')
-       }
-    )
+    Socket.emit("saveimg", data, (data) => {
+      console.log("IMGE EMITED TO SERVER ");
+    });
+  };
 
-  }
-
-
-  const componentWillUnmount =() =>{
-
-   /* 
-
-    try {
-      //close all the consumer transport
-      console.log(consumerTransports.length)
-      if(!consumerTransports.length) return
-
-      consumerTransports.forEach(Transports => {
-        if(Transports===null) return
-
-        Transports.consumerTransport.close()
-        Transports.consumer.close()
-      });
-
-    } catch (e) {
-      console.log(e)
-
-    }
-
-    try {
-      //close the send  producer transport
-      console.log(producerTransport)
-      if(producerTransport===null) return
-      producerTransport.close()
-    } catch (e) {
-      console.log(e)
-
-    }
-
-
-
+  const componentWillUnmount = () => {
+    
     console.log('Leving this component');
     try {
       //when leave the page close the cam 
       let newgist = [...guest]
 
+      console.log(guest)
       newgist.forEach(guest => {
 
         if (guest[1] !== 0) {
@@ -457,648 +431,252 @@ try {
 
     }
 
- */
+ 
+  };
 
 
-  }
+  //this check if the id if 0 it visible
+  const IsVedioElemntVisble = (id) => {
+    if (id === 0) return false;
 
-
-const seekSocketServer = async()=>{
-
-  //const newSocket = await io(`http://localhost:6800`);
-       
-  //setSocket(newSocket);
-   // if(newSocket.id)setSocketId(newSocket.id)
-    // startConncting();
-}
-
-
-  //this check if the id if 0 it visible 
- const IsVedioElemntVisble=(id) =>{
-    if (id === 0) return false
-
-    return true
-
-  }
+    return true;
+  };
 
   //this function will start accessing the webcam
   //and make it avalbe if the user is viewer will not connect to
-  // to the server if not will connect to the server and 
- const StartUserCamra=(i)=> {
-
-    navigator.mediaDevices.getUserMedia({
-      audio: false,
-      video: {
-        width: {
-          min: 640,
-          max: 1920,
+  // to the server if not will connect to the server and
+  const StartUserCamra = (i) => {
+    navigator.mediaDevices
+      .getUserMedia({
+        audio: false,
+        video: {
+          width: {
+            min: 640,
+            max: 1920,
+          },
+          height: {
+            min: 400,
+            max: 1080,
+          },
         },
-        height: {
-          min: 400,
-          max: 1080,
-        }
-      }
-    })
-      .then( (stream) =>{
-        let track = stream.getVideoTracks()[0]
-       // let params = params
-       let Params = {
+      })
+      .then((stream) => {
+        let track = stream.getVideoTracks()[0];
+        // let params = params
+        let Params = {
           track,
-          ...params
-        }
-        setParam(Params)
-        
+          ...params,
+        };
+        setParam(Params);
 
-        var guestList = [...guest]
+        var guestList = [...guest];
         if (Socket.id) {
-          console.log(Socket.id)
+          console.log(Socket.id);
 
-          guestList[i][1] = Socket.id
+          guestList[i][1] = Socket.id;
         }
         guestList[i][0].current.srcObject = stream;
 
-        setGuest( guestList );
+        setGuest(guestList);
         if (i === 0) {
           CreateOrJoinTheRoom();
         }
         //whait a bit to let the cam load and then
         //take a ThumbnailImage if the user is admin
-        console.log(First)
-
-
+        console.log(First);
       })
 
       .catch(function (err) {
-
         console.log("An error occurred: " + err);
       });
-
-  }
+  };
 
   //this function will lock the room
   // the server will check if you are the admin
- const LockRoom = (e) =>{
+  const LockRoom = (e) => {
     setLock(e.target.checked);
-    Socket.emit('LockTheRoom', Lock, data => { })
-  }
+    Socket.emit("LockTheRoom", Lock, (data) => {});
+  };
 
   //this function will prevent the roomfrom streaming to the public
   // the server will check if you are the admin
-  const isStream=(e) =>{
-    setisStream( e.target.checked )
-    Socket.emit('isStream', isStream, data => { })
-  }
-
+  const isStream = (e) => {
+    setisStream(e.target.checked);
+    Socket.emit("isStream", isStream, (data) => {});
+  };
 
   //this function will hide the room
   // the server will check if you are the admin
- const doHiddeTheRoom = (e) =>{
-    setHiddeTheRoom( e.target.checked )
-    Socket.emit('HiddeTheRoom', Lock, data => { })
-  }
+  const doHiddeTheRoom = (e) => {
+    setHiddeTheRoom(e.target.checked);
+    Socket.emit("HiddeTheRoom", Lock, (data) => {});
+  };
 
-  //this function will ban a spesifc user apssed 
+  //this function will ban a spesifc user apssed
   // to it the server will check if you are the admin
- const KikHimOut = (socketid) => {
-    let guest = guest.find((geust, i) => geust[1] === socketid)
-    ToogleBox(guest)
-    Socket.emit('kik', socketid, data => { })
-  }
+  const KikHimOut = (socketid) => {
+    let guest = guest.find((geust, i) => geust[1] === socketid);
+    ToogleBox(guest);
+    Socket.emit("kik", socketid, (data) => {});
+  };
 
   //this function wil just go
   // to the same page to allow the user
   // to join this room
-  const JoinTheRoom =()=> {
+  const JoinTheRoom = () => {
     navigate({
-      pathname: '/Switch',
-      state: {IsPublic:false, IsViewer: false, CallBorad: true, TheRoom: Room }
-    })
-  }
+      pathname: "/Switch",
+      state: {
+        IsPublic: false,
+        IsViewer: false,
+        CallBorad: true,
+        TheRoom: Room,
+      },
+    });
+  };
   /*
   this function will add the stream of users 
   and display it and if the user comming is admin
   it will put it in the main view
   */
 
-
-
   //this function will will show the messages from the state
- const ShowHistoryChat = () =>{
-    return HistoryChat.forEach(m => <div> {m}</div>)
-  }
+  const ShowHistoryChat = () => {
+    return HistoryChat.forEach((m) => <div> {m}</div>);
+  };
 
   //this function will close the side bar when no active view in it
- const CloseTheSideCaller = (i) =>{
-
+  const CloseTheSideCaller = (i) => {
     if ((i === 1 || i === 2) && guest[1][1] === 0 && guest[2][1] === 0) {
-
-      ToggleElementCssClass(1)
-
+      ToggleElementCssClass(1);
     }
 
     if ((i === 3 || i === 4) && guest[3][1] === 0 && guest[4][1] === 0) {
-      ToggleElementCssClass(2)
+      ToggleElementCssClass(2);
     }
-
-
-  }
+  };
 
   // this function will get the css class from view depnd on the current case
- const GetElemntCssClass = (Postion) =>{
-
-    return view[Postion][Case.indexOf(true)]
-  }
+  const GetElemntCssClass = (Postion) => {
+    return view[Postion][Case.indexOf(true)];
+  };
 
   //this function will open the side bar when there is active view in it
- const ShowTheSideCaller = (i) =>{
+  const ShowTheSideCaller = (i) => {
     if (i !== 0) {
       let iscase = Case.indexOf(true);
       if ((i === 1 || i === 2) && ![2, 3, 4, 5].includes(iscase)) {
-        ToggleElementCssClass(1)
+        ToggleElementCssClass(1);
       }
 
       if ((i === 3 || i === 4) && ![3, 4, 6, 7].includes(iscase)) {
-        ToggleElementCssClass(2)
-
+        ToggleElementCssClass(2);
       }
     }
-  }
+  };
 
   //this fuction will check the css cass and
   //toggle it to its oppessit case in the cases arry
-  const ToggleElementCssClass=(i)=> {
-    let stv = Case.indexOf(true)
+  const ToggleElementCssClass = (i) => {
+    let stv = Case.indexOf(true);
 
-    let nev = ChangeStatVale[i][stv]
+    let nev = ChangeStatVale[i][stv];
 
-    let cc = [...Case]
+    let cc = [...Case];
 
-    cc[stv] = false
-    cc[nev] = true
-    setCase( cc );
-  }
-
-  
-
-  //this function called when user quit the room
-  // it will clear his postion it the guist list
-  // and close the side bar
- const completeSession = (id) => {
-    //remove the socket from thw queu list
-    //if(queueGuest[id]) setState({queueGuest:[...queueGuest.filter(guest=>guest!==id)]})
-
-    var guestList = [...guest];
-
-    let thegustid;
-
-    guestList.forEach((geist, i) => {
-      if (geist[1] === id) {
-        console.log(i)
-        geist[1] = 0;
-        thegustid = i;
-
-      }
-
-    })
-
-    setGuest(guestList)
-    CloseTheSideCaller(thegustid);
-
-
+    cc[stv] = false;
+    cc[nev] = true;
+    setCase(cc);
   };
 
 
 
-  //this function will connecect the socketio server 
+  //this function will connecect the socketio server
   // and save some initail date to the state
   // this function shuld run after the component have mounted
-  const startConncting = ()  => {
-    if(Connected)return
-    setConnected(false)
-  //   await setState({ socket: io('http://localhost:6800') });
- 
-     //set all css view cases the false excpit the frist one
- 
-     let CaseEditer = [...Case]
-     Case.forEach((c, i) => {
-       CaseEditer[i] = false
-       if (i === 0) CaseEditer[i] = true;
-     })
- 
-  setCase( CaseEditer )
- 
-     let GuestEditer = [...guest]
-     guest.forEach((g, i) => {
-       GuestEditer[i][0] = React.createRef();
-       GuestEditer[i][1] = 0;
-       GuestEditer[i][2] = true;
-     })
-     
-     setGuest( GuestEditer );
- 
- 
-     try {
-       //if the isviewer came as true dont run the cam 
-       //star connection to the server to watch the stream
-       console.log(navigate)
-       if (navigate .state.IsViewe) {
-         CreateOrJoinTheRoom()
- 
-       } else {
-         //run the cam and the the  StartUserCamra function will connect to the server
-         StartUserCamra(0);
-       }
-     }
- 
-     catch (e) {
-       console.log(e)
-       StartUserCamra(0);
- 
-     }
- 
- 
- 
-   }
+  const startConncting = () => {
+    //set all css view cases the false excpit the frist one
 
+    let CaseEditer = [...Case];
+    Case.forEach((c, i) => {
+      CaseEditer[i] = false;
+      if (i === 0) CaseEditer[i] = true;
+    });
 
+    setCase(CaseEditer);
 
+    let GuestEditer = [...guest];
+    guest.forEach((g, i) => {
+      GuestEditer[i][0] = React.createRef();
+      GuestEditer[i][1] = 0;
+      GuestEditer[i][2] = true;
+    });
 
-   useEffect(()=>{
-    if(Socket) startConncting()
-      //startConncting(Case,navigate , CreateOrJoinTheRoom , StartUserCamra , guest , setCase , setGuest , Connected , setConnected);
-      //   //when the component is mounted start connecting to the server
-      // seekSocketServer()
-      // return ()=>componentWillUnmount()
-    },[])
+    setGuest(GuestEditer);
 
+    //if the isviewer came as true dont run the cam
+    //star connection to the server to watch the stream
+    if (navigate?.state?.IsViewe) {
+      CreateOrJoinTheRoom();
+      return;
+    }
 
+    StartUserCamra(0);
+  };
 
-    return (
-      <>
+  useEffect(() => {
+    if (Socket) startConncting();
 
-        <ToastContainer />
+    return () => componentWillUnmount();
+  }, []);
 
-        <canvas ref={CanvasImg}
-         className='d-none'
-         width='280' height='200' id="canvas"></canvas>
+  return (
+    <Layout>
+            <ToastContainer />
+            <canvas ref={CanvasImg} className='d-none' width='280' height='200' id="canvas"></canvas>
 
-        <div className="container-fluid	">
+      <ControlePanle
+        IsViewer={IsViewer}
+        isFreeToJoin={isFreeToJoin}
+        JoinTheRoom={JoinTheRoom}
+        LockRoom={LockRoom}
+        Lock={Lock}
+        doHiddeTheRoom={doHiddeTheRoom}
+        HiddeTheRoom={HiddeTheRoom}
+        IsStream={IsStream}
+        isStream={isStream}
+        First={First}
+      ></ControlePanle>
 
-          <div className="row ">
-            <br></br>
-            <br></br>
+              
+              <VideoCards
+                GetElemntCssClass={GetElemntCssClass}
+                setChatMessage={setChatMessage}
+                IsVedioElemntVisble={IsVedioElemntVisble}
+                ToogleBox={ToogleBox}
+                First={First}
+                SendMessageChat={SendMessageChat}
+                ChatMessage={ChatMessage}
+                HistoryChat={HistoryChat}
+                ToggleElementCssClass={ToggleElementCssClass}
+                guest={guest}>
 
-          </div>
-          <br></br>
+                </VideoCards>
 
-          <div style={!IsViewer ? { display: 'none' } : { display: 'block' }} className="custom-control custom-switch">
-            <div style={!isFreeToJoin ? { display: 'none' } : { display: 'block' }} className="custom-control custom-switch">
-              <span
-                onClick={JoinTheRoom} className="badge badge-primary btn ">
-                Free window To Join
-
-              </span>
-            </div>
-          </div>
-
-            <div  style={!First ? { display: 'none' } : { display: 'block' }} className="custom-control custom-switch">
-              <input
-                onChange={(e)=>LockRoom(e)}
-                type="checkbox"
-                checked={Lock}
-                className=" custom-control-input"
-                name="Lock"
-
-                id="customSwitch2">
-              </input>
-              <label className="custom-control-label" htmlFor="customSwitch2">Lock the rooms</label>
-            </div>
-
-
-            <div  style={!First ? { display: 'none' } : { display: 'block' }} className="custom-control custom-switch">
-              <input
-                onChange={(e)=>doHiddeTheRoom(e)}
-                type="checkbox"
-                checked={HiddeTheRoom}
-                className="d- custom-control-input"
-                name="HiddeTheRoom"
-
-                id="customSwitch3">
-              </input>
-              <label className="custom-control-label" htmlFor="customSwitch4">the rooms is not hidden</label>
-            </div>
-
-            <div  style={!First ? { display: 'none' } : { display: 'block' }} className="custom-control custom-switch">
-              <input
-                onChange={(e)=>isStream(e)}
-                type="checkbox"
-                checked={IsStream}
-                className="  custom-control-input"
-                name="HiddeTheRoom"
-
-                id="customSwitch4">
-              </input>
-              <label className="custom-control-label" htmlFor="customSwitch4">Stop public Streaming</label>
-            </div>
-
-
-          <div className="  row no-gutters   justify-content-md-center h-100 ">
-
-
-            <div className={GetElemntCssClass(0) + ` chatback`}>
-              <form className="form-inline h-80 justify-content-md-center ">
-                <div className="h-100 w-80 overflow-auto">
-                  <div className='mhchat'>
-                    {HistoryChat}
-
-                  </div>
-                </div>
-                <input
-                  onChange={(e)=>setChatMessage(e.target.value)}
-
-                  type="text" className="w-80 form-control"
-                  value={ChatMessage}
-                  name="ChatMessage" placeholder="Chat here">
-
-                </input>
-
-                <button type="submit"
-                  onClick={SendMessageChat} className=" btn sendc">
-                </button>
-                <div className="input-group-prepend"></div>
-              </form>
-            </div>
-
-            <div className={GetElemntCssClass(1)}>
-
-              <div
-                className={`${IsVedioElemntVisble(guest[1][1]) ? 'visible' : 'd-none'}  `}>
-                <video
-                  ref={guest[1][0]}
-                  className="Vd-box h-0 w-100" autoPlay >
-                </video>
-                <span onClick={() => ToogleBox(guest[1])} className=" video-controls btn"></span>
-
-              </div>
-
-              <div
-                className={`${IsVedioElemntVisble(guest[2][1]) ? 'visible' : 'd-none'}  `}>
-                <video ref={guest[2][0]} className="Vd-box h-0 w-100" autoPlay>
-                </video>
-
-                <span onClick={() => ToogleBox(guest[2])} className="  video-controls btn"></span>
-
-              </div>
-
-            </div>
-
-
-            <div className={GetElemntCssClass(2) + ` `}>
-
-
-              <video
-                ref={guest[0][0]} autoPlay
-                className="Vd-box h-0 w-100 ">
-              </video>
-              <span
-                onClick={() => ToogleBox(guest[0])}
-                className={`${!First ? 'visible' : 'd-none'}  video-controls btn `}
-              ></span>
-
-            </div>
-
-            <div className={GetElemntCssClass(3)}>
-
-
-
-              <div
-                className={`${IsVedioElemntVisble(guest[3][1]) ? 'visible' : 'd-none'}  `}>
-                <video ref={guest[3][0]} className="Vd-box h-0 w-100" autoPlay>
-                </video>
-
-                <span onClick={() => ToogleBox(guest[3])} className="  video-controls btn"></span>
-
-              </div>
-
-
-              <div
-                className={`${IsVedioElemntVisble(guest[4][1]) ? 'visible' : 'd-none'}  `}>
-                <video ref={guest[4][0]} className="Vd-box h-0 w-100" autoPlay>
-                </video>
-
-                <span onClick={() => ToogleBox(guest[4])} className="  video-controls btn"></span>
-
-              </div>
-
-
-            </div>
-            <div className="SideBarChat">
-
-
-              <button type="submit" onClick={() => ToggleElementCssClass(0)}
-                className={`${GetElemntCssClass(0) === 'd-none' ? 'OpenChat' : 'CloseChat'} btn`}></button>
-            </div>
-          </div>
-        </div>
-        <Footer></Footer>
-        <Modal admin={First}
-          Id={guest[0]}
-          KikHimOut={KikHimOut}
-          ToogleBox={ToogleBox}
-          PrivetMessage={PrivetMessage}
-          SendPrivetMessage={SendPrivetMessage}
-          setPrivetMessage={setPrivetMessage}
-          ></Modal>
-
-        <Modal admin={First}
-          Id={guest[1]}
-          KikHimOut={KikHimOut}
-          ToogleBox={ToogleBox}
-          PrivetMessage={PrivetMessage}
-          SendPrivetMessage={SendPrivetMessage}
-          setPrivetMessage={setPrivetMessage}
-      ></Modal>
-
-        <Modal 
+      {guest.map((Guest, index) => (
+        <Modal
+        key={index}
           admin={First}
-          Id={guest[2]}
+          Id={Guest}
           KikHimOut={KikHimOut}
           ToogleBox={ToogleBox}
           PrivetMessage={PrivetMessage}
           SendPrivetMessage={SendPrivetMessage}
           setPrivetMessage={setPrivetMessage}
-          ></Modal>
-
-
-        <Modal admin={First}
-          Id={guest[3]}
-          KikHimOut={KikHimOut}
-          ToogleBox={ToogleBox}
-          PrivetMessage={PrivetMessage}
-          SendPrivetMessage={SendPrivetMessage}
-          setPrivetMessage={setPrivetMessage}
-          ></Modal>
-
-
-        <Modal admin={First}
-          Id={guest[4]}
-          KikHimOut={KikHimOut}
-          ToogleBox={ToogleBox}
-          PrivetMessage={PrivetMessage}
-          SendPrivetMessage={SendPrivetMessage}
-          setPrivetMessage={setPrivetMessage}
-          ></Modal>
-
-      </>
-    );
-  
-
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-const   params  ={   // mediasoup configratio params 
-
-  encodings: [
-    {
-      rid: 'r0',
-      maxBitrate: 100000,
-      scalabilityMode: 'S1T3',
-    },
-    {
-      rid: 'r1',
-      maxBitrate: 300000,
-      scalabilityMode: 'S1T3',
-    },
-    {
-      rid: 'r2',
-      maxBitrate: 900000,
-      scalabilityMode: 'S1T3',
-    },
-  ],
-  // https://mediasoup.org/documentation/v3/mediasoup-client/api/#ProducerCodecOptions
-  codecOptions: {
-    videoGoogleStartBitrate: 1000
-  }
+        ></Modal>
+      ))}
+    </Layout>
+  );
 }
 
-const initialState = {
-  socket: null,                 //the socket io ini will be stored here
-  rtpCapabilities: '',          //the rtp infor retrived from the server will be stored here
-  isFreeToJoin: false,          //the if ther room is avalble to join
-  HiddeTheRoom: true,           //if the room is hidden from punlic
-  Lock: false,                  //is the room is lock
-  device: null,                 //mediasoup driver will be stoed here
-  IsViewer: false,              //if the user is viewer or memper of ther room
-  isStream:false,               //if the room is stream publicly or not
-  producerTransport: null,      //the proucert transport will be stored here
-  consumerTransports: [],       //the memper of the room will be stored herer
-  producer: null,               //if the user procues stream will be stored here
-  BossId: 0,                    //the admin of ther room id will be stord here
-  HistoryChat: [],              //the chat log will be stored here
-  guest: [[], [], [], [], []],  //this list will contain the room users
-  case: [true, false, false,    //the curren case of the view
-    false, false, false],
-  ChatMessage: "",              //the value of the chat box
-  PrivetMessage: "",            //the value of the privet message chat box
-  First: false,                 //the state of the user if admin or not
- // queueGuest:[],              //the queu is a list of new users t prevent dublicate
-  ChangeStatVale: [             //the vlue of the css case classes
-    [1, 0, 5, 4, 3, 2, 7, 6],
-    [5, 2, 1, 7, 6, 0, 4, 3],
-    [6, 7, 3, 2, 5, 4, 0, 1]]
-  ,
-  view:                         //the array of class in each cases
-    [
-      ['d-none', 'col-md-6', 'col-md-4', 'col-md-4', 'd-none', 'd-none', 'd-none', 'col-md-4'],
-      ['d-none', 'd-none', 'col-md-3', 'col-md-2', 'col-md-3', 'col-md-4', 'd-none,d-none'],
-      ['col-md-7', 'col-md-6', 'col-md-5', 'col-md-4', 'col-md-6', 'col-md-6', 'col-md-6', 'col-md-5'],
-      ['d-none', 'd-none', 'd-none', 'col-md-2', 'col-md-3', 'd-none', 'col-md-4', 'col-md-3']]
-  
-
-
-}
 export default CallBord;
-
-
-/*
-
-   
-         [boolead]       [view1  ,     view1     ,  view1  ,   view1  ,]
-      view               [    view1        view2       view3       view4]
-  case [0] [boolead][view]     x     ||     x     || col-md-6 ||    x  
-  case [1] [boolead][view]   col-md-6||     x     || col-md-6 ||    x
-  case [2] [boolead][view]   col-md-4||  col-md-3 || col-md-5 ||    x
-  case [3] [boolead][view]   col-md-4||  col-md-2 || col-md-4 || col-md-2
-  case [4] [boolead][view]      x    ||  col-md-3 || col-md-6 || col-md-3
-  case [5] [boolead][view]      x    ||  col-md-4 || col-md-6 ||    x
-  case [6] [boolead][view]      x    ||     x     || col-md-6 || col-md-4
-  case [7] [boolead][view]  col-md-4 ||     x     || col-md-5 || col-md-3
-
-
-  closeCaller(){
-
-  view --2
-    ---3 set 2
-    ---4 set 5
-    ---6 set 0
-    ---7 set 1
-    ---0 set 6
-    ---1 set 7
-    ---2 set 3
-    ---5 set 4
-
-  }
-
-  shoeCaller(){
-  view --1
-    ---0 set 5
-    ---1 set 2
-    ---6 set 4
-    ---7 set 3
-    ---2 set 1
-    ---3 set 7
-    ---4 set 6
-    ---5 set 0
-    }
-  ToogleChat(){
-    ---0 set 1 
-    ---1 set 0
-    ---2 set 5 
-    ---5 set 2
-    ---3 set 4
-    ---4 set 3
-    ---6 set 7
-    ---7 set 6
-  }
-
-*/

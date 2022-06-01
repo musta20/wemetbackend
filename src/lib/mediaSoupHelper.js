@@ -1,15 +1,16 @@
 import { Device } from "mediasoup-client";
-import { useEffect, useState } from "react";
+import { useEffect, useState , useCallback} from "react";
 
 export const useMediaSoupHelper = (
   Socket,
   IsViewer,
   Room,
   setisFreeToJoin,
-  AddMediaStream
+  AddMediaStream,
+  completeSession
 ) => {
   const [device, setDevice] = useState(null);
-   const [producerTransport, setproducerTransport] = useState(false);
+  const [producerTransport, setproducerTransport] = useState(false);
   const [consumerTransports, setConsumerTransports] = useState([]);
 
   const [params, setParam] = useState({
@@ -38,6 +39,62 @@ export const useMediaSoupHelper = (
     },
   });
 
+
+
+  const Unmount = 
+
+    (producerTransportclose) => {
+
+      try {
+
+        Socket.emit('leave',{name :"leav"},(e)=>{
+          console.log(e)
+        })
+        return
+        console.log('CLOSE THE SENDING TRANSPORT')
+        //close the send  producer transport
+        //console.log(producerTransport)
+      console.log(producerTransportclose)
+        if(producerTransportclose===null) return
+        producerTransportclose.close()
+    
+      } catch (error) {
+        
+      }
+      
+  
+      // Socket.leav()
+    
+      
+  
+      try {
+        //close all the consumer transport
+       // console.log(consumerTransports.length)
+        if(!consumerTransports.length) return
+  
+        consumerTransports.forEach(Transports => {
+          if(Transports===null) return
+  
+          Transports.consumerTransport.close()
+          Transports.consumer.close()
+        });
+  
+      } catch (e) {
+        console.log(e)
+  
+      }
+  
+       }
+  
+   //    const closePageproducerTransport = useCallback(()=>Unmount(producerTransport),[])
+
+
+
+
+  
+
+
+
   //this function will set listner for in and out calls
   const setMediaSoupListner = () => {
     //this event new-prouducer triggerd a new user is joined the room and
@@ -49,14 +106,15 @@ export const useMediaSoupHelper = (
       //console.log(queueGuest)
       //if(queueGuest[socketId]) return
       //setState({queueGuest:[...queueGuest,socketId]})
-      console.log(producerId)
-      console.log(socketId)
-         await signalNewConsumerTransport(producerId, socketId , false);
+      console.log(producerId);
+      console.log(socketId);
+      await signalNewConsumerTransport(producerId, socketId, false);
     });
     //this event triggred when user colse his stram you shuld close
     //the connection to prevent memory leak
 
     Socket.on("producer-closed", ({ remoteProducerId, socketId }) => {
+
       //find the specifc transport and close it
       try {
         const producerToClose = consumerTransports.find(
@@ -77,7 +135,7 @@ export const useMediaSoupHelper = (
 
       setConsumerTransports(ConsumerTransports);
       // hide the video div element
-      // completeSession(socketId);
+       completeSession(socketId);
     });
   };
 
@@ -112,7 +170,11 @@ export const useMediaSoupHelper = (
    the remotpruducer and socketid create a recive transport
    and tell the server to create a consumer transport 
    */
-  const signalNewConsumerTransport = async (remoteProducerId, socketId , kok) => {
+  const signalNewConsumerTransport = async (
+    remoteProducerId,
+    socketId,
+    kok
+  ) => {
     console.log("signalNewConsumerTransport");
     await Socket.emit(
       "createWebRtcTransport",
@@ -239,12 +301,12 @@ export const useMediaSoupHelper = (
                 // Tell the transport that parameters were transmitted and provide it with the
                 // server side producer's id.
                 callback({ id });
-                console.log(producersExist)
+                console.log(producersExist);
                 // if producers exist, then join room
-             //  setTimeout(() => {
-                if (producersExist)  getProducers();
+                //  setTimeout(() => {
+                if (producersExist) getProducers();
 
-              // }, 2000);
+                // }, 2000);
               }
             );
           } catch (error) {
@@ -255,7 +317,7 @@ export const useMediaSoupHelper = (
         }
       );
       connectSendTransport(pproducerTransport);
-         setproducerTransport(pproducerTransport);
+      setproducerTransport(pproducerTransport);
     });
   };
 
@@ -263,7 +325,7 @@ export const useMediaSoupHelper = (
   // current producer from the server and counsume them
   const getProducers = () => {
     console.log("THIS IS GET PRODUCESS");
-    
+
     Socket.emit(
       "getProducers",
       {
@@ -271,11 +333,13 @@ export const useMediaSoupHelper = (
         roomName: Room,
       },
       (producerIds) => {
-          console.log(producerIds);
+        console.log(producerIds);
         // for each of the producer create a consumer
         // producerIds.forEach(id => signalNewConsumerTransport(id))
-        producerIds.forEach((producer) => //console.log(producer)
-          signalNewConsumerTransport(producer[0], producer[1], true)
+        producerIds.forEach(
+          (
+            producer //console.log(producer)
+          ) => signalNewConsumerTransport(producer[0], producer[1], true)
         );
       }
     );
@@ -332,8 +396,7 @@ export const useMediaSoupHelper = (
 
         //add the new stream to the view
         try {
-          
-          AddMediaStream(socketId, new MediaStream([track]) , kok);
+          AddMediaStream(socketId, new MediaStream([track]), kok);
         } catch (error) {
           //      console.log(error);
         }
@@ -373,6 +436,7 @@ export const useMediaSoupHelper = (
   };
 
   useEffect(() => {
+
     //if the user is not viewr create send transport
     if (!IsViewer) {
       // once the device loads, create transport
@@ -392,24 +456,23 @@ export const useMediaSoupHelper = (
         }
       });
     }
-  }, [device, IsViewer, params,producerTransport]);
 
-  // useEffect(() => {
-  //  if (producerTransport) connectSendTransport(producerTransport);
-  // }, [producerTransport]);
+
+  }, [device, IsViewer, params, producerTransport]);
+  
+useEffect(()=>{
+
+  return ()=>{
+    Unmount(producerTransport)
+  }
+
+},[])
+
+
 
   return {
-    //  connectSendTransport: connectSendTransport,
-    //  connectRecvTransport: connectRecvTransport,
-    // signalNewConsumerTransport: signalNewConsumerTransport,
-
-    //   getProducers: getProducers,
     startStreming: createDevice,
     setParam: setParam,
-    setMediaSoupListner: setMediaSoupListner,
+    params:params
   };
 };
-
-/* setMediaSoupListner,
-    startStreming  ,
-    setParam */

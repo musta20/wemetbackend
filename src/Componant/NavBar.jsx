@@ -44,10 +44,7 @@ export default function Navbar() {
 
   //this function will take the user to the main bage
   const GoHome = () => {
-    navigate({
-        pathname: '/Switch',
-        state: { CallBorad: false }
-     })
+    navigate('/')
 
 
   }
