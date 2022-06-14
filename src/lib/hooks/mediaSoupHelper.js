@@ -45,28 +45,13 @@ export const useMediaSoupHelper = (
 
     (producerTransportclose) => {
 
-      try {
+     
 
         Socket.emit('leave',{name :"leav"},(e)=>{
           console.log(e)
         })
-        return
-        console.log('CLOSE THE SENDING TRANSPORT')
-        //close the send  producer transport
-        //console.log(producerTransport)
-      console.log(producerTransportclose)
-        if(producerTransportclose===null) return
-        producerTransportclose.close()
-    
-      } catch (error) {
-        
-      }
+
       
-  
-      // Socket.leav()
-    
-      
-  
       try {
         //close all the consumer transport
        // console.log(consumerTransports.length)
