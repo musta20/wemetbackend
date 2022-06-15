@@ -1,17 +1,27 @@
 import { Device } from "mediasoup-client";
-import { useEffect, useState , useCallback} from "react";
+import { useContext, useEffect, useState } from "react";
+import {MainRoomContex} from "../../contextApi/Contexts/AppContext"
+import {
+  setParam
+  ,
+  setDevice,
+  deleteDevice,
+  addProducerTransport,
+  removeProducerTransport,
+  addConsumerTransport,
+  removeConsumerTransport
+  
+  } from "../../contextApi/Actions/mediaSoupAction";
 
 export const useMediaSoupHelper = (
-  Socket,
-  IsViewer,
-  Room,
-  setisFreeToJoin,
-  AddMediaStream,
-  completeSession
+  Socket
 ) => {
-  const [device, setDevice] = useState(null);
-  const [producerTransport, setproducerTransport] = useState(false);
-  const [consumerTransports, setConsumerTransports] = useState([]);
+ 
+
+
+const {  mediaSoupstate,
+  mediaSoupDispatch} = useContext(MainRoomContex)
+
 
   const [params, setParam] = useState({
     // mediasoup configratio params
@@ -139,7 +149,7 @@ export const useMediaSoupHelper = (
 
       await device.load({ routerRtpCapabilities });
 
-      setDevice(device);
+      setDevice(device,mediaSoupDispatch);
 
       //   console.log(`the viewr case IS: ${IsViewer}`);
     } catch (error) {
@@ -302,7 +312,7 @@ export const useMediaSoupHelper = (
         }
       );
       connectSendTransport(pproducerTransport);
-      setproducerTransport(pproducerTransport);
+      addProducerTransport(pproducerTransport,mediaSoupDispatch)
     });
   };
 

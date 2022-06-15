@@ -4,7 +4,7 @@ import BodyFooter from "./BodyFooter";
 //import { useUserApi } from '../lib/hooks/userApi';
 import { useNavigate } from 'react-router-dom';
 
-import { SocketContext } from "../context/socket"
+import { SocketContext } from "../contextApi/Contexts/socket"
 
 
 export default function Body (){

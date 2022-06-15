@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useContext } from "react";
 import Modal from "./Modal";
-import { SocketContext } from "../context/socket";
+import { SocketContext } from "../contextApi/Contexts/socket";
 import { useMediaSoupHelper } from "../lib/hooks/mediaSoupHelper";
 import { RoomManger } from "../lib/hooks/roomMangerHelper";
 
@@ -17,19 +17,35 @@ function CallBord() {
 
   const { Room } = useParams();
 
-  const [isFreeToJoin, setisFreeToJoin] = useState(false);
-  const [HiddeTheRoom, setHiddeTheRoom] = useState(true);
-  const [Lock, setLock] = useState(false);
-  const [Connected, setConnected] = useState(false);
-  const [IsViewer, setIsViewer] = useState(false);
-  const [IsPublic, setIsPublic] = useState(false);
-  const [IsStream, setisStream] = useState(false);
-  const [BossId, setBossId] = useState(0);
-  const [HistoryChat, setHistoryChat] = useState([]);
-  const [guest, setGuest] = useState([[], [], [], [], []]);
-  const [ChatMessage, setChatMessage] = useState("");
-  const [PrivetMessage, setPrivetMessage] = useState("");
-  const [First, setFirst] = useState(false);
+  const initialMainRoomProps = {
+    roomName:"",
+    isPublic: true,
+    isStreamed:true,
+    adminId:0,
+    isJoinedTheRoom:false,
+    guestList:[],
+    isFreeToJoin:false
+
+  }
+
+
+const initialMediaSoupProps = {
+  device:null,
+  producerTransport:false,
+  consumerTransports:[]
+
+}
+
+  const [MainRoom, seMainRoom] = useState({});
+  const initialMassengerProps ={
+    HistoryChat:[],
+    ChatMessage:"",
+    PrivetMessage:""
+
+  }
+
+
+
   const [Case, setCase] = useState([
     true,
     false,
@@ -154,71 +170,12 @@ function CallBord() {
     completeSession
   );
 
-  const navigate = useLocation();
   const {
-    StartUserCamra,
-    componentWillUnmount,
-    startConncting,
-    ToggleElementCssClass,
-    ShowTheSideCaller,
-    GetElemntCssClass,
-    LockRoom,
-    IsVedioElemntVisble,
-    KikHimOut,
-    CloseTheSideCaller,
-    ShowHistoryChat,
-    JoinTheRoom,
-    doHiddeTheRoom,
-    isStream,
-    SendMessageChat,
-    SendPrivetMessage,
-    ToogleBox,
-    showTost,
-  } = RoomManger(
-    setHiddeTheRoom,
-    params,
-    setisFreeToJoin,
-    startStreming,
-    Room,
-    PrivetMessage,
-    React,
-    toast,
-    view,
-    Case,
-    ChangeStatVale,
-    guest,
-    IsPublic,
-    setIsPublic,
-    setGuest,
-    navigate,
-    Socket,
-    CanvasImg,
-    setCase,
-    setParam,
-    isFreeToJoin,
-    HiddeTheRoom,
-    Lock,
-    setLock,
-    IsViewer,
-    setIsViewer,
-    IsStream,
-    setisStream,
-    BossId,
-    setBossId,
-    HistoryChat,
-    setHistoryChat,
-    ChatMessage,
-    setChatMessage,
-    setPrivetMessage,
-    First,
-    setFirst
+    
+  } = useRoomManger(
+  
   );
 
-  useEffect(() => {
-    if (Socket) startConncting();
-
-    return () => componentWillUnmount();
-  }, []);
 
   return (
     <Layout>

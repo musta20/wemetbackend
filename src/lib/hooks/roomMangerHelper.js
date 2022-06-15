@@ -1,42 +1,36 @@
-export const RoomManger = (
-  setHiddeTheRoom,
-  params,
-  setisFreeToJoin,
-  startStreming,
-  Room,
-  PrivetMessage,
-  React,
-  toast,
-  view,
-  Case,
-  ChangeStatVale,
-  guest,
-  IsPublic,
-  setIsPublic,
-  setGuest,
-  navigate,
-  Socket,
-  CanvasImg,
-  setCase,
+import { MainRoomContex } from "../../contextApi/Contexts/AppContext";
+import {
   setParam,
-  isFreeToJoin,
-  HiddeTheRoom,
-  Lock,
-  setLock,
-  IsViewer,
-  setIsViewer,
-  IsStream,
-  setisStream,
-  BossId,
-  setBossId,
-  HistoryChat,
-  setHistoryChat,
-  ChatMessage,
-  setChatMessage,
-  setPrivetMessage,
-  First,
-  setFirst
-) => {
+  setDevice,
+  deleteDevice,
+  addProducerTransport,
+  removeProducerTransport,
+  addConsumerTransport,
+  removeConsumerTransport,
+} from "../../contextApi/Actions/mediaSoupAction";
+
+import {
+  removeFromGuestList,
+  addToGuestList,
+  setRoomName,
+  isRoomPublic,
+  isRoomStream,
+  setAdminId,
+  isJoinedTheRoom,
+} from "../../contextApi/Actions/roomHelperAction";
+
+export const useRoomManger = () => {
+  const navigate = useLocation();
+
+  const { mediaSoupstate, mediaSoupDispatch, roomState, roomDispatch } =
+    useContext(MainRoomContex);
+
+  useEffect(() => {
+    if (Socket) startConncting();
+
+    return () => componentWillUnmount();
+  }, []);
+
   //this function will show the notftion
   const showTost = (data) => {
     toast(data);
@@ -117,24 +111,18 @@ export const RoomManger = (
     let IsViewer = false;
 
     if (navigate?.state?.IsViewer) {
-      setIsViewer(true);
-      IsViewer = true;
+     // setIsViewer(true);
+     isJoinedTheRoom(false) 
+     IsViewer = true;
     }
 
     if (!navigate?.state?.IsPublic) {
-      setIsPublic(true);
+      isRoomPublic(true)
       IsPublic = true;
     }
 
     //create room name it this way to add mor info in in the room name
-    let FullRoomName =
-      '{"title":"' +
-      Room +
-      '","IsPublic":' +
-      IsPublic +
-      ',"IsViewer":' +
-      IsViewer +
-      "}";
+    const FullRoomName =`{title:${Room},IsPublic:${IsPublic},IsViewer:${IsViewer}}`;
 
     Socket.emit(
       "CreateStream",
@@ -145,9 +133,9 @@ export const RoomManger = (
           // that mean you just gone watch  the room
           if (rtpCapabilities) {
             showTost(room);
-            setBossId(BossId);
+            setAdminId(BossId,mediaSoupDispatch)
 
-            setIsViewer(true);
+            isJoinedTheRoom(false,mediaSoupDispatch)
 
             // once we have rtpCapabilities from the Router, create Device
             startStreming(rtpCapabilities);
@@ -167,8 +155,8 @@ export const RoomManger = (
         if (First) {
           console.log("setting The Frist VALUE :::::::::::");
           console.log(First);
-          setFirst(true);
-          setBossId(Socket.id);
+        //  setFirst(true);
+          setAdminId(Socket.id,mediaSoupDispatch)
 
           setTimeout(() => {
             console.log(First);
@@ -178,7 +166,7 @@ export const RoomManger = (
 
           //  setHiddeTheRoom( IsPublic )
         } else {
-          setBossId(BossId);
+          setAdminId(BossId,mediaSoupDispatch);
         }
 
         showTost(room);
@@ -191,6 +179,7 @@ export const RoomManger = (
     Socket.on("FreeToJoin", ({ status }) => {
       if (status) {
         setisFreeToJoin(true);
+        
         return;
       }
 
@@ -207,9 +196,12 @@ export const RoomManger = (
 
     //this event triggred when you becam admin and the room setting seted
     Socket.on("switchAdminSetting", ({ isRoomLocked, isStream, IsPublic }) => {
+
       setLock(isRoomLocked);
       setisStream(isStream);
       setHiddeTheRoom(IsPublic);
+   
+   
     });
 
     //this event triggred when admin switch to another youser
@@ -333,9 +325,9 @@ export const RoomManger = (
           track,
           ...params,
         };
-        setParam(Params);
+        setParam(Params, mediaSoupDispatch);
 
-        var guestList = [...guest];
+        /*         var guestList = [...guest];
         if (Socket.id) {
           console.log(Socket.id);
 
@@ -343,13 +335,13 @@ export const RoomManger = (
         }
         guestList[i][0].current.srcObject = stream;
 
-        setGuest(guestList);
+        setGuest(guestList); */
+
         if (i === 0) {
           CreateOrJoinTheRoom();
         }
         //whait a bit to let the cam load and then
         //take a ThumbnailImage if the user is admin
-        console.log(First);
       })
 
       .catch(function (err) {
@@ -461,15 +453,15 @@ export const RoomManger = (
   const startConncting = () => {
     //set all css view cases the false excpit the frist one
 
-    let CaseEditer = [...Case];
+    /*     let CaseEditer = [...Case];
     Case.forEach((c, i) => {
       CaseEditer[i] = false;
       if (i === 0) CaseEditer[i] = true;
     });
 
-    setCase(CaseEditer);
+    setCase(CaseEditer); */
 
-    let GuestEditer = [...guest];
+    /*     let GuestEditer = [...guest];
     guest.forEach((g, i) => {
       GuestEditer[i][0] = React.createRef();
       GuestEditer[i][1] = 0;
@@ -477,7 +469,7 @@ export const RoomManger = (
     });
 
     setGuest(GuestEditer);
-
+ */
     //if the isviewer came as true dont run the cam
     //star connection to the server to watch the stream
     if (navigate?.state?.IsViewe) {
@@ -488,24 +480,5 @@ export const RoomManger = (
     StartUserCamra(0);
   };
 
-  return {
-    StartUserCamra,
-    startConncting,
-    ToggleElementCssClass,
-    ShowTheSideCaller,
-    GetElemntCssClass,
-    CloseTheSideCaller,
-    ShowHistoryChat,
-    JoinTheRoom,
-    componentWillUnmount,
-    LockRoom,
-    IsVedioElemntVisble,
-    KikHimOut,
-    doHiddeTheRoom,
-    isStream,
-    SendMessageChat,
-    SendPrivetMessage,
-    ToogleBox,
-    showTost,
-  };
+  return {};
 };
