@@ -1,4 +1,4 @@
-import { ADD_CHAT_MESSAGE, ADD_PRIVET_MESSAGE , ADD_MESSAGE_TO_CHAT } from "./Type";
+import { ADD_CHAT_MESSAGE, ADD_PRIVET_MESSAGE , ADD_MESSAGE_TO_CHAT } from "../Actions/Type";
 const initialMassengerProps = {
   HistoryChat: [],
   ChatMessage: "",

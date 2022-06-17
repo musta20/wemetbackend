@@ -14,7 +14,6 @@ export const  setParam = (param ,dispatch) =>{
 
 }
 
-
 export const  setDevice = (Device ,dispatch) =>{
 
   dispatch({payload:Device,type:SET_DEVICE})

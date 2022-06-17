@@ -6,8 +6,9 @@ import {
   IS_JOINED_THE_ROOM,
   ADD_TO_GUEST_LIST,
   REMOVE_FROM_GUEST_LIST,
-} from "./Type";
-
+  UP_DATE_GUEST_LIST,
+  SET_USER_MEDIA
+} from "../Actions/Type";
 const initialMainRoomProps = {
   roomName: "",
   isPublic: true,
@@ -20,41 +21,51 @@ const initialMainRoomProps = {
 
 const roomHelperReducer = (state, action) => {
   switch (action.type) {
+    case SET_USER_MEDIA:
+      return {
+        ...state,
+        userTrack: action.payload
+      };
     case REMOVE_FROM_GUEST_LIST:
         return {
           ...state,
-          guestList: [...guestList].filter(item=>item[1] !== action.pyload)
+          guestList: [...state.guestList].filter(item=>item[1] !== action.payload)
         };
     case ADD_TO_GUEST_LIST:
         return {
           ...state,
-          guestList: [...guestList].push(action.pyload)
+          guestList: [...state.guestList].push(action.payload)
         };
     case IS_JOINED_THE_ROOM:
         return {
           ...state,
-          isJoinedTheRoom: action.pyload,
+          isJoinedTheRoom: action.payload,
         };
     case SET_ADMIN_ID:
         return {
           ...state,
-          adminId: action.pyload,
+          adminId: action.payload,
         };
     case SET_IS_ROOM_STRMED:
         return {
           ...state,
-          isStreamed: action.pyload,
+          isStreamed: action.payload,
         };
     case SET_IS_ROOM_PUBLIC:
         return {
           ...state,
-          isPublic: action.pyload,
+          isPublic: action.payload,
         };
     case ADD_ROOM_NAME:
       return {
         ...state,
-        roomName: action.pyload,
+        roomName: action.payload,
       };
+      case UP_DATE_GUEST_LIST:
+        return {
+          ...state,
+          guestList: action.payload,
+        };
     default:
       break;
   }

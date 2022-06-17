@@ -6,9 +6,12 @@ import {
     IS_JOINED_THE_ROOM,
     ADD_TO_GUEST_LIST,
     REMOVE_FROM_GUEST_LIST,
+    UP_DATE_GUEST_LIST,
+    SET_USER_MEDIA
   } from "./Type";
 
-  
+
+
   export const  setRoomName = (name ,dispatch) =>{
   
     dispatch({payload:name,type:ADD_ROOM_NAME})
@@ -27,9 +30,9 @@ import {
   
   }
   
-  export const  setAdminId = (adminId ,dispatch) =>{
+  export const  setAdminId = (Id ,dispatch) =>{
   
-    dispatch({payload:adminId,type:SET_ADMIN_ID})
+    dispatch({payload:Id,type:SET_ADMIN_ID})
   
   }
   
@@ -38,6 +41,12 @@ import {
     dispatch({payload:joinedTheRoom,type:IS_JOINED_THE_ROOM})
   
   }
+  export const  setUserMedia = (Track ,dispatch) =>{
+  
+    dispatch({payload:Track,type:SET_USER_MEDIA})
+  
+  }
+  
   
   export const  addToGuestList = (Guest ,dispatch) =>{
   
@@ -51,3 +60,8 @@ import {
   
   }
   
+  export const  upDateGuestList = (Guest ,dispatch) =>{
+  
+    dispatch({payload:Guest,type:UP_DATE_GUEST_LIST})
+  
+  }

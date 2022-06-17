@@ -1,21 +1,40 @@
-const ControlePanle = ({
-  IsViewer,
-  isFreeToJoin,
-  JoinTheRoom,
-  LockRoom,
-  Lock,
-  doHiddeTheRoom,
-  HiddeTheRoom,
-  IsStream,
-  isStream,
-  First
-}) => {
-    console.log(`CONTROLE PANLE IS First`)
-    console.log(First)
+
+import { AppContext } from "../../contextApi/Contexts/AppContext";
+
+import { useContext } from "react";
+
+import {isRoomPublic} from "../../contextApi/Actions/roomHelperAction"
+import { SocketContext } from "../../contextApi/Contexts/socket";
+const ControlePanle = () => {
+
+  const { mediaSoupstate, mediaSoupDispatch, roomState, roomDispatch } =
+    useContext(AppContext);
+    const Socket = useContext(SocketContext);
+
+    const {isJoinedTheRoom ,isStreamed,adminId, isPublic,isFreeToJoin}=roomState;
+    //this function will lock the room
+  // the server will check if you are the admin
+  const LockRoom = (e) => {
+    //  setLock(e.target.checked);
+    isRoomPublic(e.target.checked,mediaSoupDispatch)  
+    //Socket.emit("LockTheRoom", Lock, (data) => {});
+    };
+  
+      //this function will hide the room
+    // the server will check if you are the admin
+    const doHiddeTheRoom = (e) => {
+      //setHiddeTheRoom(e.target.checked);
+     // Socket.emit("HiddeTheRoom", Lock, (data) => {});
+    };
+const isStream = ()=>{
+
+}
+    const JoinTheRoom = ()=>{}
+  
   return (
     <>
       <div
-        style={!IsViewer ? { display: "none" } : { display: "block" }}
+        style={!isJoinedTheRoom ? { display: "none" } : { display: "block" }}
         className="custom-control custom-switch"
       >
         <div
@@ -29,13 +48,13 @@ const ControlePanle = ({
       </div>
 
       <div
-        style={!First ? { display: "none" } : { display: "block" }}
+        style={!!adminId === Socket.id ? { display: "none" } : { display: "block" }}
         className="custom-control custom-switch"
       >
         <input
           onChange={(e) => LockRoom(e)}
           type="checkbox"
-          checked={Lock}
+          checked={isStreamed}
           className=" custom-control-input"
           name="Lock"
           id="customSwitch2"
@@ -46,13 +65,13 @@ const ControlePanle = ({
       </div>
 
       <div
-        style={!First ? { display: "none" } : { display: "block" }}
+        style={!adminId === Socket.id ? { display: "none" } : { display: "block" }}
         className="custom-control custom-switch"
       >
         <input
           onChange={(e) => doHiddeTheRoom(e)}
           type="checkbox"
-          checked={HiddeTheRoom}
+          checked={isPublic}
           className="d- custom-control-input"
           name="HiddeTheRoom"
           id="customSwitch3"
@@ -63,13 +82,13 @@ const ControlePanle = ({
       </div>
 
       <div
-        style={!First ? { display: "none" } : { display: "block" }}
+        style={!adminId === Socket.id ? { display: "none" } : { display: "block" }}
         className="custom-control custom-switch"
       >
         <input
           onChange={(e) => isStream(e)}
           type="checkbox"
-          checked={IsStream}
+          checked={isStreamed}
           className="  custom-control-input"
           name="HiddeTheRoom"
           id="customSwitch4"

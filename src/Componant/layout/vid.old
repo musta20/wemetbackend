@@ -1,0 +1,105 @@
+  return (
+    <div className="  row no-gutters   justify-content-md-center h-100 ">
+
+      <div className={GetElemntCssClass(1)}>
+        <div
+         
+        >
+{/* 
+className={`${
+            IsVedioElemntVisble(guestList[1][1]) ? "visible" : "d-none"
+          }  ` */}
+
+
+          <video
+            ref={guestList[1][0]}
+            className="Vd-box h-0 w-100"
+            autoPlay
+          ></video>
+          <span
+            onClick={() => ToogleBox(guestList[1])}
+            className=" video-controls btn"
+          ></span>
+        </div>
+
+        <div
+          className={`${
+            IsVedioElemntVisble(guestList[2][1]) ? "visible" : "d-none"
+          }  `}
+        >
+          <video
+            ref={guestList[2][0]}
+            className="Vd-box h-0 w-100"
+            autoPlay
+          ></video>
+
+          <span
+            onClick={() => ToogleBox(guestList[2])}
+            className="  video-controls btn"
+          ></span>
+        </div>
+      </div>
+
+{/*       className={GetElemntCssClass(2) + ` `}
+ */}
+      <div >
+        <video ref={guestList[0][0]} autoPlay className="Vd-box h-0 w-100 "></video>
+        <span
+          onClick={() => ToogleBox(guestList[0])}
+          className={`${!adminId ===Socket.id ? "visible" : "d-none"}  video-controls btn `}
+        ></span>
+      </div>
+{/*       className={GetElemntCssClass(3)}
+ */}      <div >
+        <div
+          className={`${
+            IsVedioElemntVisble(guestList[3][1]) ? "visible" : "d-none"
+          }  `}
+        >
+          <video
+            ref={guestList[3][0]}
+            className="Vd-box h-0 w-100"
+            autoPlay
+          ></video>
+
+          <span
+            onClick={() => ToogleBox(guestList[3])}
+            className="  video-controls btn"
+          ></span>
+        </div>
+
+
+    {/*     className={`${
+            IsVedioElemntVisble(guestList[4][1]) ? "visible" : "d-none"
+          }  `} */}
+
+        <div
+        
+        >
+          <video
+            ref={guestList[4][0]}
+            className="Vd-box h-0 w-100"
+            autoPlay
+          ></video>
+
+          <span
+            onClick={() => ToogleBox(guestList[4])}
+            className="  video-controls btn"
+          ></span>
+        </div>
+      </div>
+      <div className="SideBarChat">
+
+
+    {/*   className={`${
+            GetElemntCssClass(0) === "d-none" ? "OpenChat" : "CloseChat"
+          } btn`} */}
+
+        <button
+          type="submit"
+          onClick={() => ToggleElementCssClass(0)}
+      
+        ></button>
+      </div>
+    </div>
+  );

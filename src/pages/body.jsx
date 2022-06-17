@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useState  } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
-import BodyFooter from "./BodyFooter";
+import BodyFooter from "../Componant/BodyFooter";
 //import { useUserApi } from '../lib/hooks/userApi';
 import { useNavigate } from 'react-router-dom';
 

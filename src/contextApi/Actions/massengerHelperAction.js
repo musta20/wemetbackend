@@ -4,6 +4,7 @@ import {
   ADD_MESSAGE_TO_CHAT,
 } from "./Type";
 
+
 export const addChatMessage = (message, dispatch) => {
   dispatch({ payload: message, type: ADD_CHAT_MESSAGE });
 };

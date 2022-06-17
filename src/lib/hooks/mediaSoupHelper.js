@@ -1,9 +1,8 @@
 import { Device } from "mediasoup-client";
 import { useContext, useEffect, useState } from "react";
-import {MainRoomContex} from "../../contextApi/Contexts/AppContext"
+import {AppContext} from "../../contextApi/Contexts/AppContext"
 import {
-  setParam
-  ,
+  setParam,
   setDevice,
   deleteDevice,
   addProducerTransport,
@@ -13,16 +12,24 @@ import {
   
   } from "../../contextApi/Actions/mediaSoupAction";
 
+
+  import {isRoomPublic, upDateGuestList ,  setUserMedia,
+    isRoomStream } from "../../contextApi/Actions/roomHelperAction";
+
 export const useMediaSoupHelper = (
   Socket
 ) => {
  
+const {  mediaSoupstate , mediaSoupDispatch ,roomDispatch, roomState} = useContext(AppContext)
 
+console.log("mediaSoupstate")
+console.log(mediaSoupstate)
+//if(!mediaSoupstate?.param)return<></>
+  const { device , params , producerTransport ,  consumerTransports} = mediaSoupstate;
+  
+  const {roomName , adminId, isPublic , isStreamed , isJoinedTheRoom , guestList} = roomState
 
-const {  mediaSoupstate,
-  mediaSoupDispatch} = useContext(MainRoomContex)
-
-
+  /* 
   const [params, setParam] = useState({
     // mediasoup configratio params
 
@@ -48,12 +55,10 @@ const {  mediaSoupstate,
       videoGoogleStartBitrate: 1000,
     },
   });
+ */
 
 
-
-  const Unmount = 
-
-    (producerTransportclose) => {
+  const Unmount =  (producerTransportclose) => {
 
      
 
@@ -128,15 +133,16 @@ const {  mediaSoupstate,
         ),
       ];
 
-      setConsumerTransports(ConsumerTransports);
+      addConsumerTransport(ConsumerTransports,mediaSoupDispatch)
+     // setConsumerTransports(ConsumerTransports);
       // hide the video div element
-       completeSession(socketId);
+      // completeSession(socketId);
     });
   };
 
   //this function will create a device for mediasoup api
   const createDevice = async (routerRtpCapabilities) => {
-    // console.log("START CREATING THE DIVICE");
+     console.log("START CREATING THE DIVICE");
     try {
       let device = new Device();
 
@@ -151,7 +157,7 @@ const {  mediaSoupstate,
 
       setDevice(device,mediaSoupDispatch);
 
-      //   console.log(`the viewr case IS: ${IsViewer}`);
+      //   console.log(`the viewr case IS: ${isJoinedTheRoom}`);
     } catch (error) {
       console.warn("browser not supported");
       console.log(error);
@@ -225,12 +231,12 @@ const {  mediaSoupstate,
       }
     );
     //if viewr check if room is avalipee to join
-    if (IsViewer) {
-      Socket.emit("isFreeToJoin", { roomName: Room }, (data) => {
+    if (isJoinedTheRoom) {
+      Socket.emit("isFreeToJoin", { roomName: roomName }, (data) => {
         if (data.status) {
-          setisFreeToJoin(true);
+       //   setisFreeToJoin(true);
         } else {
-          setisFreeToJoin(false);
+         // setisFreeToJoin(false);
         }
       });
     }
@@ -324,8 +330,8 @@ const {  mediaSoupstate,
     Socket.emit(
       "getProducers",
       {
-        isViewr: IsViewer,
-        roomName: Room,
+        isViewr: isJoinedTheRoom,
+        roomName: roomName,
       },
       (producerIds) => {
         console.log(producerIds);
@@ -340,6 +346,49 @@ const {  mediaSoupstate,
     );
   };
 
+  const AddMediaStream = (userid, stream) => {
+    let guestlist = [...guestList];
+
+    if (userid === adminId) {
+      guestList[0].feed.current.srcObject = stream;
+      guestList[0].id = userid;
+    }
+
+    const indexOfEmptyVideo = guestList.findIndex(item=>item.id===0)
+    
+    guestList=[indexOfEmptyVideo].id=Socket.id
+
+    for (let i = 1; i < guestlist.length; i++) {
+      if (userid === adminId) {
+      //  guestlist[0][0].current.srcObject = stream;
+     //   guestlist[0][1] = userid;
+
+        //if (isJoinedTheRoom) break;
+
+        for (let i = 1; i < guestlist.length; i++) {
+          if (guestlist[i][1] === 0) {
+            guestlist[i][1] = Socket.id;
+            /* 
+            if (!IsViewer) {
+              StartUserCamra(i);
+            }
+            ShowTheSideCaller(i); */
+            break;
+          }
+        }
+        break;
+      }
+
+      if (guestlist[i][1] === 0) {
+        guestlist[i][0].current.srcObject = stream;
+        guestlist[i][1] = userid;
+        //  ShowTheSideCaller(i);
+        break;
+      }
+    }
+    upDateGuestList(guestlist, roomDispatch);
+    // setGuest(guestlist);
+  };
   //connect the rescv transport
   const connectRecvTransport = async (
     consumerTransport,
@@ -375,23 +424,20 @@ const {  mediaSoupstate,
           rtpParameters: params.rtpParameters,
         });
 
-        let ConsumerTransports = [
-          ...consumerTransports,
-          {
-            consumerTransport,
-            serverConsumerTransportId: params.id,
-            producerId: remoteProducerId,
-            consumer,
-          },
-        ];
+        addConsumerTransport({
+          consumerTransport,
+          serverConsumerTransportId: params.id,
+          producerId: remoteProducerId,
+          consumer,
+        },mediaSoupDispatch)
 
-        setConsumerTransports(ConsumerTransports);
+      
 
         const { track } = consumer;
 
         //add the new stream to the view
         try {
-          AddMediaStream(socketId, new MediaStream([track]), kok);
+        //  AddMediaStream(socketId, new MediaStream([track]), kok);
         } catch (error) {
           //      console.log(error);
         }
@@ -432,8 +478,10 @@ const {  mediaSoupstate,
 
   useEffect(() => {
 
+    console.log('USE EFFECT')
+    console.log(isJoinedTheRoom)
     //if the user is not viewr create send transport
-    if (!IsViewer) {
+    if (!isJoinedTheRoom) {
       // once the device loads, create transport
       if (params.track && device && !producerTransport) {
         createSendTransport(device);
@@ -443,31 +491,30 @@ const {  mediaSoupstate,
       //get the current producers and chek if joining the room is avaliple
       getProducers();
 
-      Socket.emit("isFreeToJoin", { roomName: Room }, (data) => {
+      Socket.emit("isFreeToJoin", { roomName: roomName }, (data) => {
         if (data.status) {
-          setisFreeToJoin(true);
+         // setisFreeToJoin(true);
         } else {
-          setisFreeToJoin(false);
+         // setisFreeToJoin(false);
         }
       });
     }
 
 
-  }, [device, IsViewer, params, producerTransport]);
+  }, [device, isJoinedTheRoom, params, producerTransport]);
   
-useEffect(()=>{
+/* useEffect(()=>{
 
   return ()=>{
     Unmount(producerTransport)
   }
 
 },[])
-
+ */
 
 
   return {
     startStreming: createDevice,
-    setParam: setParam,
-    params:params
+
   };
 };

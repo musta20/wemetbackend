@@ -1,129 +1,156 @@
-const VideoCards = ({
-  GetElemntCssClass,
-  First,
-  SendMessageChat,
-  ChatMessage,
-  guest,
-  ToggleElementCssClass,
-  HistoryChat,
-  setChatMessage,
-  IsVedioElemntVisble,
-  ToogleBox,
-}) => {
-  return (
-    <div className="  row no-gutters   justify-content-md-center h-100 ">
-      <div className={GetElemntCssClass(0) + ` chatback`}>
-        <form className="form-inline h-80 justify-content-md-center ">
-          <div className="h-100 w-80 overflow-auto">
-            <div className="mhchat">{HistoryChat}</div>
-          </div>
-          <input
-            onChange={(e) => setChatMessage(e.target.value)}
-            type="text"
-            className="w-80 form-control"
-            value={ChatMessage}
-            name="ChatMessage"
-            placeholder="Chat here"
-          ></input>
+import React,{ useContext , useEffect} from "react";
 
-          <button
-            type="submit"
-            onClick={SendMessageChat}
-            className=" btn sendc"
-          ></button>
-          <div className="input-group-prepend"></div>
-        </form>
-      </div>
+import {AppContext} from "../../contextApi/Contexts/AppContext"
+import {SocketContext} from "../../contextApi/Contexts/socket"
+import { useRef } from "react";
+const VideoCards = () => {
+  
+  const CanvasImg = useRef(null)
 
-      <div className={GetElemntCssClass(1)}>
-        <div
-          className={`${
-            IsVedioElemntVisble(guest[1][1]) ? "visible" : "d-none"
-          }  `}
-        >
-          <video
-            ref={guest[1][0]}
-            className="Vd-box h-0 w-100"
-            autoPlay
-          ></video>
-          <span
-            onClick={() => ToogleBox(guest[1])}
-            className=" video-controls btn"
-          ></span>
-        </div>
+  const videoSourcs = [useRef(null),useRef(null),useRef(null),useRef(null)]
+  const Socket = useContext(SocketContext);
 
-        <div
-          className={`${
-            IsVedioElemntVisble(guest[2][1]) ? "visible" : "d-none"
-          }  `}
-        >
-          <video
-            ref={guest[2][0]}
-            className="Vd-box h-0 w-100"
-            autoPlay
-          ></video>
+  const {  mediaSoupstate , mediaSoupDispatch , roomState, roomDispatch} = useContext(AppContext)
 
-          <span
-            onClick={() => ToogleBox(guest[2])}
-            className="  video-controls btn"
-          ></span>
-        </div>
-      </div>
 
-      <div className={GetElemntCssClass(2) + ` `}>
-        <video ref={guest[0][0]} autoPlay className="Vd-box h-0 w-100 "></video>
-        <span
-          onClick={() => ToogleBox(guest[0])}
-          className={`${!First ? "visible" : "d-none"}  video-controls btn `}
-        ></span>
-      </div>
+  const {roomName , adminId ,userTrack, isPublic , isStreamed , isJoinedTheRoom , guestList } = roomState;
 
-      <div className={GetElemntCssClass(3)}>
-        <div
-          className={`${
-            IsVedioElemntVisble(guest[3][1]) ? "visible" : "d-none"
-          }  `}
-        >
-          <video
-            ref={guest[3][0]}
-            className="Vd-box h-0 w-100"
-            autoPlay
-          ></video>
 
-          <span
-            onClick={() => ToogleBox(guest[3])}
-            className="  video-controls btn"
-          ></span>
-        </div>
+  const view=                       //the array of class in each cases
+    [
+      ['d-none', 'col-md-6', 'col-md-4', 'col-md-4', 'd-none', 'd-none', 'd-none', 'col-md-4'],
+      ['d-none', 'd-none', 'col-md-3', 'col-md-2', 'col-md-3', 'col-md-4', 'd-none,d-none'],
+      ['col-md-7', 'col-md-6', 'col-md-5', 'col-md-4', 'col-md-6', 'col-md-6', 'col-md-6', 'col-md-5'],
+      ['d-none', 'd-none', 'd-none', 'col-md-2', 'col-md-3', 'd-none', 'col-md-4', 'col-md-3']]
 
-        <div
-          className={`${
-            IsVedioElemntVisble(guest[4][1]) ? "visible" : "d-none"
-          }  `}
-        >
-          <video
-            ref={guest[4][0]}
-            className="Vd-box h-0 w-100"
-            autoPlay
-          ></video>
 
-          <span
-            onClick={() => ToogleBox(guest[4])}
-            className="  video-controls btn"
-          ></span>
-        </div>
-      </div>
-      <div className="SideBarChat">
-        <button
-          type="submit"
-          onClick={() => ToggleElementCssClass(0)}
-          className={`${
-            GetElemntCssClass(0) === "d-none" ? "OpenChat" : "CloseChat"
-          } btn`}
-        ></button>
-      </div>
-    </div>
-  );
+
+  //this function take small imge from the user video
+  // and send it to the server as a thumnail imge
+  const TakeThumbnailImage = () => {
+
+    if(Socket.id != adminId )return
+    
+
+    let context = CanvasImg.current.getContext("2d");
+
+    context.drawImage(guestList[0].feed.current, 0, 0, 280, 200);
+
+    let data = CanvasImg.current.toDataURL("image/png", 0.1);
+    console.log("IMGE EMITED TO SERVER ");
+
+    Socket.emit("saveimg", data, (data) => {
+      console.log("IMGE EMITED TO SERVER ");
+    });
+
+    let reternde = guestList.findIndex(item=>item.id==0)
+    console.log(reternde)
+  };
+
+/* useEffect(()=>{
+  console.log('UPLOADING THE IMGES');
+  console.log(Socket.id , adminId , mainVid?.current?.play)
+  if(Socket.id == adminId && mainVid?.current?.play){
+    TakeThumbnailImage()
+  }
+
+},[Socket,adminId,mainVid?.current?.play]) */
+ 
+      useEffect(()=>{
+        guestList[0].feed=videoSourcs[0];
+        
+/*         let GuestEditer = [...guestList]
+        GuestEditer.forEach((g, i) => {
+      GuestEditer[i][0] = React.createRef();
+      GuestEditer[i][1] = 0;
+      GuestEditer[i][2] = true;
+      
+    })
+    upDateGuestList(GuestEditer,roomDispatch)
+ */
+      },[]) 
+
+
+
+useEffect(()=>{
+
+  if(userTrack)guestList[0].feed.current.srcObject = userTrack
+
+
+
+},[userTrack])
+
+
+     const ToggleElementCssClass = (i)=> {
+    /*     let stv = this.state.case.indexOf(true)
+    
+        let nev = this.state.ChangeStatVale[i][stv]
+    
+        let cc = [...this.state.case]
+    
+        cc[stv] = false
+        cc[nev] = true
+        this.setState({ case: cc }); */
+      }
+    
+
+  const GetElemntCssClass=(Postion) =>{
+
+   /*  return view[Postion][this.state.case.indexOf(true)] */
+  }
+
+
+  const IsVedioElemntVisble = (id) =>{
+    if (id === 0) return false
+
+    return true
+
+  }
+
+  //open or close the dilog for a selected user
+  //identfi the user that clicked on and safe the state
+  //of the box 
+  const ToogleBox =(guest)=> {/* 
+    let Guests = [...guestList]
+    let index = guestList.indexOf(guest)
+
+    if (guestList[2]) {
+      Guests[index][2] = false
+      this.setState({ guest: Guests })
+
+    } else {
+      Guests[index][2] = true
+     // this.setState({ guest: Guests })
+    } */
+
+  }
+
+/*   console.log(guestList)
+  console.log(guestList)
+
+if(!guestList[0]) {
+  return <h4>loading</h4>
+}else{
+  return <h1>load</h1>
+} */
+
+return (
+  <div>
+        <canvas
+        ref={CanvasImg}
+        className="d-none"
+        width="280"
+        height="200"
+        id="canvas"
+      ></canvas>
+  <video ref={videoSourcs[0]} onPlay={TakeThumbnailImage} autoPlay className="Vd-box h-0 w-50 "></video>
+
+  </div>
+
+)
+
 };
 
 export default VideoCards;
+
+
