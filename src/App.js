@@ -1,11 +1,16 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useRef } from "react";
 import "./assets/style/index.css";
 import "bootstrap/dist/js/bootstrap";
 import Body from "../src/pages/body"
 import NavBar from "../src/Componant/layout/NavBar";
 import CallBorad from "../src/pages/CallBord";
+import Switcher from "../src/Componant/Switcher";
 import "bootstrap/dist/css/bootstrap.css";
 import "./assets/style/App.css";
+
+import {restMediaSoupState} from "./contextApi/Actions/mediaSoupAction";
+import {restChatState} from "./contextApi/Actions/massengerHelperAction";
+import {restRoomState} from "./contextApi/Actions/roomHelperAction";
 
 import massengerReducer from "./contextApi/Reducers/massengerReducer";
 import mediaSoupReducer from "./contextApi/Reducers/mediaSoupReducer";
@@ -20,29 +25,28 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 function App() {
 
 
-/* const emptyUser ={
-  id:0,
-  feed:0
-} */
+
   const initialMainRoomProps = {
     roomName: "",
     isPublic: true,
+    userMediaTrack:null,
+    isFreeToJoin:false,
     isStreamed: true,
     adminId: 0,
-    isJoinedTheRoom: false,
-    userTrack:null,
+    isAudience: false,
+    
     guestList: [{
       id:0,
-      feed:0
+      feed:useRef(null)
     },{
       id:0,
-      feed:0
+      feed:useRef(null)
     },{
       id:0,
-      feed:0
+      feed:useRef(null)
     },{
       id:0,
-      feed:0
+      feed:useRef(null)
     }],
   };
 
@@ -84,6 +88,7 @@ function App() {
     }
   };
 
+
 const [roomState, roomDispatch] = useReducer(
   roomHelperReducer,
   initialMainRoomProps
@@ -97,6 +102,13 @@ const [massengerstate, massengerDispatch] = useReducer(
   initialMassengerProps
 );
 
+const restAllState =()=>{
+  console.log("REST ALL DATA")
+  restRoomState(initialMainRoomProps,roomDispatch);
+  restChatState(initialMassengerProps,massengerDispatch);
+  restMediaSoupState(initialMediaSoupProps,mediaSoupDispatch);
+}
+
  const MainRoomContex = {
   massengerstate,
   massengerDispatch,
@@ -104,6 +116,7 @@ const [massengerstate, massengerDispatch] = useReducer(
   roomDispatch,
   mediaSoupstate,
   mediaSoupDispatch,
+  restAllState
 };
 
 
@@ -119,6 +132,7 @@ const [massengerstate, massengerDispatch] = useReducer(
           <Route path="/" element={<Body />}></Route>
 
           <Route path="CallBorad/:Room" element={<CallBorad />}></Route>
+          <Route path="Switcher/" element={<Switcher />}></Route>
         </Routes>
       </BrowserRouter>
     </SocketContext.Provider>

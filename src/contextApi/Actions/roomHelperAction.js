@@ -7,9 +7,21 @@ import {
     ADD_TO_GUEST_LIST,
     REMOVE_FROM_GUEST_LIST,
     UP_DATE_GUEST_LIST,
-    SET_USER_MEDIA
+    SET_USER_MEDIA,
+    IS_FREE_TO_JOIN,
+    REST_STATE
   } from "./Type";
+  export const  restRoomState = (state,dispatch) =>{
+  
+    dispatch({payload:state,type:REST_STATE})
+  
+  }
 
+  export const  setIsFreeToJoin = (name ,dispatch) =>{
+  
+    dispatch({payload:name,type:IS_FREE_TO_JOIN})
+  
+  }
 
 
   export const  setRoomName = (name ,dispatch) =>{
@@ -36,7 +48,7 @@ import {
   
   }
   
-  export const  isJoinedTheRoom = (joinedTheRoom ,dispatch) =>{
+  export const  setIsAudience = (joinedTheRoom ,dispatch) =>{
   
     dispatch({payload:joinedTheRoom,type:IS_JOINED_THE_ROOM})
   
@@ -60,8 +72,8 @@ import {
   
   }
   
-  export const  upDateGuestList = (Guest ,dispatch) =>{
+  export const  upDateGuestList = (GuestL ,dispatch) =>{
   
-    dispatch({payload:Guest,type:UP_DATE_GUEST_LIST})
+    dispatch({payload:GuestL,type:UP_DATE_GUEST_LIST})
   
   }

@@ -22,7 +22,7 @@
     isPublic: true,
     isStreamed: true,
     adminId: 0,
-    isJoinedTheRoom: false,
+    isAudience: false,
     guestList: [],
     isFreeToJoin: false,
   };

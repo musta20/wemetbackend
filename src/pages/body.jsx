@@ -157,7 +157,7 @@ const  ShowRooms = ()=> {
             <br></br>
             <br></br>
             <div className=''>
-              <button id={room} onClick={()=>GoToCallRoomWatch()} className="m-1 btn btn-sm  btn-primary">just watch</button>
+              <button id={room} onClick={(e)=>GoToCallRoomWatch(e)} className="m-1 btn btn-sm  btn-primary">just watch</button>
               <button id={room} onClick={(e)=>join(e)} className="m-1 btn btn-sm btn-primary">join this room</button>
             </div>
           </div>

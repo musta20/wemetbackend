@@ -1,4 +1,4 @@
-import { ADD_CHAT_MESSAGE, ADD_PRIVET_MESSAGE , ADD_MESSAGE_TO_CHAT } from "../Actions/Type";
+import { ADD_CHAT_MESSAGE, ADD_PRIVET_MESSAGE , ADD_MESSAGE_TO_CHAT ,REST_STATE} from "../Actions/Type";
 const initialMassengerProps = {
   HistoryChat: [],
   ChatMessage: "",
@@ -7,20 +7,23 @@ const initialMassengerProps = {
 
 const massengerReducer = (state, action) => {
   switch (action.type) {
+
+    case REST_STATE:
+      return action.payload;
     case ADD_CHAT_MESSAGE:
       return {
         ...state,
-        HistoryChat: action.pyload,
+        HistoryChat: action.payload,
       };
     case ADD_PRIVET_MESSAGE:
       return {
         ...state,
-        PrivetMessage: action.pyload,
+        PrivetMessage: action.payload,
       };
     case ADD_MESSAGE_TO_CHAT:
       return {
         ...state,
-        HistoryChat: [...HistoryChat].push(action.pyload),
+        HistoryChat: [...state.HistoryChat].push(action.payload),
       };
     default:
       break;

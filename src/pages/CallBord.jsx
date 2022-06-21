@@ -1,66 +1,50 @@
-import React, { useEffect, useRef, useState, useContext } from "react";
-//import Modal from "./Modal";
-/* import { SocketContext } from "../contextApi/Contexts/socket";
-import {SocketContext} from "../../contextApi/Contexts/socket" */
-//import { SocketContext } from "../contextApi/Contexts/socket";
+import React, { useEffect, useContext } from "react";
 
 import { useMediaSoupHelper } from "../lib/hooks/mediaSoupHelper";
-//import { RoomManger } from "../lib/hooks/roomMangerHelper";
+
 import { useRoomManger } from "../lib/hooks/roomMangerHelper";
-import { ToastContainer, toast } from "react-toastify";
-//import { useLocation, useParams } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+
 import Layout from "../Componant/layout/Layout";
 import ControlePanle from "../Componant/layout/ControlePanle";
 import VideoCards from "../Componant/layout/VideoCards";
 import { AppContext } from "../contextApi/Contexts/AppContext";
+import { SocketContext } from "../contextApi/Contexts/socket";
+import { useLocation } from "react-router-dom";
 
 function CallBord() {
-  const { mediaSoupstate, roomState } = useContext(AppContext);
-  const { device , params} = mediaSoupstate;
-  const { userTrack, adminId } = roomState;
+  const { roomState  } = useContext(AppContext);
+  const Socket = useContext(SocketContext);
+  const { userMediaTrack, adminId } = roomState;
 
-  const { startStreming } = useMediaSoupHelper();
+  const { startStreming , Unmount } = useMediaSoupHelper();
 
-  const { CreateOrJoinTheRoom } = useRoomManger( startStreming);
+  const { CreateOrJoinTheRoom } = useRoomManger(startStreming);
+  const location = useLocation();
+
+  
 
   useEffect(() => {
-    console.log("TEST THE VAL");
-    console.log(device, userTrack, adminId , params);
+    
 
-    if (userTrack && !adminId) CreateOrJoinTheRoom();
-  }, [userTrack, adminId]);
+    if ((userMediaTrack || location?.state?.IsViewer) && !adminId) CreateOrJoinTheRoom();
 
+
+  }, [userMediaTrack, adminId]);
+
+useEffect(()=>{
+   return ()=> Unmount()
+
+},[])
   return (
     <Layout>
+
       <ToastContainer />
 
       <ControlePanle></ControlePanle>
 
-      <VideoCards
-      /*   GetElemntCssClass={GetElemntCssClass}
-        setChatMessage={setChatMessage}
-        IsVedioElemntVisble={IsVedioElemntVisble}
-        ToogleBox={ToogleBox}
-        First={First}
-        ChatMessage={ChatMessage}
-        HistoryChat={HistoryChat}
-        ToggleElementCssClass={ToggleElementCssClass}
-        guest={guest} */
-      ></VideoCards>
-      {/* 
-
-      {guest.map((Guest, index) => (
-        <Modal
-          key={index}
-          admin={First}
-          Id={Guest}
-          KikHimOut={KikHimOut}
-          ToogleBox={ToogleBox}
-          PrivetMessage={PrivetMessage}
-          SendPrivetMessage={SendPrivetMessage}
-          setPrivetMessage={setPrivetMessage}
-        ></Modal>
-      ))} */}
+      <VideoCards></VideoCards>
+      
     </Layout>
   );
 }

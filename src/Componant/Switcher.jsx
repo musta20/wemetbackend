@@ -1,41 +1,31 @@
+import { useEffect } from "react";
+import { useNavigate , useLocation } from "react-router-dom";
 
-import React, { Component } from 'react';
-import { withRouter } from 'react-router' 
+export default function Switcher() {
+  const navigate = useNavigate();
+  const location = useLocation();
 
-class Switch extends Component {
-     
+  useEffect(()=>{
+console.log('REDICATING THE PAGE TO WMEEET')
+console.log(location?.state?.roomName)
+console.log(location?.state?.IsPublic)
+console.log(location?.state?.IsViewer)
+
+
+setTimeout(() => {
+  navigate( '/CallBorad/'+location?.state?.roomName
+  ,
+  {   state: {
+       IsPublic: true,
+       IsViewer:false
+     }})
+}, 5000); 
+
+},[])
+
+
   
-componentDidMount(){
-  try{
 
-  if(this.props.location.state.CallBorad){
-    this.props.history.push({
-      pathname: '/CallBorad/'+this.props.location.state.TheRoom,
-    state:{
-      IsPublic:  this.props.location.state.IsPublic,
-      IsViewer:  this.props.location.state.IsViewer
-   }
-    }) 
-
-  }else{
-    this.props.history.push({
-      pathname: '/',
-       }) } 
-  }catch(e){
-    this.props.history.push({
-      pathname: '/',
-   
-    })
-  }
+  return <><span>loadin</span></>
+  
 }
-    render() {
-   
-        return (
-            <div></div>
-        )
-
-}
-
-}
-
-export default withRouter(Switch);

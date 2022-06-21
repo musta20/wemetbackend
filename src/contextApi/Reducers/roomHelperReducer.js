@@ -7,24 +7,35 @@ import {
   ADD_TO_GUEST_LIST,
   REMOVE_FROM_GUEST_LIST,
   UP_DATE_GUEST_LIST,
-  SET_USER_MEDIA
+  SET_USER_MEDIA,
+  IS_FREE_TO_JOIN,
+  REST_STATE
 } from "../Actions/Type";
 const initialMainRoomProps = {
   roomName: "",
   isPublic: true,
   isStreamed: true,
   adminId: 0,
-  isJoinedTheRoom: false,
+  isAudience: false,
   guestList: [],
   isFreeToJoin: false,
+  userMediaTrack:null
 };
 
 const roomHelperReducer = (state, action) => {
   switch (action.type) {
+
+    case REST_STATE:
+      return action.payload;
+    case IS_FREE_TO_JOIN:
+      return {
+        ...state,
+        isFreeToJoin: action.payload
+      };
     case SET_USER_MEDIA:
       return {
         ...state,
-        userTrack: action.payload
+        userMediaTrack: action.payload
       };
     case REMOVE_FROM_GUEST_LIST:
         return {
@@ -39,7 +50,7 @@ const roomHelperReducer = (state, action) => {
     case IS_JOINED_THE_ROOM:
         return {
           ...state,
-          isJoinedTheRoom: action.payload,
+          isAudience: action.payload,
         };
     case SET_ADMIN_ID:
         return {
@@ -64,7 +75,7 @@ const roomHelperReducer = (state, action) => {
       case UP_DATE_GUEST_LIST:
         return {
           ...state,
-          guestList: action.payload,
+          guestList: action.payload
         };
     default:
       break;

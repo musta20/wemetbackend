@@ -1,57 +1,49 @@
 import { AppContext } from "../../contextApi/Contexts/AppContext";
-import { useLocation , useParams} from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 
-import { useContext , useEffect} from "react";
-import {
-  setParam,
-  setDevice,
-  deleteDevice,
-  addProducerTransport,
-  removeProducerTransport,
-  addConsumerTransport,
-  removeConsumerTransport,
-} from "../../contextApi/Actions/mediaSoupAction";
+import { useContext, useEffect } from "react";
+import { setParam } from "../../contextApi/Actions/mediaSoupAction";
 
 import {
-  removeFromGuestList,
-  addToGuestList,
-  setRoomName,
+  setIsAudience,
   isRoomPublic,
   isRoomStream,
   upDateGuestList,
+  setRoomName,
   setAdminId,
+  setIsFreeToJoin,
   setUserMedia,
-  isJoinedTheRoom,
 } from "../../contextApi/Actions/roomHelperAction";
-import {SocketContext} from "../../contextApi/Contexts/socket"
-
-
-
-
+import { SocketContext } from "../../contextApi/Contexts/socket";
 
 //setUserMedia
 export const useRoomManger = (startStreming) => {
+ // console.log("useRoomManger");
+
   const navigate = useLocation();
 
   const { mediaSoupstate, mediaSoupDispatch, roomState, roomDispatch } =
     useContext(AppContext);
-    
-    
-    const {roomName , isPublic , isStreamed, adminId , isJoinedTheRoom , guestList} = roomState
-    const {params} = mediaSoupstate
 
-    const Socket = useContext(SocketContext);
-    const { Room } = useParams();
+  const { guestList } = roomState;
+  const { params } = mediaSoupstate;
+
+  const Socket = useContext(SocketContext);
+  const { Room } = useParams();
 
   useEffect(() => {
-    if (Socket) startConncting();
+    setRoomName(Room, roomDispatch);
+  //  console.log('the room is ');
+  //  console.log(Room)
+   // console.log(navigate?.state?.IsViewer)
+    if (Socket && !navigate?.state?.IsViewer) StartUserCamra(0);
 
-   // return () => componentWillUnmount();
+    // return () => componentWillUnmount();
   }, []);
 
   //this function will show the notftion
   const showTost = (data) => {
- //   toast(data);
+    //   toast(data);
   };
 
   //open or close the dilog for a selected user
@@ -69,8 +61,6 @@ export const useRoomManger = (startStreming) => {
       upDateGuestList(Guests);
     }
   };
-
-
 
   /*
   this function is gone take the room name that 
@@ -92,26 +82,30 @@ export const useRoomManger = (startStreming) => {
 
     if (navigate?.state?.IsViewer) {
       // setIsViewer(true);
-      isJoinedTheRoom(false,roomDispatch);
+      setIsAudience(true, roomDispatch);
       IsViewer = true;
     }
+   // console.log(navigate?.state?.IsPublic);
 
     if (!navigate?.state?.IsPublic) {
-      isRoomPublic(true,roomDispatch);
-      IsPublic = true;
+      isRoomPublic(false, roomDispatch);
+      IsPublic = false;
     }
 
     //create room name it this way to add mor info in in the room name
     const FullRoomName = {
-      title:Room,
-      IsPublic:IsPublic,
-      IsViewer:IsViewer
+      title: Room,
+      IsPublic: IsPublic,
+      IsViewer: IsViewer,
     };
+
+   // console.log('CreateStream CREATE STREAM')
+
     Socket.emit(
       "CreateStream",
       FullRoomName,
       ({ status, rtpCapabilities, BossId, room, First }) => {
-        console.log({ status, rtpCapabilities, BossId, room, First })
+        console.log({ status, rtpCapabilities, BossId, room, First });
 
         if (!status) {
           //if status came with wrong result and rtpCapabilities
@@ -120,7 +114,7 @@ export const useRoomManger = (startStreming) => {
             showTost(room);
             setAdminId(BossId, roomDispatch);
 
-            isJoinedTheRoom(false, roomDispatch);
+            setIsAudience(true, roomDispatch);
 
             // once we have rtpCapabilities from the Router, create Device
             startStreming(rtpCapabilities);
@@ -138,13 +132,12 @@ export const useRoomManger = (startStreming) => {
         //if this value came as true you are the admin of this room
 
         if (First) {
-          console.log("setting The Frist VALUE :::::::::::");
-          console.log(First);
+        //  console.log("setting The Frist VALUE :::::::::::");
+        //  console.log(First);
           //  setFirst(true);
-          console.log(Socket.id)
+       //   console.log(Socket.id);
           setAdminId(Socket.id, roomDispatch);
 
-         
           //  setHiddeTheRoom( IsPublic )
         } else {
           setAdminId(BossId, roomDispatch);
@@ -159,12 +152,12 @@ export const useRoomManger = (startStreming) => {
 
     Socket.on("FreeToJoin", ({ status }) => {
       if (status) {
-     //   setisFreeToJoin(true);
+        setIsFreeToJoin(true, roomDispatch);
 
         return;
       }
 
-     // setisFreeToJoin(false);
+      setIsFreeToJoin(false, roomDispatch);
     });
 
     //this event triggerd when the room admin ban you from the room
@@ -177,43 +170,37 @@ export const useRoomManger = (startStreming) => {
 
     //this event triggred when you becam admin and the room setting seted
     Socket.on("switchAdminSetting", ({ isRoomLocked, isStream, IsPublic }) => {
-      isRoomPublic(isRoomLocked, roomDispatch);
+      console.log("SWITCH ADMIN SETTING");
+      console.log(isRoomLocked, isStream, IsPublic);
+      isRoomPublic(IsPublic, roomDispatch);
       isRoomStream(isStream, roomDispatch);
     });
 
     //this event triggred when admin switch to another youser
     Socket.on("switchAdmin", ({ admin }) => {
-      setAdminId(admin, roomDispatch);
-
       // if you are the new admin set you as admin
-      /*    if (admin === Socket.id) {
-        setFirst(true);
-      } */
       /* 
       find the new admin in the room and set
       his view to the big view and clear his 
       postion in the guest list
       */
-      let UsersGuest = [...guestList];
-      let posthion;
+      const copyUsersGuest = [...guestList];
+      const currentUserIndx = copyUsersGuest.findIndex(
+        (guest) => guest.id === admin
+      );
+      copyUsersGuest[0].feed.current.srcObject =
+        copyUsersGuest[currentUserIndx].feed.current.srcObject;
+      copyUsersGuest[0].id = admin;
+      copyUsersGuest[currentUserIndx].feed.current.srcObject = null;
+      copyUsersGuest[currentUserIndx].id = 0;
+      setAdminId(admin, roomDispatch);
 
-      UsersGuest.forEach((User) => {
-        if (User[1] === adminId) {
-          UsersGuest[0][0].current.srcObject = User[0].current.srcObject;
-          UsersGuest[0][1] = adminId;
-          posthion = UsersGuest.indexOf(User);
-          User[1] = 0;
-        }
-      });
-
-      upDateGuestList(UsersGuest);
-      
-      CloseTheSideCaller(posthion);
+      upDateGuestList(copyUsersGuest, roomDispatch);
     });
 
     //this event triggerd when you recive a privet message
     //it will save to HistoryChat
-/*     Socket.on("PrivetMessage", function (Message) {
+    /*     Socket.on("PrivetMessage", function (Message) {
       let HistoryChat = [...HistoryChat];
 
       HistoryChat.push(<div className="alr messageitem ">{Message}</div>);
@@ -223,7 +210,7 @@ export const useRoomManger = (startStreming) => {
 
     //this event triggerd when you recive a  message
     //it will save to HistoryChat
-/*     Socket.on("Message", function (Message) {
+    /*     Socket.on("Message", function (Message) {
       let HistoryChat = [...HistoryChat];
 
       HistoryChat.push(
@@ -234,18 +221,17 @@ export const useRoomManger = (startStreming) => {
     }); */
   };
 
-
   const componentWillUnmount = () => {
     console.log("Leving this component");
     try {
       //when leave the page close the cam
       let newgist = [...guestList];
 
-     // console.log(guest);
+      // console.log(guest);
       newgist.forEach((guest) => {
         if (guest[1] !== 0) {
           guest[0].current.srcObject.getVideoTracks().forEach((track) => {
-            console.log(track);
+          //  console.log(track);
 
             track.stop();
           });
@@ -290,17 +276,23 @@ export const useRoomManger = (startStreming) => {
           track,
           ...params,
         };
+
         setParam(Params, mediaSoupDispatch);
 
-              //   var guestList = [...guest];
-
-              //userTrack
         if (Socket.id) {
-          console.log(Socket.id);
-          guestList[0].id=Socket.id
-          setUserMedia(stream,roomDispatch)
+          const copyGuesList = [...guestList];
+          copyGuesList[0].id = Socket.id;
+          console.log(
+            `THIS ISS THE SET USER MEDIA ROOMDISPATCH USERTRACK MEDIA`
+          );
 
-        }/* 
+          setUserMedia(stream, roomDispatch);
+          console.log(
+            `THHERE IS UPDATEING THE LIST    ---------------[] [] [] [] H`
+          );
+
+          upDateGuestList(copyGuesList, roomDispatch);
+        } /* 
         guestList[0].feed.current.srcObject = stream;
 
        // upDateGuestList(guestList); 
@@ -317,15 +309,13 @@ export const useRoomManger = (startStreming) => {
       });
   };
 
-
   //this function will prevent the roomfrom streaming to the public
   // the server will check if you are the admin
   const isStream = (e) => {
     //setisStream(e.target.checked);
-    isRoomStream(e.target.checked,mediaSoupDispatch)
+    isRoomStream(e.target.checked, mediaSoupDispatch);
     Socket.emit("isStream", isStream, (data) => {});
   };
-
 
   //this function will ban a spesifc user apssed
   // to it the server will check if you are the admin
@@ -357,12 +347,12 @@ export const useRoomManger = (startStreming) => {
 
   //this function will will show the messages from the state
   const ShowHistoryChat = () => {
-   // return HistoryChat.forEach((m) => <div> {m}</div>);
+    // return HistoryChat.forEach((m) => <div> {m}</div>);
   };
 
   //this function will close the side bar when no active view in it
   const CloseTheSideCaller = (i) => {
-/*     if ((i === 1 || i === 2) && guest[1][1] === 0 && guest[2][1] === 0) {
+    /*     if ((i === 1 || i === 2) && guest[1][1] === 0 && guest[2][1] === 0) {
       ToggleElementCssClass(1);
     }
 
@@ -373,12 +363,12 @@ export const useRoomManger = (startStreming) => {
 
   // this function will get the css class from view depnd on the current case
   const GetElemntCssClass = (Postion) => {
- //   return view[Postion][Case.indexOf(true)];
+    //   return view[Postion][Case.indexOf(true)];
   };
 
   //this function will open the side bar when there is active view in it
   const ShowTheSideCaller = (i) => {
-/*     if (i !== 0) {
+    /*     if (i !== 0) {
       let iscase = Case.indexOf(true);
       if ((i === 1 || i === 2) && ![2, 3, 4, 5].includes(iscase)) {
         ToggleElementCssClass(1);
@@ -393,7 +383,7 @@ export const useRoomManger = (startStreming) => {
   //this fuction will check the css cass and
   //toggle it to its oppessit case in the cases arry
   const ToggleElementCssClass = (i) => {
-   /*  let stv = Case.indexOf(true);
+    /*  let stv = Case.indexOf(true);
 
     let nev = ChangeStatVale[i][stv];
 
@@ -437,5 +427,5 @@ export const useRoomManger = (startStreming) => {
     StartUserCamra(0);
   };
 
-  return {CreateOrJoinTheRoom};
+  return { CreateOrJoinTheRoom };
 };

@@ -6,6 +6,7 @@ import {
   REMOVE_PRODUCER_TRANSPORT,
   ADD_CONSUMER_TRANSPORT,
   REMOVE_CONSUMER_TRANSPORT,
+  REST_STATE
 } from "../Actions/Type";
 
 const initialMediaSoupProps = {
@@ -41,15 +42,18 @@ const initialMediaSoupProps = {
 
 const mediaSoupReducer = (state, action) => {
   switch (action.type) {
+
+    case REST_STATE:
+      return action.payload;
     case SET_DEVICE:
       return {
         ...state,
-        param: action.pyload,
+        device: action.payload,
       };
       case ADD_PARAM:
         return {
           ...state,
-          device: action.pyload,
+          params: action.payload,
         };
     case DELETE_DEVICE:
       return {
@@ -59,7 +63,7 @@ const mediaSoupReducer = (state, action) => {
     case ADD_PRODUCER_TRANSPORT:
       return {
         ...state,
-        producerTransport: action.pyload,
+        producerTransport: action.payload,
       };
     case REMOVE_PRODUCER_TRANSPORT:
       return {
@@ -69,13 +73,13 @@ const mediaSoupReducer = (state, action) => {
     case ADD_CONSUMER_TRANSPORT:
       return {
         ...state,
-        consumerTransports: [...consumerTransports].push(action.pyload),
+        consumerTransports: action.payload,
       };
     case REMOVE_CONSUMER_TRANSPORT:
       return {
         state,
-        consumerTransports: [...consumerTransports].filter(
-          (transportData) => transportData.producerId !== action.pyload
+        consumerTransports: [...state.consumerTransports].filter(
+          (transportData) => transportData.producerId !== action.payload
         ),
       };
 

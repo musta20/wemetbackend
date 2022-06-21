@@ -5,9 +5,15 @@ import {
   REMOVE_PRODUCER_TRANSPORT,
   ADD_CONSUMER_TRANSPORT,
   REMOVE_CONSUMER_TRANSPORT,
-  ADD_PARAM
+  ADD_PARAM,
+  REST_STATE
 } from "./Type";
 
+export const  restMediaSoupState = (state,dispatch) =>{
+  
+  dispatch({payload:state,type:REST_STATE})
+
+}
 export const  setParam = (param ,dispatch) =>{
 
   dispatch({payload:param,type:ADD_PARAM})

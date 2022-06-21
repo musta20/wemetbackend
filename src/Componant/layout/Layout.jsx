@@ -6,11 +6,7 @@ const Layout = ({ children }) => {
 
   return (
     <>
-      {" "}
-
-
-
-      <div className="container-fluid	">
+    <div className="container-fluid	">
         <div className="row ">
           <br></br>
           <br></br>

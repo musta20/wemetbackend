@@ -1,56 +1,82 @@
-
 import { AppContext } from "../../contextApi/Contexts/AppContext";
 
 import { useContext } from "react";
 
-import {isRoomPublic} from "../../contextApi/Actions/roomHelperAction"
+import { isRoomPublic } from "../../contextApi/Actions/roomHelperAction";
 import { SocketContext } from "../../contextApi/Contexts/socket";
+import { useNavigate } from "react-router-dom";
+
+
+import {
+
+  setIsFreeToJoin,
+} from "../../contextApi/Actions/roomHelperAction";
 const ControlePanle = () => {
 
   const { mediaSoupstate, mediaSoupDispatch, roomState, roomDispatch } =
     useContext(AppContext);
-    const Socket = useContext(SocketContext);
+  const Socket = useContext(SocketContext);
 
-    const {isJoinedTheRoom ,isStreamed,adminId, isPublic,isFreeToJoin}=roomState;
-    //this function will lock the room
+  const { isAudience, roomName, isStreamed, adminId, isPublic, isFreeToJoin } =
+    roomState;
+
+    const navigate = useNavigate();
+
+/* 
+    console.log('THE C PANALE VALUES ')
+    console.log(isStreamed)
+    console.log(isAudience)
+    console.log(isPublic)
+    console.log(isFreeToJoin) */
+  //this function will lock the room
   // the server will check if you are the admin
   const LockRoom = (e) => {
     //  setLock(e.target.checked);
-    isRoomPublic(e.target.checked,mediaSoupDispatch)  
+    isRoomPublic(e.target.checked, mediaSoupDispatch);
     //Socket.emit("LockTheRoom", Lock, (data) => {});
-    };
-  
-      //this function will hide the room
-    // the server will check if you are the admin
-    const doHiddeTheRoom = (e) => {
-      //setHiddeTheRoom(e.target.checked);
-     // Socket.emit("HiddeTheRoom", Lock, (data) => {});
-    };
-const isStream = ()=>{
+  };
 
-}
-    const JoinTheRoom = ()=>{}
+  //this function will hide the room
+  // the server will check if you are the admin
+  const doHiddeTheRoom = (e) => {
+    //setHiddeTheRoom(e.target.checked);
+    // Socket.emit("HiddeTheRoom", Lock, (data) => {});
+  };
+  const isStream = () => {};
+  const JoinTheRoom = () => {
+  //  setIsFreeToJoin(false,roomDispatch)
+  console.log("roomName  JoinTheRoom JoinTheRoom")
+  console.log(roomName)
+
   
+  
+    navigate('/Switcher',
+    {state: {
+      roomName: roomName,
+      IsPublic: true,
+      IsViewer: false
+       }}) 
+  };
+
   return (
     <>
+     <button onClick={()=>JoinTheRoom()} className={`${!isFreeToJoin ? "d-none" : "" }`}>
+            Free window To Join
+          </button>
       <div
-        style={!isJoinedTheRoom ? { display: "none" } : { display: "block" }}
+        style={!isAudience ? { display: "none" } : { display: "block" }}
         className="custom-control custom-switch"
       >
-        <div
-          style={!isFreeToJoin ? { display: "none" } : { display: "block" }}
-          className="custom-control custom-switch"
-        >
-          <span onClick={JoinTheRoom} className="badge badge-primary btn ">
-            Free window To Join
-          </span>
-        </div>
+         
       </div>
 
-      <div
-        style={!!adminId === Socket.id ? { display: "none" } : { display: "block" }}
-        className="custom-control custom-switch"
+      <span
+        style={
+          adminId !== Socket.id ? { display: "none" } : { display: "block" }
+        }
+        
       >
+        <div className="custom-control custom-switch">
         <input
           onChange={(e) => LockRoom(e)}
           type="checkbox"
@@ -60,12 +86,11 @@ const isStream = ()=>{
           id="customSwitch2"
         ></input>
         <label className="custom-control-label" htmlFor="customSwitch2">
-          Lock the rooms
+        Streaming 
         </label>
-      </div>
 
       <div
-        style={!adminId === Socket.id ? { display: "none" } : { display: "block" }}
+        
         className="custom-control custom-switch"
       >
         <input
@@ -77,12 +102,12 @@ const isStream = ()=>{
           id="customSwitch3"
         ></input>
         <label className="custom-control-label" htmlFor="customSwitch4">
-          the rooms is not hidden
+          Puplic
         </label>
       </div>
 
       <div
-        style={!adminId === Socket.id ? { display: "none" } : { display: "block" }}
+       
         className="custom-control custom-switch"
       >
         <input
@@ -97,6 +122,9 @@ const isStream = ()=>{
           Stop public Streaming
         </label>
       </div>
+      </div>
+      </span>
+
     </>
   );
 };

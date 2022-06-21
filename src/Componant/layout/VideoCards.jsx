@@ -2,18 +2,19 @@ import React,{ useContext , useEffect} from "react";
 
 import {AppContext} from "../../contextApi/Contexts/AppContext"
 import {SocketContext} from "../../contextApi/Contexts/socket"
+import GuestView from "../GuestView";
 import { useRef } from "react";
 const VideoCards = () => {
   
   const CanvasImg = useRef(null)
 
-  const videoSourcs = [useRef(null),useRef(null),useRef(null),useRef(null)]
+  //const videoSourcs = [useRef(null),useRef(null),useRef(null),useRef(null)]
   const Socket = useContext(SocketContext);
 
-  const {  mediaSoupstate , mediaSoupDispatch , roomState, roomDispatch} = useContext(AppContext)
+  const { roomState } = useContext(AppContext)
 
 
-  const {roomName , adminId ,userTrack, isPublic , isStreamed , isJoinedTheRoom , guestList } = roomState;
+  const { adminId , userMediaTrack , guestList } = roomState;
 
 
   const view=                       //the array of class in each cases
@@ -56,8 +57,8 @@ const VideoCards = () => {
 
 },[Socket,adminId,mainVid?.current?.play]) */
  
-      useEffect(()=>{
-        guestList[0].feed=videoSourcs[0];
+   //   useEffect(()=>{
+    //    guestList[0].feed=videoSourcs[0];
         
 /*         let GuestEditer = [...guestList]
         GuestEditer.forEach((g, i) => {
@@ -68,17 +69,21 @@ const VideoCards = () => {
     })
     upDateGuestList(GuestEditer,roomDispatch)
  */
-      },[]) 
+   //   },[]) 
 
 
 
 useEffect(()=>{
+  
+  console.log(roomState)
+  console.log(guestList)
+  console.log(userMediaTrack)
 
-  if(userTrack)guestList[0].feed.current.srcObject = userTrack
+  if(userMediaTrack && !guestList[0].feed.current.srcObject) guestList[0].feed.current.srcObject = userMediaTrack
 
 
 
-},[userTrack])
+},[userMediaTrack])
 
 
      const ToggleElementCssClass = (i)=> {
@@ -143,8 +148,27 @@ return (
         height="200"
         id="canvas"
       ></canvas>
-  <video ref={videoSourcs[0]} onPlay={TakeThumbnailImage} autoPlay className="Vd-box h-0 w-50 "></video>
+  <video ref={guestList[0].feed} onPlay={TakeThumbnailImage} autoPlay className="Vd-box h-0 w-50 "></video>
+  <br></br>
+  <br></br>
+  <br></br>
+  <br></br>
 
+  <GuestView  Guest={guestList[1]}></GuestView>
+  <GuestView  Guest={guestList[2]}></GuestView>
+  <GuestView  Guest={guestList[3]}></GuestView>
+{/*  // {guestList.map((guest,Index)=>(Index && guest.id) &&  )}
+ */}
+  <br></br>
+ 
+{/*   <video ref={guestList[1].feed} autoPlay className="Vd-box h-0 w-50 "></video>  <br></br>
+ 
+ <video ref={guestList[2].feed} autoPlay className="Vd-box h-0 w-50 "></video>  <br></br>
+ 
+ <video ref={guestList[3].feed} autoPlay className="Vd-box h-0 w-50 "></video> */}
+  {/* 
+  {guestList.map((guest,Index)=>(Index && guest.id) && )}
+ */}
   </div>
 
 )
