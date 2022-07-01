@@ -2,8 +2,8 @@ import React, { useState, useRef, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Ajv from 'ajv';
-//import { useUserApi } from '../lib/hooks/userApi';
 import {SocketContext} from "../../contextApi/Contexts/socket"
+import { useEffect } from 'react';
 
 export default function Navbar() {
 
@@ -22,7 +22,6 @@ export default function Navbar() {
   const [IsRommeExist, setIsRommeExist] = useState(true)
   const navigate = useNavigate();
 
-  //const {Socket} = useUserApi();
 
   const ENDPOINT = `http://localhost:6800`;
 
@@ -63,6 +62,12 @@ export default function Navbar() {
 
 
   }
+  const connectToServer = async ()=>{
+
+    if (!Socket.connected) await Socket.connect()
+  
+ }
+
 
   //check api valible room name
   const isRoomeValid = (value) => {
@@ -138,6 +143,9 @@ export default function Navbar() {
       settoggleNav(true)
     }
   }
+  useEffect(()=>{
+    connectToServer()
+  },[])
 
 
 

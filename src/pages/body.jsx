@@ -1,7 +1,6 @@
 import React, {useContext, useEffect, useState  } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
 import BodyFooter from "../Componant/BodyFooter";
-//import { useUserApi } from '../lib/hooks/userApi';
 import { useNavigate } from 'react-router-dom';
 
 import { SocketContext } from "../contextApi/Contexts/socket"
@@ -13,9 +12,8 @@ export default function Body (){
 
     const [TheRoom,setTheRoom] = useState('');
     const [Rooms,setRooms] = useState([]);
-   // const { Socket } = useUserApi();
 
-    const Socket = useContext(SocketContext);
+    const Socket  = useContext(SocketContext);
 
   
 

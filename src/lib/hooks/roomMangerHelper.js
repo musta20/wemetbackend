@@ -188,14 +188,17 @@ export const useRoomManger = (startStreming) => {
       const currentUserIndx = copyUsersGuest.findIndex(
         (guest) => guest.id === admin
       );
-      copyUsersGuest[0].feed.current.srcObject =
-        copyUsersGuest[currentUserIndx].feed.current.srcObject;
+
+   //   console.log(currentUserIndx)
+   if(currentUserIndx){
+      copyUsersGuest[0].feed.current.srcObject = copyUsersGuest[currentUserIndx].feed.current.srcObject;
       copyUsersGuest[0].id = admin;
       copyUsersGuest[currentUserIndx].feed.current.srcObject = null;
       copyUsersGuest[currentUserIndx].id = 0;
       setAdminId(admin, roomDispatch);
-
       upDateGuestList(copyUsersGuest, roomDispatch);
+
+}
     });
 
     //this event triggerd when you recive a privet message

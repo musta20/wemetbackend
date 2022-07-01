@@ -16,10 +16,10 @@ import massengerReducer from "./contextApi/Reducers/massengerReducer";
 import mediaSoupReducer from "./contextApi/Reducers/mediaSoupReducer";
 import roomHelperReducer from "./contextApi/Reducers/roomHelperReducer";
 
-import { SocketContext, socket } from "./contextApi/Contexts/socket";
+import { SocketContext, Socket  } from "./contextApi/Contexts/socket";
 import { AppContext } from "./contextApi/Contexts/AppContext";
 
-
+//{ SocketContext, socket ,connectSocketIo , disConnectSocketIo }
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
@@ -103,7 +103,7 @@ const [massengerstate, massengerDispatch] = useReducer(
 );
 
 const restAllState =()=>{
-  console.log("REST ALL DATA")
+  console.log("REST ALL DATA REST ALL DATA TO INIAL STATE SEE IF IT WORK")
   restRoomState(initialMainRoomProps,roomDispatch);
   restChatState(initialMassengerProps,massengerDispatch);
   restMediaSoupState(initialMediaSoupProps,mediaSoupDispatch);
@@ -119,12 +119,12 @@ const restAllState =()=>{
   restAllState
 };
 
+//Socket , connectSocketIo , disConnectSocketIo]
 
-
-
+//const socketValue = {}
   return (
     <AppContext.Provider value={MainRoomContex}>
-    <SocketContext.Provider value={socket}>
+    <SocketContext.Provider value={Socket}>
       <BrowserRouter>
         <NavBar />
 

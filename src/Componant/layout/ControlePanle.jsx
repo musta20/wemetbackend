@@ -60,7 +60,7 @@ const ControlePanle = () => {
 
   return (
     <>
-     <button onClick={()=>JoinTheRoom()} className={`${!isFreeToJoin ? "d-none" : "" }`}>
+     <button onClick={()=>JoinTheRoom()} className={`${!isFreeToJoin ? "d-none" : "" } btn btn-sm`}>
             Free window To Join
           </button>
       <div
