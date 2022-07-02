@@ -172,6 +172,8 @@ export const useRoomManger = (startStreming) => {
     Socket.on("switchAdminSetting", ({ isRoomLocked, isStream, IsPublic }) => {
       console.log("SWITCH ADMIN SETTING");
       console.log(isRoomLocked, isStream, IsPublic);
+      setAdminId(Socket.id, roomDispatch);
+
       isRoomPublic(IsPublic, roomDispatch);
       isRoomStream(isStream, roomDispatch);
     });

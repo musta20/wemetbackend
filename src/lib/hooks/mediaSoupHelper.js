@@ -58,8 +58,7 @@ export const useMediaSoupHelper = () => {
     );
     //this event triggred when user colse his stram you shuld close
     //the connection to prevent memory leak
-
-    Socket.off("producer-closed").on(
+    Socket.on(
       "producer-closed",
       ({ remoteProducerId, socketId }) => {
         //find the specifc transport and close it
@@ -67,8 +66,8 @@ export const useMediaSoupHelper = () => {
           const producerToClose = consumerTransports.find(
             (transportData) => transportData.producerId === remoteProducerId
           );
-          //  if(producerToClose) producerToClose.consumerTransport.close();
-          //  if(producerToClose) producerToClose.consumer.close();
+            if(producerToClose) producerToClose.consumerTransport.close();
+            if(producerToClose) producerToClose.consumer.close();
         } catch (e) {
           console.error(e);
         }
@@ -80,7 +79,7 @@ export const useMediaSoupHelper = () => {
           ),
         ];
 
-        // addConsumerTransport(ConsumerTransports, mediaSoupDispatch);
+        addConsumerTransport(ConsumerTransports, mediaSoupDispatch);
         // setConsumerTransports(ConsumerTransports);
         // hide the video div element
         completeSession(socketId);
@@ -93,7 +92,11 @@ export const useMediaSoupHelper = () => {
     console.log(`CLOSE ING THE ID: ${id} `);
 
     const indexGuest = copyGuesList.findIndex((item) => item.id === id);
-    if (!indexGuest) {
+    console.log(id)
+    console.log(guestList)
+    console.log(copyGuesList)
+    console.log(indexGuest)
+    if (indexGuest > 0) {
       console.log("ttis shudl fir if index is poaitc valie");
       console.log(indexGuest);
 
@@ -104,10 +107,7 @@ export const useMediaSoupHelper = () => {
       console.log("NAGATIV VALUE");
       console.log(indexGuest);
     }
-    //GuestList.map(item=>item.id===id && {...item,id:0})
-    // console.log(GuestListCopy)
-
-    // CloseTheSideCaller(thegustid);
+    
   };
 
   //this function will create a device for mediasoup api

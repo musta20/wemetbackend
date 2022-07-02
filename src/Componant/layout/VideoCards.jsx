@@ -1,37 +1,68 @@
-import React,{ useContext , useEffect} from "react";
+import React, { useContext, useEffect } from "react";
 
-import {AppContext} from "../../contextApi/Contexts/AppContext"
-import {SocketContext} from "../../contextApi/Contexts/socket"
+import { AppContext } from "../../contextApi/Contexts/AppContext";
+import { SocketContext } from "../../contextApi/Contexts/socket";
 import GuestView from "../GuestView";
 import { useRef } from "react";
+import ChatBox from "./ChatBox";
 const VideoCards = () => {
-  
-  const CanvasImg = useRef(null)
+  const CanvasImg = useRef(null);
 
   //const videoSourcs = [useRef(null),useRef(null),useRef(null),useRef(null)]
   const Socket = useContext(SocketContext);
 
-  const { roomState } = useContext(AppContext)
+  const { roomState } = useContext(AppContext);
 
+  const { adminId, userMediaTrack, guestList } = roomState;
 
-  const { adminId , userMediaTrack , guestList } = roomState;
-
-
-  const view=                       //the array of class in each cases
+  const view =
+    //the array of class in each cases
     [
-      ['d-none', 'col-md-6', 'col-md-4', 'col-md-4', 'd-none', 'd-none', 'd-none', 'col-md-4'],
-      ['d-none', 'd-none', 'col-md-3', 'col-md-2', 'col-md-3', 'col-md-4', 'd-none,d-none'],
-      ['col-md-7', 'col-md-6', 'col-md-5', 'col-md-4', 'col-md-6', 'col-md-6', 'col-md-6', 'col-md-5'],
-      ['d-none', 'd-none', 'd-none', 'col-md-2', 'col-md-3', 'd-none', 'col-md-4', 'col-md-3']]
-
-
+      [
+        "d-none",
+        "col-md-6",
+        "col-md-4",
+        "col-md-4",
+        "d-none",
+        "d-none",
+        "d-none",
+        "col-md-4",
+      ],
+      [
+        "d-none",
+        "d-none",
+        "col-md-3",
+        "col-md-2",
+        "col-md-3",
+        "col-md-4",
+        "d-none,d-none",
+      ],
+      [
+        "col-md-7",
+        "col-md-6",
+        "col-md-5",
+        "col-md-4",
+        "col-md-6",
+        "col-md-6",
+        "col-md-6",
+        "col-md-5",
+      ],
+      [
+        "d-none",
+        "d-none",
+        "d-none",
+        "col-md-2",
+        "col-md-3",
+        "d-none",
+        "col-md-4",
+        "col-md-3",
+      ],
+    ];
 
   //this function take small imge from the user video
   // and send it to the server as a thumnail imge
   const TakeThumbnailImage = () => {
-
-    if(Socket.id != adminId )return
-    
+    if (Socket.id != adminId) return;
 
     let context = CanvasImg.current.getContext("2d");
 
@@ -44,11 +75,11 @@ const VideoCards = () => {
       console.log("IMGE EMITED TO SERVER ");
     });
 
-    let reternde = guestList.findIndex(item=>item.id==0)
-    console.log(reternde)
+    let reternde = guestList.findIndex((item) => item.id == 0);
+    console.log(reternde);
   };
 
-/* useEffect(()=>{
+  /* useEffect(()=>{
   console.log('UPLOADING THE IMGES');
   console.log(Socket.id , adminId , mainVid?.current?.play)
   if(Socket.id == adminId && mainVid?.current?.play){
@@ -56,11 +87,11 @@ const VideoCards = () => {
   }
 
 },[Socket,adminId,mainVid?.current?.play]) */
- 
-   //   useEffect(()=>{
-    //    guestList[0].feed=videoSourcs[0];
-        
-/*         let GuestEditer = [...guestList]
+
+  //   useEffect(()=>{
+  //    guestList[0].feed=videoSourcs[0];
+
+  /*         let GuestEditer = [...guestList]
         GuestEditer.forEach((g, i) => {
       GuestEditer[i][0] = React.createRef();
       GuestEditer[i][1] = 0;
@@ -69,24 +100,18 @@ const VideoCards = () => {
     })
     upDateGuestList(GuestEditer,roomDispatch)
  */
-   //   },[]) 
+  //   },[])
 
+  useEffect(() => {
+    console.log(roomState);
+    console.log(guestList);
+    console.log(userMediaTrack);
 
+    if (userMediaTrack && !guestList[0].feed.current.srcObject)
+      guestList[0].feed.current.srcObject = userMediaTrack;
+  }, [userMediaTrack]);
 
-useEffect(()=>{
-  
-  console.log(roomState)
-  console.log(guestList)
-  console.log(userMediaTrack)
-
-  if(userMediaTrack && !guestList[0].feed.current.srcObject) guestList[0].feed.current.srcObject = userMediaTrack
-
-
-
-},[userMediaTrack])
-
-
-     const ToggleElementCssClass = (i)=> {
+  const ToggleElementCssClass = (i) => {
     /*     let stv = this.state.case.indexOf(true)
     
         let nev = this.state.ChangeStatVale[i][stv]
@@ -96,26 +121,23 @@ useEffect(()=>{
         cc[stv] = false
         cc[nev] = true
         this.setState({ case: cc }); */
-      }
-    
+  };
 
-  const GetElemntCssClass=(Postion) =>{
+  const GetElemntCssClass = (Postion) => {
+    /*  return view[Postion][this.state.case.indexOf(true)] */
+  };
 
-   /*  return view[Postion][this.state.case.indexOf(true)] */
-  }
+  const IsVedioElemntVisble = (id) => {
+    if (id === 0) return false;
 
-
-  const IsVedioElemntVisble = (id) =>{
-    if (id === 0) return false
-
-    return true
-
-  }
+    return true;
+  };
 
   //open or close the dilog for a selected user
   //identfi the user that clicked on and safe the state
-  //of the box 
-  const ToogleBox =(guest)=> {/* 
+  //of the box
+  const ToogleBox = (guest) => {
+    /* 
     let Guests = [...guestList]
     let index = guestList.indexOf(guest)
 
@@ -127,10 +149,9 @@ useEffect(()=>{
       Guests[index][2] = true
      // this.setState({ guest: Guests })
     } */
+  };
 
-  }
-
-/*   console.log(guestList)
+  /*   console.log(guestList)
   console.log(guestList)
 
 if(!guestList[0]) {
@@ -139,42 +160,52 @@ if(!guestList[0]) {
   return <h1>load</h1>
 } */
 
-return (
-  <div>
-        <canvas
+const getListGustLength = ()=>{
+const itemLen =   guestList.filter(item=>item.id !== 0);
+console.log(itemLen)
+return itemLen.length
+}
+  return (
+    <div>
+      <canvas
         ref={CanvasImg}
         className="d-none"
         width="280"
         height="200"
         id="canvas"
       ></canvas>
-  <video ref={guestList[0].feed} onPlay={TakeThumbnailImage} autoPlay className="Vd-box h-0 w-50 "></video>
-  <br></br>
-  <br></br>
-  <br></br>
-  <br></br>
 
-  <GuestView  Guest={guestList[1]}></GuestView>
-  <GuestView  Guest={guestList[2]}></GuestView>
-  <GuestView  Guest={guestList[3]}></GuestView>
-{/*  // {guestList.map((guest,Index)=>(Index && guest.id) &&  )}
- */}
-  <br></br>
- 
-{/*   <video ref={guestList[1].feed} autoPlay className="Vd-box h-0 w-50 "></video>  <br></br>
+      <div className="row ">
+        <ChatBox />
+        <div className="col ">
+          <video
+            ref={guestList[0].feed}
+            onPlay={TakeThumbnailImage}
+            autoPlay
+            className="Vd-box  "
+          ></video>
+        </div>
+        <div className={`col  ${getListGustLength() > 1 ? null : "d-none"}`}>
+          <GuestView size={getListGustLength()} Guest={guestList[1]}></GuestView>
+          <GuestView size={getListGustLength()} Guest={guestList[2]}></GuestView>
+          <GuestView size={getListGustLength()} Guest={guestList[3]}></GuestView>
+        </div>
+      </div>
+
+      {/*  // {guestList.map((guest,Index)=>(Index && guest.id) &&  )}
+       */}
+      <br></br>
+
+      {/*   <video ref={guestList[1].feed} autoPlay className="Vd-box h-0 w-50 "></video>  <br></br>
  
  <video ref={guestList[2].feed} autoPlay className="Vd-box h-0 w-50 "></video>  <br></br>
  
  <video ref={guestList[3].feed} autoPlay className="Vd-box h-0 w-50 "></video> */}
-  {/* 
+      {/* 
   {guestList.map((guest,Index)=>(Index && guest.id) && )}
  */}
-  </div>
-
-)
-
+    </div>
+  );
 };
 
 export default VideoCards;
-
-

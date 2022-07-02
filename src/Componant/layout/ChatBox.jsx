@@ -1,26 +1,31 @@
-import { useContext } from "react"
-import {MainRoomContex} from "../../contextApi/Contexts/AppContext"
+import React, { useState, useContext } from "react";
+import { useEffect } from "react";
+import { SocketContext } from "../../contextApi/Contexts/socket";
+import { AppContext } from "../../contextApi/Contexts/AppContext";
+const ChatBox = () => {
+  const [isOpen, openChat] = useState(false);
+  const [messages, addMessageToChat] = useState([]);
+  const [ChatMessage, setChatMessage] = useState(null);
 
+  const Socket = useContext(SocketContext);
 
-import {addChatMessage , addPrivetMessage , addMessageToChat } from "../../contextApi/Actions/massengerHelperAction"
-const chatBox = ()=>{
- const {  massengerstate , massengerDispatch }=   useContext(MainRoomContex)
- const   {
-    HistoryChat ,
-    ChatMessage ,
-    PrivetMessage
-  } =massengerstate;
-    /*
+  const { roomState } = useContext(AppContext);
+
+  const { roomName } = roomState;
+
+  /*
   send a Privet message to user
   check if the input is empty and add it 
   to HistoryChat savet to the state empty the 
   chat box and send it to the server
   */
-  const SendPrivetMessage = (e) => {
+
+  /*   const SendPrivetMessage = (e) => {
     e.preventDefault();
     if (PrivetMessage.trim() === "") return;
 
-    addMessageToChat(<div className=" messageitem ">{PrivetMessage}</div>,massengerDispatch);
+    addMessageToChat(<div className=" messageitem ">{PrivetMessage}</div>);
+
     addPrivetMessage("");
     Socket.emit(
       "SendPrivetMessage",
@@ -29,7 +34,7 @@ const chatBox = ()=>{
         console.log(room);
       }
     );
-  };
+  }; */
 
   /*
   send message to public chat board
@@ -40,36 +45,45 @@ const chatBox = ()=>{
   const SendMessageChat = (e) => {
     e.preventDefault();
     if (ChatMessage.trim() === "") return;
+    const messagelist = [...messages];
+    messagelist.push(<div className=" messageitem ">{ChatMessage}</div>);
+    addMessageToChat(messagelist);
 
-    addMessageToChat(<div className=" messageitem ">{PrivetMessage}</div>,massengerDispatch);
-
-    addChatMessage("");
-    Socket.emit("Message", '{"title":"' + Room + '"}', ChatMessage);
+    setChatMessage("");
+    Socket.emit("Message", `{"title":"${roomName}"}`, ChatMessage);
   };
-    return       <div className={GetElemntCssClass(0) + ` chatback`}>
-    <form className="form-inline h-80 justify-content-md-center ">
-      <div className="h-100 w-80 overflow-auto">
-        <div className="mhchat">{HistoryChat}</div>
+
+  useEffect(() => {
+      if (Socket.connected) {
+        Socket.on("Message", function ({ Message }) {
+          const messagelist = [...messages];
+          messagelist.push(<div className=" messageitem ">{Message}</div>);
+          addMessageToChat(messagelist);
+        });
+      }
+    
+  }, []);
+
+  return (
+    <div className="col" style={{ maxWidth: `${isOpen ? "100%" : "5%"}` }}>
+      <div onClick={() => openChat(!isOpen)} className="btn btn-success">
+        chat
       </div>
-      <input
-        onChange={(e) => addChatMessage(e.target.value,massengerDispatch)}
-        type="text"
-        className="w-80 form-control"
-        value={ChatMessage}
-        name="ChatMessage"
-        placeholder="Chat here"
-      ></input>
+      <form onSubmit={SendMessageChat}>
+        <div className={`mb-3 ${isOpen ? "" : "d-none"}`}>
+          <div>{messages.map((item) => item)}</div>
 
-      <button
-        type="submit"
-        onClick={SendMessageChat}
-        className=" btn sendc"
-      ></button>
-      <div className="input-group-prepend"></div>
-    </form>
-  </div>
+          <input
+            className="form-control"
+            type={"text"}
+            onChange={(e) => setChatMessage(e.target.value)}
+            name="chatMessage"
+          ></input>
+          <button className="btn  btn-success">send</button>
+        </div>
+      </form>
+    </div>
+  );
+};
 
-
-}
-
-export default chatBox;
+export default ChatBox;

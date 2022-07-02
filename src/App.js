@@ -19,7 +19,6 @@ import roomHelperReducer from "./contextApi/Reducers/roomHelperReducer";
 import { SocketContext, Socket  } from "./contextApi/Contexts/socket";
 import { AppContext } from "./contextApi/Contexts/AppContext";
 
-//{ SocketContext, socket ,connectSocketIo , disConnectSocketIo }
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
@@ -119,10 +118,8 @@ const restAllState =()=>{
   restAllState
 };
 
-//Socket , connectSocketIo , disConnectSocketIo]
 
-//const socketValue = {}
-  return (
+return (
     <AppContext.Provider value={MainRoomContex}>
     <SocketContext.Provider value={Socket}>
       <BrowserRouter>

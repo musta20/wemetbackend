@@ -25,14 +25,7 @@ function CallBord() {
   const Socket = useContext(SocketContext);
 
  
-  /*   if (!Socket.connected) {
-    console.log("SOCKET EFFT CONNECT");
-    Socket.connect();
-    //  return
-  }else{
-    console.log('CONNECTED JUST CONNNECTED')
-  } */
-
+ 
   useEffect(() => {
 
     if (
@@ -41,28 +34,13 @@ function CallBord() {
       Socket.connected
     )
       CreateOrJoinTheRoom();
+      
   }, [userMediaTrack, adminId, Socket]);
 
   useEffect(() => {
     return () => Unmount();
   }, []);
 
-  /* 
-useEffect(() => {
-  const handleTabClose = event => {
-    event.preventDefault();
-
-    Unmount()
-   // return (event.returnValue = 'Are you sure you want to exit?');
-  };
-
-  window.addEventListener('beforeunload', handleTabClose);
-
-  return () => {
-    window.removeEventListener('beforeunload', handleTabClose);
-  };
-}, []);
- */
 
   return (
     <Layout>
