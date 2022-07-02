@@ -1,12 +1,12 @@
 import React, { useReducer, useRef } from "react";
 import "./assets/style/index.css";
-import "bootstrap/dist/js/bootstrap";
 import Body from "../src/pages/body"
-import NavBar from "../src/Componant/layout/NavBar";
+//import NavBar from "../src/Componant/layout/NavBar";
+import NavBar from "../src/Componant/layout/navBar";
 import CallBorad from "../src/pages/CallBord";
 import Switcher from "../src/Componant/Switcher";
-import "bootstrap/dist/css/bootstrap.css";
 import "./assets/style/App.css";
+import { ChakraProvider } from '@chakra-ui/react'
 
 import {restMediaSoupState} from "./contextApi/Actions/mediaSoupAction";
 import {restChatState} from "./contextApi/Actions/massengerHelperAction";
@@ -120,6 +120,7 @@ const restAllState =()=>{
 
 
 return (
+  <ChakraProvider>
     <AppContext.Provider value={MainRoomContex}>
     <SocketContext.Provider value={Socket}>
       <BrowserRouter>
@@ -134,6 +135,7 @@ return (
       </BrowserRouter>
     </SocketContext.Provider>
   </AppContext.Provider>
+  </ChakraProvider>
   );
 }
 

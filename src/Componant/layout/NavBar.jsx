@@ -154,7 +154,7 @@ export default function Navbar() {
       <div className={isBoxToggleOn ? "" : "blockback"}></div>
       <div className="container">
         <div className='d-flex' >
-          <div className="Logo" href="#"></div>
+          <div className="Logo" ></div>
           <div className="navbar-brand ">Wemet</div>
 
         </div>
