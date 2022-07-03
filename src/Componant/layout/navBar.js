@@ -1,12 +1,10 @@
 import {
   Box,
   Flex,
-  Avatar,
+  FormLabel,
   Link,
   Button,
   Menu,
-  
-
   useColorModeValue,
   Stack,
   Modal,
@@ -18,6 +16,11 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
+  FormControl,
+  AlertIcon,
+  Switch,
+  Input,
+  Alert,
   useDisclosure,
 } from "@chakra-ui/react";
 
@@ -48,7 +51,7 @@ export default function Nav() {
 
   const [ajv, setAjv] = useState(new Ajv());
 
-  const [Warning, setWarning] = useState([null, ""]);
+  const [Warning, setWarning] = useState([true, ""]);
   const [RoomName, setRoomName] = useState([null, ""]);
   const [Rooms, setRooms] = useState(null);
   const [TheRoom, setTheRoom] = useState("");
@@ -59,7 +62,7 @@ export default function Nav() {
   const navigate = useNavigate();
 
   const ENDPOINT = `http://localhost:6800`;
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [schema, setschema] = useState({
     properties: {
@@ -77,15 +80,22 @@ export default function Nav() {
     navigate("/");
   };
 
-  //this function will take the user to the stramin room
-  const GoStream = () => {
-    navigate("/CallBorad/" + TheRoom, {
-      state: {
-        IsPublic: IsPublic,
-        IsViewer: false,
-      },
-    });
-  };
+    //this function will take the user to the stramin room
+    const GoStream = () => {
+      onClose()
+      if(!Warning[0] || !TheRoom) return
+      navigate('/CallBorad/'+TheRoom,
+      {
+        state:{
+        IsPublic:  IsPublic,
+        IsViewer: false
+     
+      }})
+        
+  
+  
+  
+    }
   const connectToServer = async () => {
     if (!Socket.connected) await Socket.connect();
   };
@@ -96,18 +106,15 @@ export default function Nav() {
 
     Socket.emit("IsRommeExist", '{"title":"' + value + '"}', (data) => {
       if (data.status) {
-        setRoomName("form-control border border-success");
-        setWarning(["form-text text-success", "the room name is valed"]);
+        setWarning([true, "the room name is valed"]);
         return;
       }
 
-      setRoomName("form-control border border-danger");
-      setWarning([
-        "form-text text-danger",
-        "the name is not valed " + data.room,
-      ]);
+      setWarning([false, "the name is not valed " + data.room]);
     });
   };
+
+
   //this function will store the value of the input in the state and vladate it
   const onchange = (e) => {
     setTheRoom(e.target.value);
@@ -116,19 +123,15 @@ export default function Nav() {
 
     var valid = ajv.validate(schema, { name: e.target.value });
     if (!valid) {
-      setRoomName("form-control border border-danger");
       if (
         ajv.errors[0].message === 'must match pattern "^[a-zA-Z0-9]{4,10}$"'
       ) {
         setWarning([
-          "form-text text-danger",
+          false,
           "the name is not valid special character is not allowed",
         ]);
       } else {
-        setWarning([
-          "form-text text-danger",
-          "the name is not valed " + ajv.errors[0].message,
-        ]);
+        setWarning([false, "the name is not valed " + ajv.errors[0].message]);
       }
 
       return;
@@ -168,73 +171,79 @@ export default function Nav() {
     connectToServer();
   }, []);
 
-  const navItemIconHover = (target, type) => {
-    if (type) {
-      target.style.height = 50;
-      target.style.width = 50;
-      return;
-    }
-
-    target.style.height = 35;
-    target.style.width = 35;
-  };
-
   return (
     <>
-      <Box bgGradient="linear(to-l, #cc6699,  #33ccff)" px={3}>
-        <Flex h={20} alignItems={"center"} justifyContent={"space-between"}>
+      <Box  bgGradient="linear(to-l, #cc6699,  #33ccff)"  py={1} px={2}>
+        <Flex alignItems={"center"}  justifyContent={"space-between"}>
           <Box>
             {" "}
             <div className="Logo"></div>
           </Box>
 
           <Flex alignItems={"center"}>
-            <Stack   direction={"row"} spacing={7}>
-              <Menu
-            
-              >  <Tooltip label='start streaming'>
-
-                <IconButton
-                onClick={onOpen}
-                  aria-label="start meet"
-                  variant={"ghost"}
-
-                  
-
-                  colorScheme={"whiteAlpha"}
-                  icon={<FcWebcam size={35} />}
-                />
+            <Stack direction={"row"} spacing={7}>
+              <Menu>
+                {" "}
+                <Tooltip label="start streaming">
+                  <IconButton
+                    onClick={onOpen}
+                    aria-label="start meet"
+                    variant={"ghost"}
+                    colorScheme={"whiteAlpha"}
+                    icon={<FcWebcam size={35} />}
+                  />
                 </Tooltip>
-  <Tooltip label='Home'>
-
-                <IconButton
-                  aria-label="Home"
-                  variant={"ghost"}
-                  role={"group"}
-
-                  colorScheme={"whiteAlpha"}
-                  icon={<FcHome size={35} />}
-                />
+                <Tooltip label="Home">
+                  <IconButton
+                    aria-label="Home"
+                    variant={"ghost"}
+                    role={"group"}
+                    colorScheme={"whiteAlpha"}
+                    icon={<FcHome size={35} />}
+                  />
                 </Tooltip>
               </Menu>
             </Stack>
           </Flex>
         </Flex>
       </Box>
-     < Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Modal Title</ModalHeader>
+          <ModalHeader>chosse a room name</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            fsdfsdfsdfs
+            <Input
+              isInvalid={!Warning?.[0]}
+              type={"text"}
+              name="roomName"
+              value={TheRoom}
+              onChange={(e) => onchange(e)}
+              placeholder="type the room name"
+            ></Input>
+            {Warning?.[1] && (
+              <Alert mt={1} status={`${Warning?.[0] ? "success" : "error"}`}>
+                <AlertIcon />
+
+                {Warning?.[1]}
+              </Alert>
+            )}
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme='blue' mr={3} onClick={onClose}>
-              Close
+            <FormControl display="flex" alignItems="center">
+              <FormLabel htmlFor="is-public" mb="0">
+                Public room (Visible for everyone)?
+              </FormLabel>
+              <Switch
+                onChange={(e) => UpdateCheckBox(e)}
+                checked={IsPublic}
+                id="is-public"
+              />
+            </FormControl>
+            <Button colorScheme={"teal"} mr={3} onClick={GoStream}>
+              Stream
             </Button>
-            <Button variant='ghost'>Secondary Action</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

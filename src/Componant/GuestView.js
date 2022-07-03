@@ -3,8 +3,13 @@
 
     console.log(size)
     const {id,feed}=Guest;
+console.log(Guest)
+    return   <video 
+    style={{borderRadius:"5px",borderColor:"#f1f1f1"}}
 
-    return   <video ref={feed} autoPlay className={`${!id && 'd-none'} Vd-box  ${size === 2 ? " w-100":" w-50"} `}></video>
+    ref={feed} autoPlay
+   ></video>
 
 }
-export default  GuestView ;
+export default  GuestView 
+//, width :`${size === 2 ? " 100%":" 50%"}`

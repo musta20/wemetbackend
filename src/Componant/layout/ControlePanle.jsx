@@ -5,6 +5,14 @@ import { useContext } from "react";
 import { isRoomPublic } from "../../contextApi/Actions/roomHelperAction";
 import { SocketContext } from "../../contextApi/Contexts/socket";
 import { useNavigate } from "react-router-dom";
+import {
+  Switch,
+  FormControl,
+  Box,
+  FormLabel,
+  HStack,
+  Button,
+} from "@chakra-ui/react";
 
 import { setIsFreeToJoin } from "../../contextApi/Actions/roomHelperAction";
 const ControlePanle = () => {
@@ -17,29 +25,16 @@ const ControlePanle = () => {
 
   const navigate = useNavigate();
 
-  /* 
-    console.log('THE C PANALE VALUES ')
-    console.log(isStreamed)
-    console.log(isAudience)
-    console.log(isPublic)
-    console.log(isFreeToJoin) */
-  //this function will lock the room
-  // the server will check if you are the admin
+  
   const LockRoom = (e) => {
-    //  setLock(e.target.checked);
     isRoomPublic(e.target.checked, mediaSoupDispatch);
-    //Socket.emit("LockTheRoom", Lock, (data) => {});
   };
 
-  //this function will hide the room
-  // the server will check if you are the admin
   const doHiddeTheRoom = (e) => {
-    //setHiddeTheRoom(e.target.checked);
-    // Socket.emit("HiddeTheRoom", Lock, (data) => {});
+    
   };
   const isStream = () => {};
   const JoinTheRoom = () => {
-    //  setIsFreeToJoin(false,roomDispatch)
     console.log("roomName  JoinTheRoom JoinTheRoom");
     console.log(roomName);
 
@@ -54,64 +49,77 @@ const ControlePanle = () => {
 
   return (
     <>
-      <button
-        onClick={() => JoinTheRoom()}
-        className={`${!isFreeToJoin ? "d-none" : ""} btn btn-sm`}
-      >
-        Free window To Join
-      </button>
-      <div
-        style={!isAudience ? { display: "none" } : { display: "block" }}
-        className="custom-control custom-switch"
-      ></div>
+  
 
-      <span
-        style={
-          adminId !== Socket.id ? { display: "none" } : { display: "block" }
-        }
-      >
-        <div className="custom-control custom-switch">
-          <input
-            onChange={(e) => LockRoom(e)}
-            type="checkbox"
-            checked={isStreamed}
-            className=" custom-control-input"
-            name="Lock"
-            id="customSwitch2"
-          ></input>
-          <label className="custom-control-label" htmlFor="customSwitch2">
-            Streaming
-          </label>
-
-          <div className="custom-control custom-switch">
-            <input
-              onChange={(e) => doHiddeTheRoom(e)}
-              type="checkbox"
-              checked={isPublic}
-              className="d- custom-control-input"
-              name="HiddeTheRoom"
-              id="customSwitch3"
-            ></input>
-            <label className="custom-control-label" htmlFor="customSwitch4">
-              Puplic
-            </label>
-          </div>
-
-          <div className="custom-control custom-switch">
-            <input
-              onChange={(e) => isStream(e)}
-              type="checkbox"
+      {adminId === Socket.id && (
+        <HStack m={1}>
+          <FormControl
+            p={1}
+            borderRadius={"2xl"}
+            border={"1px"}
+            borderColor={"gray.100"}
+            display={"flex"}
+            w={"auto"}
+          >
+            <FormLabel border={1} htmlFor="email-alerts" mb="0">
+              Streaming{" "}
+            </FormLabel>
+            <Switch
+              onChange={(e) => LockRoom(e)}
               checked={isStreamed}
-              className="  custom-control-input"
+              name="Lock"
+              id="Lock"
+            />
+          </FormControl>
+
+          <FormControl
+            p={1}
+            borderRadius={"2xl"}
+            border={"1px"}
+            borderColor={"gray.100"}
+            display={"flex"}
+            w={"auto"}
+          >
+            <FormLabel htmlFor="email-alerts" mb="0">
+              Public
+            </FormLabel>
+            <Switch
+              onChange={(e) => doHiddeTheRoom(e)}
+              checked={isPublic}
               name="HiddeTheRoom"
-              id="customSwitch4"
-            ></input>
-            <label className="custom-control-label" htmlFor="customSwitch4">
+              id="is-public"
+            />
+          </FormControl>
+          <FormControl
+            p={1}
+            borderRadius={"2xl"}
+            border={"1px"}
+            borderColor={"gray.100"}
+            display={"flex"}
+            w={"auto"}
+          >
+            <FormLabel htmlFor="email-alerts" mb="0">
               Stop public Streaming
-            </label>
-          </div>
-        </div>
-      </span>
+            </FormLabel>
+            <Switch
+              onChange={(e) => isStream(e)}
+              checked={isStreamed}
+              name="HiddeTheRoom"
+              id="istreaming"
+            />
+          </FormControl>
+     
+        </HStack>
+      )}
+{isFreeToJoin && <Button
+        borderRadius={"2xl"}
+        colorScheme={"green"}
+        size='sm'
+        onClick={() => JoinTheRoom()}
+      >
+         Join
+      </Button>}
+
     </>
   );
 };

@@ -2,6 +2,9 @@ import React, { useState, useContext } from "react";
 import { useEffect } from "react";
 import { SocketContext } from "../../contextApi/Contexts/socket";
 import { AppContext } from "../../contextApi/Contexts/AppContext";
+import { Button,IconButton ,Tooltip,Flex,Input, Box } from "@chakra-ui/react";
+import {  FcNext ,FcPrevious} from "react-icons/fc";
+
 const ChatBox = () => {
   const [isOpen, openChat] = useState(false);
   const [messages, addMessageToChat] = useState([]);
@@ -65,24 +68,63 @@ const ChatBox = () => {
   }, []);
 
   return (
-    <div className="col" style={{ maxWidth: `${isOpen ? "100%" : "5%"}` }}>
-      <div onClick={() => openChat(!isOpen)} className="btn btn-success">
-        chat
-      </div>
-      <form onSubmit={SendMessageChat}>
-        <div className={`mb-3 ${isOpen ? "" : "d-none"}`}>
-          <div>{messages.map((item) => item)}</div>
 
-          <input
-            className="form-control"
-            type={"text"}
-            onChange={(e) => setChatMessage(e.target.value)}
-            name="chatMessage"
-          ></input>
-          <button className="btn  btn-success">send</button>
-        </div>
+    <Box borderRadius={5} borderColor={"#f1f1f1"} p={1}  bg={"gray.100"}  width={`${isOpen ? "30%" : "4%"}`}  >
+   
+
+      <Tooltip  label="Chat">
+                  <IconButton  float={"right"}
+                    aria-label="Chat"
+                    variant={"ghost"}
+                    onClick={() => openChat(!isOpen)}
+                    role={"group"}
+                    colorScheme={"whiteAlpha"}
+                    icon={isOpen ? <FcPrevious size={25} /> :  <FcNext size={25} />}
+                  />
+                </Tooltip>
+
+
+
+
+      <form style={{display:`${isOpen ? "" : "none"}`}} onSubmit={SendMessageChat}>
+      <Box h={375}>{messages.map((item) => item)}</Box>
+
+      <Flex w="100%" mt="5">
+  	<Input
+    	placeholder="Type Something..."
+    	border="none"
+    	borderRadius="none"
+    	_focus={{
+      	border: "1px solid black",
+    	}}
+    	onKeyPress={(e) => {
+      	if (e.key === "Enter") {
+        //	handleSendMessage();
+      	}
+    	}}
+    	value={messages}
+    	onChange={(e) => setChatMessage(e.target.value)}
+  	/>
+  	<Button
+    	bg="black"
+    	color="white"
+    	borderRadius="none"
+    	_hover={{
+      	bg: "white",
+      	color: "black",
+      	border: "1px solid black",
+    	}}
+    //	disabled={inputMessage.trim().length <= 0}
+    //	onClick={handleSendMessage}
+  	>
+    	Send
+  	</Button>
+	</Flex>
+
+    
       </form>
-    </div>
+           </Box>
+   
   );
 };
 

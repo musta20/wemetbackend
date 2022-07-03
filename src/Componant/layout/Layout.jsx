@@ -1,23 +1,22 @@
 import React from "react";
 import Footer from "../Footer";
+import { Container } from '@chakra-ui/react'
 
 
 const Layout = ({ children }) => {
 
   return (
-    <>
-    <div className="container-fluid	">
-        <div className="row ">
-          <br></br>
-          <br></br>
-        </div>
-        <br></br>
-        { children }
+    <><Container maxW='container.lx'>
 
-      </div>
-      <Footer></Footer>
+{ children }
+
+    </Container>
+ 
     </>
   );
 };
 
 export default Layout;
+
+
+///      <Footer></Footer>

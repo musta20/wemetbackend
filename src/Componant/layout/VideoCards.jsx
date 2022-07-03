@@ -5,6 +5,8 @@ import { SocketContext } from "../../contextApi/Contexts/socket";
 import GuestView from "../GuestView";
 import { useRef } from "react";
 import ChatBox from "./ChatBox";
+import { Grid, Flex, Box, GridItem } from "@chakra-ui/react";
+
 const VideoCards = () => {
   const CanvasImg = useRef(null);
 
@@ -160,37 +162,58 @@ if(!guestList[0]) {
   return <h1>load</h1>
 } */
 
-const getListGustLength = ()=>{
-const itemLen =   guestList.filter(item=>item.id !== 0);
-console.log(itemLen)
-return itemLen.length
-}
+  const getListGustLength = () => {
+    const itemLen = guestList.filter((item) => item.id !== 0);
+    console.log(itemLen);
+    return itemLen.length;
+  };
   return (
-    <div>
+    <>
       <canvas
         ref={CanvasImg}
-        className="d-none"
+        style={{ display: "none" }}
         width="280"
         height="200"
         id="canvas"
       ></canvas>
-
-      <div className="row ">
+      <Flex mt={2}>
         <ChatBox />
-        <div className="col ">
+        <Box  w={"full"}>
           <video
+          style={{borderRadius:"5px",borderColor:"#f1f1f1"}}
             ref={guestList[0].feed}
             onPlay={TakeThumbnailImage}
             autoPlay
-            className="Vd-box  "
           ></video>
-        </div>
-        <div className={`col  ${getListGustLength() > 1 ? null : "d-none"}`}>
-          <GuestView size={getListGustLength()} Guest={guestList[1]}></GuestView>
-          <GuestView size={getListGustLength()} Guest={guestList[2]}></GuestView>
-          <GuestView size={getListGustLength()} Guest={guestList[3]}></GuestView>
-        </div>
-      </div>
+        </Box>
+
+        {(getListGustLength() > 1) ? 
+          <Box w={"full"}>
+            <Grid templateColumns="repeat(2, 1fr)" gap={3}>
+              <GridItem>
+                <GuestView
+                  size={getListGustLength()}
+                  Guest={guestList[1]}
+                ></GuestView>
+              </GridItem>
+
+              <GridItem>
+                <GuestView
+                  size={getListGustLength()}
+                  Guest={guestList[2]}
+                ></GuestView>
+              </GridItem>
+
+              <GridItem>
+                <GuestView
+                  size={getListGustLength()}
+                  Guest={guestList[3]}
+                ></GuestView>
+              </GridItem>
+            </Grid>
+          </Box>
+      :null}
+      </Flex>
 
       {/*  // {guestList.map((guest,Index)=>(Index && guest.id) &&  )}
        */}
@@ -204,7 +227,7 @@ return itemLen.length
       {/* 
   {guestList.map((guest,Index)=>(Index && guest.id) && )}
  */}
-    </div>
+    </>
   );
 };
 

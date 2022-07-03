@@ -44,7 +44,6 @@ function CallBord() {
 
   return (
     <Layout>
-      <ToastContainer />
 
       <ControlePanle></ControlePanle>
 
