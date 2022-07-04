@@ -190,7 +190,8 @@ export default function Nav() {
                     aria-label="start meet"
                     variant={"ghost"}
                     colorScheme={"whiteAlpha"}
-                    icon={<FcWebcam size={35} />}
+                   
+                    icon={<FcWebcam  size={35} />}
                   />
                 </Tooltip>
                 <Tooltip label="Home">

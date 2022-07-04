@@ -1,15 +1,26 @@
+/* import { IconButton, Tooltip } from "@chakra-ui/react";
+import { FcMenu } from "react-icons/fc"; */
+const GuestView = ({ Guest }) => {
 
- const GuestView = ({Guest , size})=>{
+  if (Guest?.id === 0) return <></>;
+  return <video
+        ref={Guest?.feed}
+        autoPlay
+       // style={{ borderRadius: "5px", width: "100%" }}
+      ></video>
 
-    console.log(size)
-    const {id,feed}=Guest;
-console.log(Guest)
-    return   <video 
-    style={{borderRadius:"5px",borderColor:"#f1f1f1"}}
 
-    ref={feed} autoPlay
-   ></video>
-
-}
-export default  GuestView 
-//, width :`${size === 2 ? " 100%":" 50%"}`
+};
+export default GuestView;
+      /* <Tooltip position={"absolute"} label="Chat">
+        <IconButton
+          float={"right"}
+          aria-label="Chat"
+          variant={"ghost"}
+     
+          role={"group"}
+          colorScheme={"whiteAlpha"}
+          icon={<FcMenu size={25} />}
+        />
+      </Tooltip>
+    </> */
