@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import "react-toastify/dist/ReactToastify.css";
-import BodyFooter from "../Componant/BodyFooter";
+
 import { useNavigate } from "react-router-dom";
 
 import { SocketContext } from "../contextApi/Contexts/socket";
@@ -25,38 +25,33 @@ export default function Body() {
 
   useEffect(() => {
     //this event delete a room from the list
-    Socket.on("DelteRoom", ({ TheroomName }) => {
-      console.log("DelteRoom");
-      console.log(Rooms);
-      if (Rooms.length === 0) return;
-      let Rooms = [...Rooms];
-      Rooms = Rooms.filter((room) => room !== TheroomName);
-      setRooms(Rooms);
+    Socket.off("DelteRoom").on("DelteRoom", ( {TheroomName} ) => {
+   
+
+      let copyRooms = [...Rooms];
+    let newCopy =  copyRooms.filter(room => room !== TheroomName);
+
+      setRooms(newCopy);
     });
 
     //this event add a room from the list
-    Socket.on("AddRoom", ({ roomName }) => {
-      console.log("AddRoom");
+    Socket.off("AddRoom").on("AddRoom", ( {title} ) => {
+      let copyRoom =[...Rooms]
+      console.log("AddRoom")
+      console.log(Rooms)
+      copyRoom.push(title)
+      console.log(copyRoom)
 
-      console.log(Rooms);
-      if (Rooms.length === 0) {
-        let theRooms = [roomName];
-
-        setRooms(theRooms);
-        return;
-      }
-      let theRooms = [...Rooms, roomName];
-
-      setRooms(theRooms);
+      setRooms(copyRoom);
     });
 
-    //request the currnt live room in the server
+ 
+  }, [Rooms]);
+  useEffect(()=>{   //request the currnt live room in the server
     Socket.emit("getroom", "mainrrom", (data) => {
-      console.log("THE DATA RETREVED FROM THE SERVER");
-      console.log(data);
-      setRooms(data);
-    });
-  }, []);
+
+     setRooms(data);
+    });},[])
 
   //this function will take the user to call room as viewr
   const GoToCallRoomWatch = (e) => {
@@ -120,7 +115,7 @@ export default function Body() {
         templateColumns="repeat(4, 1fr)" gap={5}>
           {Rooms.length
             ? Rooms.map((roomName) => (
-                <GridItem>
+                <GridItem key={roomName}>
                   <div
                     id={roomName}
                     style={{

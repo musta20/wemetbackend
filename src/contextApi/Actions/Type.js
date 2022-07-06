@@ -21,5 +21,8 @@ export const UP_DATE_GUEST_LIST = "UP_DATE_GUEST_LIST";
 export const SET_USER_MEDIA = "SET_USER_MEDIA";
 export const IS_FREE_TO_JOIN = "IS_FREE_TO_JOIN";
 export const REST_STATE = "REST_ROOM_STATE";
+export const HIDE_THE_ROOM = "HIDE_THE_ROOM";
+
+
 
 

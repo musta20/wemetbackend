@@ -1,4 +1,4 @@
-import { React, useContext } from "react";
+import { React, useContext, useState } from "react";
 import { SocketContext } from "../contextApi/Contexts/socket";
 import { AppContext } from "../contextApi/Contexts/AppContext";
 import {
@@ -14,16 +14,17 @@ import {
   Input,
   useDisclosure,
 } from "@chakra-ui/react";
-
+import { addMessageToChat } from "../contextApi/Actions/massengerHelperAction";
 import { FcMenu } from "react-icons/fc";
 import { IoIosSend } from "react-icons/io";
 
-function ModalBox() {
-  const { roomState } = useContext(AppContext);
+function ModalBox({ id }) {
+  const { roomState, massengerDispatch } =
+    useContext(AppContext);
 
-  const { adminId } = roomState;
+  const { adminId , isAudience } = roomState;
   const Socket = useContext(SocketContext);
-
+  const [PrivetMessage, setPrivetMessage] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   /*
   send a Privet message to user
@@ -32,21 +33,18 @@ function ModalBox() {
   chat box and send it to the server
   */
 
-     const SendPrivetMessage = (e) => {
-    e.preventDefault();
+  const SendPrivetMessage = () => {
     if (PrivetMessage.trim() === "") return;
 
-    addMessageToChat(<div className=" messageitem ">{PrivetMessage}</div>);
+    addMessageToChat(PrivetMessage, massengerDispatch);
 
-    addPrivetMessage("");
-    Socket.emit(
-      "SendPrivetMessage",
-      { id: e.target.id, Message: PrivetMessage },
-      (room) => {
-        console.log(room);
-      }
-    );
-  }; 
+    Socket.emit("SendPrivetMessage", { id : id, Message: PrivetMessage }, (room) => {
+      console.log(room);
+    });
+    setPrivetMessage("");
+
+  };
+  if (id === Socket.id  || isAudience) return <></>;
   return (
     <>
       <IconButton
@@ -79,30 +77,27 @@ function ModalBox() {
                 isInvalid={false}
                 type={"text"}
                 name="roomName"
-                //value={TheRoom}
+                value={PrivetMessage}
                 borderStartRadius={"md"}
-                onChange={(e) => onchange(e)}
+                onChange={(e) => setPrivetMessage(e.target.value)}
                 placeholder="Send Privet Message"
               ></Input>
 
-
-<IconButton
-        onClick={() => {}}
-        bg="teal"
-        color="white"
-        borderEndRadius={"md"}
-        borderRadius="none"
-        _hover={{
-          bg: "white",
-          color: "black",
-          border: "1px solid black",
-        }}
-        icon={<IoIosSend size={25} />}
-      />
-         
+              <IconButton
+                bg="teal"
+                color="white"
+                borderEndRadius={"md"}
+                onClick={() => SendPrivetMessage()}
+                borderRadius="none"
+                _hover={{
+                  bg: "white",
+                  color: "black",
+                  border: "1px solid black",
+                }}
+                icon={<IoIosSend size={25} />}
+              />
             </Flex>
           </ModalBody>
-
         </ModalContent>
       </Modal>
     </>

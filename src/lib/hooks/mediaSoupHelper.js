@@ -30,13 +30,10 @@ export const useMediaSoupHelper = () => {
     roomState;
 
   const Unmount = () => {
-    console.log("UNMOUNT UNMOUNT UNMOUNT");
     Socket.emit("leave", { name: "leav" }, () => {});
-    console.log("DISCONNECTING DISCONNECTING");
-
-  
 
     Socket.disconnect();
+    console.log(guestList);
     restAllState();
   };
 
@@ -53,38 +50,35 @@ export const useMediaSoupHelper = () => {
 
         console.log(producerId);
         console.log(socketId);
-        await signalNewConsumerTransport(producerId, socketId, false);
+        signalNewConsumerTransport(producerId, socketId, false);
       }
     );
     //this event triggred when user colse his stram you shuld close
     //the connection to prevent memory leak
-    Socket.on(
-      "producer-closed",
-      ({ remoteProducerId, socketId }) => {
-        //find the specifc transport and close it
-        try {
-          const producerToClose = consumerTransports.find(
-            (transportData) => transportData.producerId === remoteProducerId
-          );
-            if(producerToClose) producerToClose.consumerTransport.close();
-            if(producerToClose) producerToClose.consumer.close();
-        } catch (e) {
-          console.error(e);
-        }
-        // remove the consumer transport from the list
-
-        let ConsumerTransports = [
-          ...consumerTransports.filter(
-            (transportData) => transportData.producerId !== remoteProducerId
-          ),
-        ];
-
-        addConsumerTransport(ConsumerTransports, mediaSoupDispatch);
-        // setConsumerTransports(ConsumerTransports);
-        // hide the video div element
-        completeSession(socketId);
+    Socket.on("producer-closed", ({ remoteProducerId, socketId }) => {
+      //find the specifc transport and close it
+      try {
+        const producerToClose = consumerTransports.find(
+          (transportData) => transportData.producerId === remoteProducerId
+        );
+        if (producerToClose) producerToClose.consumerTransport.close();
+        if (producerToClose) producerToClose.consumer.close();
+      } catch (e) {
+        console.error(e);
       }
-    );
+      // remove the consumer transport from the list
+
+      let ConsumerTransports = [
+        ...consumerTransports.filter(
+          (transportData) => transportData.producerId !== remoteProducerId
+        ),
+      ];
+
+      addConsumerTransport(ConsumerTransports, mediaSoupDispatch);
+      // setConsumerTransports(ConsumerTransports);
+      // hide the video div element
+      completeSession(socketId);
+    });
   };
   const completeSession = (id) => {
     const copyGuesList = [...guestList];
@@ -92,10 +86,7 @@ export const useMediaSoupHelper = () => {
     console.log(`CLOSE ING THE ID: ${id} `);
 
     const indexGuest = copyGuesList.findIndex((item) => item.id === id);
-    console.log(id)
-    console.log(guestList)
-    console.log(copyGuesList)
-    console.log(indexGuest)
+
     if (indexGuest > 0) {
       console.log("ttis shudl fir if index is poaitc valie");
       console.log(indexGuest);
@@ -107,7 +98,6 @@ export const useMediaSoupHelper = () => {
       console.log("NAGATIV VALUE");
       console.log(indexGuest);
     }
-    
   };
 
   //this function will create a device for mediasoup api
@@ -293,6 +283,7 @@ export const useMediaSoupHelper = () => {
   const getProducers = () => {
     //console.log("THIS IS GET PRODUCESS");
     //console.log(roomName)
+
     Socket.emit(
       "getProducers",
       {
@@ -300,8 +291,8 @@ export const useMediaSoupHelper = () => {
         roomName: roomName,
       },
       (producerIds) => {
-        console.log(producerIds);
         // for each of the producer create a consumer
+
         // producerIds.forEach(id => signalNewConsumerTransport(id))
         producerIds.forEach(
           (
@@ -312,11 +303,27 @@ export const useMediaSoupHelper = () => {
     );
   };
 
-  const AddMediaStream = (userid, stream) => {
-    //let guestlist = [...guestList];
-    //console.log('ADD MEDIA STREAM')
+  const AddMediaStream = async (userid, stream) => {
+    console.log("%c AddMediaStream! ", "background: #222; color: #bada55");
+    let copyGuesList = [...guestList];
+
+    const isInGuestList = guestList.findIndex((item) => item.id === userid);
+
+    if (isInGuestList > 0) {
+      guestList.forEach((item, i) => {
+        console.log(item.id);
+        if (item.id == userid) {
+          console.log(`%c ${i}! `, "background: #222; color: #bada55");
+        }
+      });
+      console.log(copyGuesList);
+      console.log(userid);
+      // copyGuesList= copyGuesList[isInGuestList].id=0
+      console.log(copyGuesList);
+    }
+
     if (userid === adminId) {
-      const copyGuesList = [...guestList];
+      //   const copyGuesList = [...guestList];
       // console.log("THE IS THA ADMIN REPLACE");
       copyGuesList[0].feed.current.srcObject = stream;
       copyGuesList[0].id = userid;
@@ -329,22 +336,34 @@ export const useMediaSoupHelper = () => {
         copyGuesList[indexOfEmptyVideo].feed.current.srcObject = userMediaTrack;
       }
 
-      upDateGuestList(copyGuesList, roomDispatch);
+      await upDateGuestList(copyGuesList, roomDispatch);
+
       return;
     }
-    const copyGuesList = [...guestList];
 
-    const indexOfEmptyVideoVistir = guestList.findIndex(
-      (item) => item.id === 0
-    );
-    copyGuesList[indexOfEmptyVideoVistir].id = userid;
-    copyGuesList[indexOfEmptyVideoVistir].feed.current.srcObject = stream;
+    if (isInGuestList > 0) {
+      copyGuesList[isInGuestList].id = userid;
+      copyGuesList[isInGuestList].feed.current.srcObject = stream;
+    } else {
+      const indexOfEmptyVideoVistir = guestList.findIndex(
+        (item) => item.id === 0
+      );
 
-    upDateGuestList(copyGuesList, roomDispatch);
+      copyGuesList[indexOfEmptyVideoVistir].id = userid;
+      copyGuesList[indexOfEmptyVideoVistir].feed.current.srcObject = stream;
+    }
+    // waitToAdd(500,()=>{
+    await upDateGuestList(copyGuesList, roomDispatch);
+
+    //})
 
     //  upDateGuestList(guestlist, roomDispatch);
     // setGuest(guestlist);
   };
+  const waitToAdd = (ms) => {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  };
+
   //connect the rescv transport
   const connectRecvTransport = async (
     consumerTransport,
@@ -352,7 +371,6 @@ export const useMediaSoupHelper = () => {
     socketId,
     serverConsumerTransportId
   ) => {
-    console.log("connectRecvTransport");
     // for consumer, we need to tell the server first
     // to create a consumer based on the rtpCapabilities and consume
     // if the router can consume, it will send back a set of params as below
@@ -440,7 +458,6 @@ export const useMediaSoupHelper = () => {
     //  console.log("USE EFFECT THIS BELOGN TO MEDIA SOUP HOOK");
     //if the user is not viewr create send transport
 
-
     if (!isAudience) {
       // once the device loads, create transport
       if (params?.track && device && !producerTransport) {
@@ -468,6 +485,9 @@ export const useMediaSoupHelper = () => {
       }
     }
   }, [device, isAudience, params, producerTransport]);
+  useEffect(() => {
+    console.log(guestList);
+  }, []);
 
   return {
     Unmount,

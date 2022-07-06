@@ -19,6 +19,7 @@ import {
   FormControl,
   AlertIcon,
   Switch,
+  Text,
   Input,
   Alert,
   useDisclosure,
@@ -175,15 +176,14 @@ export default function Nav() {
     <>
       <Box  bgGradient="linear(to-l, #cc6699,  #33ccff)"  py={1} px={2}>
         <Flex alignItems={"center"}  justifyContent={"space-between"}>
-          <Box>
-            {" "}
+          <Flex>
             <div className="Logo"></div>
-          </Box>
+            <Text m={3} color={"whiteAlpha.900"} fontWeight={"bold"} >wemet</Text>
+          </Flex>
 
           <Flex alignItems={"center"}>
             <Stack direction={"row"} spacing={7}>
               <Menu>
-                {" "}
                 <Tooltip label="start streaming">
                   <IconButton
                     onClick={onOpen}
@@ -197,6 +197,7 @@ export default function Nav() {
                 <Tooltip label="Home">
                   <IconButton
                     aria-label="Home"
+                    onClick={()=>GoHome()}
                     variant={"ghost"}
                     role={"group"}
                     colorScheme={"whiteAlpha"}

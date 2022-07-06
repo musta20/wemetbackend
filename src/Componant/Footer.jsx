@@ -28,9 +28,9 @@ export default function Footer() {
           <Link className="text-muted" to={"/Guidelines"}>Community Guidelines</Link>
     
         </Stack>
-        <Text><div className="Logo m-1" href="#"></div>
+        <Box><div className="Logo m-1" href="#"></div>
 
-<small className="d-block mb-3 text-muted">© wemet.live 2017-2018</small></Text>
+<small className="d-block mb-3 text-muted">© wemet.live 2017-2018</small></Box>
       </Container>
     </Box>
   );

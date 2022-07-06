@@ -2,38 +2,47 @@ import { AppContext } from "../../contextApi/Contexts/AppContext";
 
 import { useContext } from "react";
 
-import { isRoomPublic } from "../../contextApi/Actions/roomHelperAction";
+import { isRoomPublic , isRoomStream , HiddeTheRoom } from "../../contextApi/Actions/roomHelperAction";
 import { SocketContext } from "../../contextApi/Contexts/socket";
 import { useNavigate } from "react-router-dom";
 import {
   Switch,
   FormControl,
-  Box,
   FormLabel,
   HStack,
   Button,
 } from "@chakra-ui/react";
 
-import { setIsFreeToJoin } from "../../contextApi/Actions/roomHelperAction";
+
 const ControlePanle = () => {
   const { mediaSoupstate, mediaSoupDispatch, roomState, roomDispatch } =
     useContext(AppContext);
   const Socket = useContext(SocketContext);
 
-  const { isAudience, roomName, isStreamed, adminId, isPublic, isFreeToJoin } =
+  const { isRoomLock, roomName, isStreamed, adminId, isPublic, isFreeToJoin } =
     roomState;
 
   const navigate = useNavigate();
 
-  
+
+
+
   const LockRoom = (e) => {
-    isRoomPublic(e.target.checked, mediaSoupDispatch);
+    Socket.emit('LockTheRoom', e.target.checked, data => { })
+    HiddeTheRoom( e.target.checked,roomDispatch)
+
   };
 
   const doHiddeTheRoom = (e) => {
-    
+    Socket.emit('HiddeTheRoom', e.target.checked, data => { })  
+    isRoomPublic(e.target.checked, roomDispatch);
   };
-  const isStream = () => {};
+
+  const isStream = (e) => {
+    isRoomStream(e.target.checked,roomDispatch)
+    Socket.emit('isStream', isStreamed, data => { })
+  };
+
   const JoinTheRoom = () => {
     console.log("roomName  JoinTheRoom JoinTheRoom");
     console.log(roomName);
@@ -49,8 +58,6 @@ const ControlePanle = () => {
 
   return (
     <>
-  
-
       {adminId === Socket.id && (
         <HStack m={1}>
           <FormControl
@@ -62,11 +69,11 @@ const ControlePanle = () => {
             w={"auto"}
           >
             <FormLabel border={1} htmlFor="email-alerts" mb="0">
-              Streaming{" "}
+              lock the room
             </FormLabel>
             <Switch
               onChange={(e) => LockRoom(e)}
-              checked={isStreamed}
+              isChecked={isRoomLock}
               name="Lock"
               id="Lock"
             />
@@ -81,11 +88,11 @@ const ControlePanle = () => {
             w={"auto"}
           >
             <FormLabel htmlFor="email-alerts" mb="0">
-              Public
+              room is visible
             </FormLabel>
             <Switch
               onChange={(e) => doHiddeTheRoom(e)}
-              checked={isPublic}
+              isChecked={isPublic}
               name="HiddeTheRoom"
               id="is-public"
             />
@@ -99,27 +106,27 @@ const ControlePanle = () => {
             w={"auto"}
           >
             <FormLabel htmlFor="email-alerts" mb="0">
-              Stop public Streaming
+               public Streaming
             </FormLabel>
             <Switch
               onChange={(e) => isStream(e)}
-              checked={isStreamed}
+              isChecked={isStreamed}
               name="HiddeTheRoom"
               id="istreaming"
             />
           </FormControl>
-     
         </HStack>
       )}
-{isFreeToJoin && <Button
-        borderRadius={"2xl"}
-        colorScheme={"green"}
-        size='sm'
-        onClick={() => JoinTheRoom()}
-      >
-         Join
-      </Button>}
-
+      {isFreeToJoin && (
+        <Button
+          colorScheme={"teal"}
+          size="sm"
+          m={1}
+          onClick={() => JoinTheRoom()}
+        >
+          Join
+        </Button>
+      )}
     </>
   );
 };

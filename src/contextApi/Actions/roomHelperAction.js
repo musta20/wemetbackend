@@ -9,7 +9,8 @@ import {
     UP_DATE_GUEST_LIST,
     SET_USER_MEDIA,
     IS_FREE_TO_JOIN,
-    REST_STATE
+    REST_STATE,
+    HIDE_THE_ROOM
   } from "./Type";
   export const  restRoomState = (state,dispatch) =>{
   
@@ -22,7 +23,6 @@ import {
     dispatch({payload:name,type:IS_FREE_TO_JOIN})
   
   }
-
 
   export const  setRoomName = (name ,dispatch) =>{
   
@@ -42,6 +42,14 @@ import {
   
   }
   
+  export const  HiddeTheRoom = (IsRoomStream ,dispatch) =>{
+  
+    dispatch({payload:IsRoomStream,type:HIDE_THE_ROOM})
+  
+  }
+  
+
+  
   export const  setAdminId = (Id ,dispatch) =>{
   
     dispatch({payload:Id,type:SET_ADMIN_ID})
@@ -53,12 +61,12 @@ import {
     dispatch({payload:joinedTheRoom,type:IS_JOINED_THE_ROOM})
   
   }
+
   export const  setUserMedia = (Track ,dispatch) =>{
   
     dispatch({payload:Track,type:SET_USER_MEDIA})
   
   }
-  
   
   export const  addToGuestList = (Guest ,dispatch) =>{
   

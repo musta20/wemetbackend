@@ -1,11 +1,12 @@
 import React, { useContext, useEffect } from "react";
 
+
 import { AppContext } from "../../contextApi/Contexts/AppContext";
 import { SocketContext } from "../../contextApi/Contexts/socket";
 
 import { useRef } from "react";
 import ChatBox from "./ChatBox";
-import { Grid, Flex, Box, GridItem } from "@chakra-ui/react";
+import { Grid, Flex, Box, GridItem, Spacer } from "@chakra-ui/react";
 import ModalBox from "../Modal";
 
 const VideoCards = () => {
@@ -17,50 +18,7 @@ const VideoCards = () => {
 
   const { adminId, userMediaTrack, guestList } = roomState;
 
-  const view =
-    //the array of class in each cases
-    [
-      [
-        "d-none",
-        "col-md-6",
-        "col-md-4",
-        "col-md-4",
-        "d-none",
-        "d-none",
-        "d-none",
-        "col-md-4",
-      ],
-      [
-        "d-none",
-        "d-none",
-        "col-md-3",
-        "col-md-2",
-        "col-md-3",
-        "col-md-4",
-        "d-none,d-none",
-      ],
-      [
-        "col-md-7",
-        "col-md-6",
-        "col-md-5",
-        "col-md-4",
-        "col-md-6",
-        "col-md-6",
-        "col-md-6",
-        "col-md-5",
-      ],
-      [
-        "d-none",
-        "d-none",
-        "d-none",
-        "col-md-2",
-        "col-md-3",
-        "d-none",
-        "col-md-4",
-        "col-md-3",
-      ],
-    ];
-
+ 
   //this function take small imge from the user video
   // and send it to the server as a thumnail imge
   const TakeThumbnailImage = () => {
@@ -84,6 +42,8 @@ const VideoCards = () => {
   useEffect(() => {
     if (userMediaTrack && !guestList[0].feed.current.srcObject)
       guestList[0].feed.current.srcObject = userMediaTrack;
+
+      console.log(guestList)
   }, [userMediaTrack]);
 
   const getListGustLength = () => {
@@ -91,6 +51,7 @@ const VideoCards = () => {
     console.log(itemLen.length);
     return itemLen.length;
   };
+
   return (
     <>
       <canvas
@@ -100,24 +61,34 @@ const VideoCards = () => {
         height="200"
         id="canvas"
       ></canvas>
-      <Flex mt={2}>
-        <ChatBox />
-        <Box w={"full"}>
+      <Flex mt={2} p={1} 
+     direction={['column', 'column','row']} 
+ 
+      >
+
+        <ChatBox  />
+        <Spacer />
+
+        <Box p={1} w={"full"}>
+        <ModalBox id={guestList[0].id}  />
+
           <video
-            style={{ borderRadius: "5px", borderColor: "#f1f1f1" }}
+            style={{ borderRadius: "5px", borderColor: "#e8e8e8" }}
             ref={guestList[0].feed}
             onPlay={TakeThumbnailImage}
             autoPlay
           ></video>
         </Box>
-        <Box w={"full"}>
-          <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-            <GridItem
+        <Spacer />
+
+        <Box  p={1} w={"full"}>
+          <Grid templateColumns="repeat(2, 1fr)"  p={1} gap={3}>
+            <GridItem p={1}
               display={`${guestList[1].id === 0 && "none"}`}
               position={"relative"}
               w={"full"}
             >
-              <ModalBox />
+              <ModalBox id={guestList[1].id}  />
 
               <video
                 style={{ borderRadius: "5px", border: "1px solid #bfbfbf" }}
@@ -126,12 +97,12 @@ const VideoCards = () => {
               ></video>
             </GridItem>
 
-            <GridItem
+            <GridItem p={1}
               display={`${guestList[2].id === 0 && "none"}`}
               position={"relative"}
               w={"full"}
             >
-                      <ModalBox />
+                      <ModalBox id={guestList[2].id} />
 
               <video
                 style={{ borderRadius: "5px", border: "1px solid #bfbfbf" }}
@@ -140,12 +111,12 @@ const VideoCards = () => {
               ></video>
             </GridItem>
 
-            <GridItem
+            <GridItem p={1}
               display={`${guestList[3].id === 0 && "none"}`}
               position={"relative"}
               w={"full"}
             >
-              <ModalBox />
+              <ModalBox id={guestList[3].id}  />
               <video
                 style={{ borderRadius: "5px", border: "1px solid #bfbfbf" }}
                 ref={guestList[3].feed}

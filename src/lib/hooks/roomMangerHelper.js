@@ -3,7 +3,7 @@ import { useLocation, useParams } from "react-router-dom";
 
 import { useContext, useEffect } from "react";
 import { setParam } from "../../contextApi/Actions/mediaSoupAction";
-
+import { useToast } from '@chakra-ui/react'
 import {
   setIsAudience,
   isRoomPublic,
@@ -19,6 +19,7 @@ import { SocketContext } from "../../contextApi/Contexts/socket";
 //setUserMedia
 export const useRoomManger = (startStreming) => {
  // console.log("useRoomManger");
+ const toast = useToast()
 
   const navigate = useLocation();
 
@@ -42,8 +43,14 @@ export const useRoomManger = (startStreming) => {
   }, []);
 
   //this function will show the notftion
-  const showTost = (data) => {
+  const showTost = (data,status) => {
     //   toast(data);
+    toast({
+      title: data,
+      position: "bottom",
+      status: status,
+      isClosable: true,
+    })
   };
 
   //open or close the dilog for a selected user
@@ -110,8 +117,10 @@ export const useRoomManger = (startStreming) => {
         if (!status) {
           //if status came with wrong result and rtpCapabilities
           // that mean you just gone watch  the room
+          console.log("rtpCapabilities")
+          console.log(rtpCapabilities)
           if (rtpCapabilities) {
-            showTost(room);
+            showTost(room,"info");
             setAdminId(BossId, roomDispatch);
 
             setIsAudience(true, roomDispatch);
@@ -122,9 +131,11 @@ export const useRoomManger = (startStreming) => {
             return;
           }
           // if error happen quit the app and got to home page
+          
+          showTost("this room is not streamed by the admin","warning");
+
           setTimeout(function () {
-            showTost("The room is not strmed");
-            //  document.location.href = "/"
+              document.location.href = "/"
           }, 2000);
           return;
         }
@@ -137,13 +148,15 @@ export const useRoomManger = (startStreming) => {
           //  setFirst(true);
        //   console.log(Socket.id);
           setAdminId(Socket.id, roomDispatch);
+          showTost(`you created room : ${room}`,"success");
 
           //  setHiddeTheRoom( IsPublic )
         } else {
+          showTost(`you joined room : ${room}`,"success");
+
           setAdminId(BossId, roomDispatch);
         }
 
-        showTost(room);
         startStreming(rtpCapabilities);
       }
     );
@@ -162,7 +175,7 @@ export const useRoomManger = (startStreming) => {
 
     //this event triggerd when the room admin ban you from the room
     Socket.on("GoOut", () => {
-      showTost("the admin drop you from this room");
+      showTost("the admin drop you from this room","info");
       setTimeout(function () {
         document.location.href = "/";
       }, 200);

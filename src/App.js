@@ -22,13 +22,14 @@ import { AppContext } from "./contextApi/Contexts/AppContext";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
-
+  
 
 
   const initialMainRoomProps = {
     roomName: "",
     isPublic: true,
     userMediaTrack:null,
+    isRoomLock:false,
     isFreeToJoin:false,
     isStreamed: true,
     adminId: 0,
@@ -125,10 +126,8 @@ return (
     <SocketContext.Provider value={Socket}>
       <BrowserRouter>
         <NavBar />
-
         <Routes>
           <Route path="/" element={<Body />}></Route>
-
           <Route path="CallBorad/:Room" element={<CallBorad />}></Route>
           <Route path="Switcher/" element={<Switcher />}></Route>
         </Routes>

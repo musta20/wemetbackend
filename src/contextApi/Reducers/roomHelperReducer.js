@@ -9,11 +9,13 @@ import {
   UP_DATE_GUEST_LIST,
   SET_USER_MEDIA,
   IS_FREE_TO_JOIN,
-  REST_STATE
+  REST_STATE,
+  HIDE_THE_ROOM
 } from "../Actions/Type";
 const initialMainRoomProps = {
   roomName: "",
   isPublic: true,
+  isRoomLock:false,
   isStreamed: true,
   adminId: 0,
   isAudience: false,
@@ -77,6 +79,11 @@ const roomHelperReducer = (state, action) => {
           ...state,
           guestList: action.payload
         };
+        case HIDE_THE_ROOM:
+          return {
+            ...state,
+            isRoomLock: action.payload
+          };
     default:
       break;
   }

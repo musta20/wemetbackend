@@ -21,9 +21,11 @@ const massengerReducer = (state, action) => {
         PrivetMessage: action.payload,
       };
     case ADD_MESSAGE_TO_CHAT:
+      const chatMessage = [...state.HistoryChat];
+      chatMessage.push(action.payload)
       return {
         ...state,
-        HistoryChat: [...state.HistoryChat].push(action.payload),
+        HistoryChat: chatMessage,
       };
     default:
       break;
