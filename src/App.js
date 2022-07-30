@@ -3,7 +3,7 @@ import "./assets/style/index.css";
 import Body from "../src/pages/body"
 //import NavBar from "../src/Componant/layout/NavBar";
 import NavBar from "../src/Componant/layout/navBar";
-import CallBorad from "../src/pages/CallBord";
+import Meet from "../src/pages/Meet";
 import Switcher from "../src/Componant/Switcher";
 import "./assets/style/App.css";
 import { ChakraProvider } from '@chakra-ui/react'
@@ -103,7 +103,7 @@ const [massengerstate, massengerDispatch] = useReducer(
 );
 
 const restAllState =()=>{
-  console.log("REST ALL DATA REST ALL DATA TO INIAL STATE SEE IF IT WORK")
+ // console.log("REST ALL DATA REST ALL DATA TO INIAL STATE SEE IF IT WORK")
   restRoomState(initialMainRoomProps,roomDispatch);
   restChatState(initialMassengerProps,massengerDispatch);
   restMediaSoupState(initialMediaSoupProps,mediaSoupDispatch);
@@ -128,7 +128,7 @@ return (
         <NavBar />
         <Routes>
           <Route path="/" element={<Body />}></Route>
-          <Route path="CallBorad/:Room" element={<CallBorad />}></Route>
+          <Route path="meet/:Room" element={<Meet />}></Route>
           <Route path="Switcher/" element={<Switcher />}></Route>
         </Routes>
       </BrowserRouter>

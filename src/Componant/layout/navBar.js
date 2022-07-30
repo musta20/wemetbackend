@@ -2,10 +2,8 @@ import {
   Box,
   Flex,
   FormLabel,
-  Link,
   Button,
   Menu,
-  useColorModeValue,
   Stack,
   Modal,
   Tooltip,
@@ -32,40 +30,21 @@ import { FcWebcam, FcHome } from "react-icons/fc";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const NavLink = ({ children }) => (
-  <Link
-    px={2}
-    py={1}
-    rounded={"md"}
-    _hover={{
-      textDecoration: "none",
-      bg: useColorModeValue("gray.200", "gray.700"),
-    }}
-    href={"#"}
-  >
-    {children}
-  </Link>
-);
-
 export default function Nav() {
   const Socket = useContext(SocketContext);
 
-  const [ajv, setAjv] = useState(new Ajv());
+  const ajv = new Ajv();
 
   const [Warning, setWarning] = useState([true, ""]);
-  const [RoomName, setRoomName] = useState([null, ""]);
-  const [Rooms, setRooms] = useState(null);
   const [TheRoom, setTheRoom] = useState("");
   const [toggleNav, settoggleNav] = useState(true);
-  const [isBoxToggleOn, setisBoxToggleOn] = useState(true);
   const [IsPublic, setIsPublic] = useState(true);
-  const [IsRommeExist, setIsRommeExist] = useState(true);
   const navigate = useNavigate();
 
-  const ENDPOINT = `http://localhost:6800`;
+
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const [schema, setschema] = useState({
+  const schema = {
     properties: {
       name: {
         type: "string",
@@ -74,7 +53,7 @@ export default function Nav() {
         pattern: "^[a-zA-Z0-9]{4,10}$",
       },
     },
-  });
+  };
 
   //this function will take the user to the main bage
   const GoHome = () => {
@@ -85,7 +64,7 @@ export default function Nav() {
     const GoStream = () => {
       onClose()
       if(!Warning[0] || !TheRoom) return
-      navigate('/CallBorad/'+TheRoom,
+      navigate('/meet/'+TheRoom,
       {
         state:{
         IsPublic:  IsPublic,
@@ -142,32 +121,16 @@ export default function Nav() {
     isRoomeValid(e.target.value);
   };
 
-  //this function will empty the filed
-  //and close the dilog and take the use to the stram
-  const StartCreatingTheRoom = (e) => {
-    setRoomName("form-control border");
 
-    setTheRoom("");
-    GoStream();
-    // ToogleRoomNameBox()
-  };
 
   //this function get called the to save the value of the check box to the state
   const UpdateCheckBox = (e) => {
     setIsPublic(e.target.checked);
-    console.log(IsPublic);
+   // console.log(IsPublic);
   };
 
-  //this function will toggle the nav dilog
 
-  //this function will toggle the nav bar on small view
-  const CollapsaNav = (e) => {
-    if (toggleNav) {
-      settoggleNav(false);
-    } else {
-      settoggleNav(true);
-    }
-  };
+
   useEffect(() => {
     connectToServer();
   }, []);
@@ -243,7 +206,7 @@ export default function Nav() {
                 id="is-public"
               />
             </FormControl>
-            <Button colorScheme={"teal"} mr={3} onClick={GoStream}>
+            <Button bgGradient="linear(to-l, #cc6699,  #33ccff)" colorScheme={"telegram"} mr={3} onClick={GoStream}>
               Stream
             </Button>
           </ModalFooter>
@@ -252,3 +215,4 @@ export default function Nav() {
     </>
   );
 }
+//#66c2ff

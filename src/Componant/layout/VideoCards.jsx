@@ -29,28 +29,20 @@ const VideoCards = () => {
     context.drawImage(guestList[0].feed.current, 0, 0, 280, 200);
 
     let data = CanvasImg.current.toDataURL("image/png", 0.1);
-    console.log("IMGE EMITED TO SERVER ");
 
     Socket.emit("saveimg", data, (data) => {
-      console.log("IMGE EMITED TO SERVER ");
     });
 
     let reternde = guestList.findIndex((item) => item.id == 0);
-    console.log(reternde);
   };
 
   useEffect(() => {
     if (userMediaTrack && !guestList[0].feed.current.srcObject)
       guestList[0].feed.current.srcObject = userMediaTrack;
 
-      console.log(guestList)
   }, [userMediaTrack]);
 
-  const getListGustLength = () => {
-    const itemLen = guestList.filter((item) => item.id !== 0);
-    console.log(itemLen.length);
-    return itemLen.length;
-  };
+
 
   return (
     <>

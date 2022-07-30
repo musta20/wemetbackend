@@ -53,21 +53,7 @@ export const useRoomManger = (startStreming) => {
     })
   };
 
-  //open or close the dilog for a selected user
-  //identfi the user that clicked on and safe the state
-  //of the box
-  const ToogleBox = (guest) => {
-    let Guests = [...guest];
-    let index = guest.indexOf(guest);
 
-    if (guest[2]) {
-      Guests[index][2] = false;
-      upDateGuestList(Guests);
-    } else {
-      Guests[index][2] = true;
-      upDateGuestList(Guests);
-    }
-  };
 
   /*
   this function is gone take the room name that 
@@ -112,13 +98,12 @@ export const useRoomManger = (startStreming) => {
       "CreateStream",
       FullRoomName,
       ({ status, rtpCapabilities, BossId, room, First }) => {
-        console.log({ status, rtpCapabilities, BossId, room, First });
+       // console.log({ status, rtpCapabilities, BossId, room, First });
 
         if (!status) {
           //if status came with wrong result and rtpCapabilities
           // that mean you just gone watch  the room
-          console.log("rtpCapabilities")
-          console.log(rtpCapabilities)
+        
           if (rtpCapabilities) {
             showTost(room,"info");
             setAdminId(BossId, roomDispatch);
@@ -143,14 +128,10 @@ export const useRoomManger = (startStreming) => {
         //if this value came as true you are the admin of this room
 
         if (First) {
-        //  console.log("setting The Frist VALUE :::::::::::");
-        //  console.log(First);
-          //  setFirst(true);
-       //   console.log(Socket.id);
+    
           setAdminId(Socket.id, roomDispatch);
           showTost(`you created room : ${room}`,"success");
 
-          //  setHiddeTheRoom( IsPublic )
         } else {
           showTost(`you joined room : ${room}`,"success");
 
@@ -183,8 +164,8 @@ export const useRoomManger = (startStreming) => {
 
     //this event triggred when you becam admin and the room setting seted
     Socket.on("switchAdminSetting", ({ isRoomLocked, isStream, IsPublic }) => {
-      console.log("SWITCH ADMIN SETTING");
-      console.log(isRoomLocked, isStream, IsPublic);
+
+      
       setAdminId(Socket.id, roomDispatch);
 
       isRoomPublic(IsPublic, roomDispatch);
@@ -218,56 +199,14 @@ export const useRoomManger = (startStreming) => {
 
     //this event triggerd when you recive a privet message
     //it will save to HistoryChat
-    /*     Socket.on("PrivetMessage", function (Message) {
-      let HistoryChat = [...HistoryChat];
 
-      HistoryChat.push(<div className="alr messageitem ">{Message}</div>);
-
-      setHistoryChat(HistoryChat);
-    }); */
 
     //this event triggerd when you recive a  message
     //it will save to HistoryChat
-    /*     Socket.on("Message", function (Message) {
-      let HistoryChat = [...HistoryChat];
-
-      HistoryChat.push(
-        <div className="alr messageitem ">{Message.Message}</div>
-      );
-
-      setHistoryChat(HistoryChat);
-    }); */
+ 
   };
 
-  const componentWillUnmount = () => {
-    console.log("Leving this component");
-    try {
-      //when leave the page close the cam
-      let newgist = [...guestList];
 
-      // console.log(guest);
-      newgist.forEach((guest) => {
-        if (guest[1] !== 0) {
-          guest[0].current.srcObject.getVideoTracks().forEach((track) => {
-          //  console.log(track);
-
-            track.stop();
-          });
-        }
-      });
-
-      upDateGuestList(newgist);
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  //this check if the id if 0 it visible
-  const IsVedioElemntVisble = (id) => {
-    if (id === 0) return false;
-
-    return true;
-  };
 
   //this function will start accessing the webcam
   //and make it avalbe if the user is viewer will not connect to
@@ -300,26 +239,14 @@ export const useRoomManger = (startStreming) => {
         if (Socket.id) {
           const copyGuesList = [...guestList];
           copyGuesList[0].id = Socket.id;
-          console.log(
-            `THIS ISS THE SET USER MEDIA ROOMDISPATCH USERTRACK MEDIA`
-          );
+ 
 
           setUserMedia(stream, roomDispatch);
-          console.log(
-            `THHERE IS UPDATEING THE LIST    ---------------[] [] [] [] H`
-          );
+     
 
           upDateGuestList(copyGuesList, roomDispatch);
-        } /* 
-        guestList[0].feed.current.srcObject = stream;
-
-       // upDateGuestList(guestList); 
-        if (i === 0) {
-
-          CreateOrJoinTheRoom();
-        }  */
-        //whait a bit to let the cam load and then
-        //take a ThumbnailImage if the user is admin
+        } 
+        
       })
 
       .catch(function (err) {
@@ -329,121 +256,22 @@ export const useRoomManger = (startStreming) => {
 
   //this function will prevent the roomfrom streaming to the public
   // the server will check if you are the admin
-  const isStream = (e) => {
-    //setisStream(e.target.checked);
-    isRoomStream(e.target.checked, mediaSoupDispatch);
-    Socket.emit("isStream", isStream, (data) => {});
-  };
+
 
   //this function will ban a spesifc user apssed
   // to it the server will check if you are the admin
-  const KikHimOut = (socketid) => {
-    let guest = guest.find((geust, i) => geust[1] === socketid);
-    ToogleBox(guest);
-    Socket.emit("kik", socketid, (data) => {});
-  };
 
   //this function wil just go
   // to the same page to allow the user
   // to join this room
-  const JoinTheRoom = () => {
-    navigate({
-      pathname: "/Switch",
-      state: {
-        IsPublic: false,
-        IsViewer: false,
-        CallBorad: true,
-        TheRoom: Room,
-      },
-    });
-  };
+
   /*
   this function will add the stream of users 
   and display it and if the user comming is admin
   it will put it in the main view
   */
 
-  //this function will will show the messages from the state
-  const ShowHistoryChat = () => {
-    // return HistoryChat.forEach((m) => <div> {m}</div>);
-  };
 
-  //this function will close the side bar when no active view in it
-  const CloseTheSideCaller = (i) => {
-    /*     if ((i === 1 || i === 2) && guest[1][1] === 0 && guest[2][1] === 0) {
-      ToggleElementCssClass(1);
-    }
-
-    if ((i === 3 || i === 4) && guest[3][1] === 0 && guest[4][1] === 0) {
-      ToggleElementCssClass(2);
-    } */
-  };
-
-  // this function will get the css class from view depnd on the current case
-  const GetElemntCssClass = (Postion) => {
-    //   return view[Postion][Case.indexOf(true)];
-  };
-
-  //this function will open the side bar when there is active view in it
-  const ShowTheSideCaller = (i) => {
-    /*     if (i !== 0) {
-      let iscase = Case.indexOf(true);
-      if ((i === 1 || i === 2) && ![2, 3, 4, 5].includes(iscase)) {
-        ToggleElementCssClass(1);
-      }
-
-      if ((i === 3 || i === 4) && ![3, 4, 6, 7].includes(iscase)) {
-        ToggleElementCssClass(2);
-      }
-    } */
-  };
-
-  //this fuction will check the css cass and
-  //toggle it to its oppessit case in the cases arry
-  const ToggleElementCssClass = (i) => {
-    /*  let stv = Case.indexOf(true);
-
-    let nev = ChangeStatVale[i][stv];
-
-    let cc = [...Case];
-
-    cc[stv] = false;
-    cc[nev] = true;
-    setCase(cc); */
-  };
-
-  //this function will connecect the socketio server
-  // and save some initail date to the state
-  // this function shuld run after the component have mounted
-  const startConncting = () => {
-    //set all css view cases the false excpit the frist one
-
-    /*     let CaseEditer = [...Case];
-    Case.forEach((c, i) => {
-      CaseEditer[i] = false;
-      if (i === 0) CaseEditer[i] = true;
-    });
-
-    setCase(CaseEditer); */
-
-    /*     let GuestEditer = [...guest];
-    guest.forEach((g, i) => {
-      GuestEditer[i][0] = React.createRef();
-      GuestEditer[i][1] = 0;
-      GuestEditer[i][2] = true;
-    });
-
-    upDateGuestList(GuestEditer);
- */
-    //if the isviewer came as true dont run the cam
-    //star connection to the server to watch the stream
-    if (navigate?.state?.IsViewe) {
-      CreateOrJoinTheRoom();
-      return;
-    }
-
-    StartUserCamra(0);
-  };
 
   return { CreateOrJoinTheRoom };
 };

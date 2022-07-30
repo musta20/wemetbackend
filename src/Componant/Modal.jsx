@@ -39,7 +39,7 @@ function ModalBox({ id }) {
     addMessageToChat(PrivetMessage, massengerDispatch);
 
     Socket.emit("SendPrivetMessage", { id : id, Message: PrivetMessage }, (room) => {
-      console.log(room);
+    //  console.log(room);
     });
     setPrivetMessage("");
 
@@ -62,7 +62,7 @@ function ModalBox({ id }) {
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>chosse a room name</ModalHeader>
+          <ModalHeader>User Option</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             {Socket.id === adminId ? (

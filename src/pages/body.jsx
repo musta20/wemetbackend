@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from "react";
-import "react-toastify/dist/ReactToastify.css";
 
 import { useNavigate } from "react-router-dom";
 
@@ -37,10 +36,7 @@ export default function Body() {
     //this event add a room from the list
     Socket.off("AddRoom").on("AddRoom", ( {title} ) => {
       let copyRoom =[...Rooms]
-      console.log("AddRoom")
-      console.log(Rooms)
       copyRoom.push(title)
-      console.log(copyRoom)
 
       setRooms(copyRoom);
     });
@@ -57,7 +53,7 @@ export default function Body() {
   const GoToCallRoomWatch = (e) => {
     let roomName = e.target.id;
 
-    navigate("/CallBorad/" + roomName, {
+    navigate("/meet/" + roomName, {
       state: {
         IsPublic: false,
         IsViewer: true,
@@ -69,7 +65,7 @@ export default function Body() {
   const join = (e) => {
     let roomName = e.target.id;
 
-    navigate("/CallBorad/" + roomName, {
+    navigate("/meet/" + roomName, {
       state: {
         IsPublic: false,
         IsViewer: false,
@@ -99,7 +95,7 @@ export default function Body() {
           </Container>
     );
   };
-
+//console.log(`url(${process.env.REACT_APP_BACKE_END_URL}/imges/${roomName}.png)`)
   //this function will show the live room in the server
   return (
     <>
@@ -122,7 +118,7 @@ export default function Body() {
                       width: "280px",
                       height: "200px",
                       backgroundImage:
-                        "url(http://localhost:6800/imges/" + roomName + ".png)",
+                        `url(${process.env.REACT_APP_BACKE_END_URL}/imges/${roomName}.png)`,
                     }}
                   >
                     <Badge 

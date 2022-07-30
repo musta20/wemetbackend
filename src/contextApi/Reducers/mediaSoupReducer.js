@@ -61,6 +61,7 @@ const mediaSoupReducer = (state, action) => {
         device: null,
       };
     case ADD_PRODUCER_TRANSPORT:
+
       return {
         ...state,
         producerTransport: action.payload,

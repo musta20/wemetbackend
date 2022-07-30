@@ -10,7 +10,7 @@ export default function Switcher() {
   const connectToServer = async () => {
     if (!Socket.connected) {
       await Socket.connect();
-      console.log('HERE ALL THE CONRIDAL')
+      //console.log('HERE ALL THE CONRIDAL')
    
     }
   };
@@ -19,7 +19,7 @@ export default function Switcher() {
     
     connectToServer();
     Socket.off('connect').on('connect',()=>{
-      navigate("/CallBorad/" + location?.state?.roomName, {
+      navigate("/meet/" + location?.state?.roomName, {
         state: {
           IsPublic: true,
           IsViewer: false,

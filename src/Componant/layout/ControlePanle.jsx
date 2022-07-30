@@ -15,7 +15,7 @@ import {
 
 
 const ControlePanle = () => {
-  const { mediaSoupstate, mediaSoupDispatch, roomState, roomDispatch } =
+  const { roomState, roomDispatch } =
     useContext(AppContext);
   const Socket = useContext(SocketContext);
 
@@ -44,8 +44,8 @@ const ControlePanle = () => {
   };
 
   const JoinTheRoom = () => {
-    console.log("roomName  JoinTheRoom JoinTheRoom");
-    console.log(roomName);
+   // console.log("roomName  JoinTheRoom JoinTheRoom");
+   // console.log(roomName);
 
     navigate("/Switcher", {
       state: {

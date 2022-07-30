@@ -3,7 +3,6 @@ import React, { useEffect, useContext } from "react";
 import { useMediaSoupHelper } from "../lib/hooks/mediaSoupHelper";
 
 import { useRoomManger } from "../lib/hooks/roomMangerHelper";
-import { ToastContainer } from "react-toastify";
 
 import Layout from "../Componant/layout/Layout";
 import ControlePanle from "../Componant/layout/ControlePanle";
@@ -13,7 +12,7 @@ import { AppContext } from "../contextApi/Contexts/AppContext";
 import { useLocation } from "react-router-dom";
 import { SocketContext } from "../contextApi/Contexts/socket";
 
-function CallBord() {
+function Meet() {
   const { roomState } = useContext(AppContext);
   //const Socket = useContext(SocketContext);
   const { userMediaTrack, adminId } = roomState;
@@ -52,4 +51,4 @@ function CallBord() {
   );
 }
 
-export default CallBord;
+export default Meet;
