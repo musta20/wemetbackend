@@ -8,10 +8,11 @@ import { useRef } from "react";
 import ChatBox from "./ChatBox";
 import { Grid, Flex, Box, GridItem, Spacer } from "@chakra-ui/react";
 import ModalBox from "../Modal";
+import { useState } from "react";
 
 const VideoCards = () => {
   const CanvasImg = useRef(null);
-
+const [isPlay,setIsPlay]=useState(false)
   const Socket = useContext(SocketContext);
 
   const { roomState } = useContext(AppContext);
@@ -22,7 +23,9 @@ const VideoCards = () => {
   //this function take small imge from the user video
   // and send it to the server as a thumnail imge
   const TakeThumbnailImage = () => {
-    if (Socket.id != adminId) return;
+
+  
+    if (Socket.id !== adminId || !isPlay) return;
 
     let context = CanvasImg.current.getContext("2d");
 
@@ -31,16 +34,21 @@ const VideoCards = () => {
     let data = CanvasImg.current.toDataURL("image/png", 0.1);
 
     Socket.emit("saveimg", data, (data) => {
+    //  console.log(data)
     });
 
-    let reternde = guestList.findIndex((item) => item.id == 0);
+    //let reternde = guestList.findIndex((item) => item.id == 0);
   };
 
   useEffect(() => {
     if (userMediaTrack && !guestList[0].feed.current.srcObject)
       guestList[0].feed.current.srcObject = userMediaTrack;
 
-  }, [userMediaTrack]);
+  }, [userMediaTrack,guestList]);
+
+  useEffect(() => {
+    TakeThumbnailImage()
+  }, [adminId , isPlay,TakeThumbnailImage]);
 
 
 
@@ -67,7 +75,7 @@ const VideoCards = () => {
           <video
             style={{ borderRadius: "5px", borderColor: "#e8e8e8" }}
             ref={guestList[0].feed}
-            onPlay={TakeThumbnailImage}
+           onPlay={()=>setIsPlay(true)}
             autoPlay
           ></video>
         </Box>

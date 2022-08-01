@@ -37,10 +37,8 @@ export default function Nav() {
 
   const [Warning, setWarning] = useState([true, ""]);
   const [TheRoom, setTheRoom] = useState("");
-  const [toggleNav, settoggleNav] = useState(true);
   const [IsPublic, setIsPublic] = useState(true);
   const navigate = useNavigate();
-
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -60,22 +58,17 @@ export default function Nav() {
     navigate("/");
   };
 
-    //this function will take the user to the stramin room
-    const GoStream = () => {
-      onClose()
-      if(!Warning[0] || !TheRoom) return
-      navigate('/meet/'+TheRoom,
-      {
-        state:{
-        IsPublic:  IsPublic,
-        IsViewer: false
-     
-      }})
-        
-  
-  
-  
-    }
+  //this function will take the user to the stramin room
+  const GoStream = () => {
+    onClose();
+    if (!Warning[0] || !TheRoom) return;
+    navigate("/meet/" + TheRoom, {
+      state: {
+        IsPublic: IsPublic,
+        IsViewer: false,
+      },
+    });
+  };
   const connectToServer = async () => {
     if (!Socket.connected) await Socket.connect();
   };
@@ -93,7 +86,6 @@ export default function Nav() {
       setWarning([false, "the name is not valed " + data.room]);
     });
   };
-
 
   //this function will store the value of the input in the state and vladate it
   const onchange = (e) => {
@@ -121,27 +113,19 @@ export default function Nav() {
     isRoomeValid(e.target.value);
   };
 
-
-
-  //this function get called the to save the value of the check box to the state
-  const UpdateCheckBox = (e) => {
-    setIsPublic(e.target.checked);
-   // console.log(IsPublic);
-  };
-
-
-
   useEffect(() => {
     connectToServer();
   }, []);
 
   return (
     <>
-      <Box  bgGradient="linear(to-l, #cc6699,  #33ccff)"  py={1} px={2}>
-        <Flex alignItems={"center"}  justifyContent={"space-between"}>
+      <Box bgGradient="linear(to-l, #cc6699,  #33ccff)" py={1} px={2}>
+        <Flex alignItems={"center"} justifyContent={"space-between"}>
           <Flex>
             <div className="Logo"></div>
-            <Text m={3} color={"whiteAlpha.900"} fontWeight={"bold"} >wemet</Text>
+            <Text m={3} color={"whiteAlpha.900"} fontWeight={"bold"}>
+              wemet
+            </Text>
           </Flex>
 
           <Flex alignItems={"center"}>
@@ -153,14 +137,13 @@ export default function Nav() {
                     aria-label="start meet"
                     variant={"ghost"}
                     colorScheme={"whiteAlpha"}
-                   
-                    icon={<FcWebcam  size={35} />}
+                    icon={<FcWebcam size={35} />}
                   />
                 </Tooltip>
                 <Tooltip label="Home">
                   <IconButton
                     aria-label="Home"
-                    onClick={()=>GoHome()}
+                    onClick={() => GoHome()}
                     variant={"ghost"}
                     role={"group"}
                     colorScheme={"whiteAlpha"}
@@ -201,12 +184,17 @@ export default function Nav() {
                 Public room (Visible for everyone)?
               </FormLabel>
               <Switch
-                onChange={(e) => UpdateCheckBox(e)}
                 checked={IsPublic}
+                onChange={(e) => setIsPublic(!e.target.checked)}
                 id="is-public"
               />
             </FormControl>
-            <Button bgGradient="linear(to-l, #cc6699,  #33ccff)" colorScheme={"telegram"} mr={3} onClick={GoStream}>
+            <Button
+              bgGradient="linear(to-l, #cc6699,  #33ccff)"
+              colorScheme={"telegram"}
+              mr={3}
+              onClick={GoStream}
+            >
               Stream
             </Button>
           </ModalFooter>

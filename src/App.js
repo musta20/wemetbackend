@@ -1,13 +1,14 @@
 import React, { useReducer, useRef } from "react";
 import "./assets/style/index.css";
 import Body from "../src/pages/body"
-//import NavBar from "../src/Componant/layout/NavBar";
 import NavBar from "../src/Componant/layout/navBar";
 import Meet from "../src/pages/Meet";
 import Switcher from "../src/Componant/Switcher";
 import "./assets/style/App.css";
 import { ChakraProvider } from '@chakra-ui/react'
-
+import Terms from "../src/pages/Terms"
+import Privacy from "../src/pages/Privacy"
+import Guidelines from "../src/pages/Guidelines"
 import {restMediaSoupState} from "./contextApi/Actions/mediaSoupAction";
 import {restChatState} from "./contextApi/Actions/massengerHelperAction";
 import {restRoomState} from "./contextApi/Actions/roomHelperAction";
@@ -103,7 +104,6 @@ const [massengerstate, massengerDispatch] = useReducer(
 );
 
 const restAllState =()=>{
- // console.log("REST ALL DATA REST ALL DATA TO INIAL STATE SEE IF IT WORK")
   restRoomState(initialMainRoomProps,roomDispatch);
   restChatState(initialMassengerProps,massengerDispatch);
   restMediaSoupState(initialMediaSoupProps,mediaSoupDispatch);
@@ -130,6 +130,9 @@ return (
           <Route path="/" element={<Body />}></Route>
           <Route path="meet/:Room" element={<Meet />}></Route>
           <Route path="Switcher/" element={<Switcher />}></Route>
+          <Route path="Terms/" element={<Terms />}></Route>
+          <Route path="Privacy/" element={<Privacy />}></Route>
+          <Route path="Guidelines/" element={<Guidelines />}></Route>
         </Routes>
       </BrowserRouter>
     </SocketContext.Provider>

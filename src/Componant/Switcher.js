@@ -10,7 +10,6 @@ export default function Switcher() {
   const connectToServer = async () => {
     if (!Socket.connected) {
       await Socket.connect();
-      //console.log('HERE ALL THE CONRIDAL')
    
     }
   };
@@ -28,7 +27,7 @@ export default function Switcher() {
     })
  
     
-  }, []);
+  });
 
   return (
     <>

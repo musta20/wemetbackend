@@ -107,6 +107,7 @@ export const useRoomManger = (startStreming) => {
           if (rtpCapabilities) {
             showTost(room,"info");
             setAdminId(BossId, roomDispatch);
+            
 
             setIsAudience(true, roomDispatch);
 
@@ -128,7 +129,8 @@ export const useRoomManger = (startStreming) => {
         //if this value came as true you are the admin of this room
 
         if (First) {
-    
+         // console.log("setAdminId Socket.id")
+        //  console.log(Socket.id)
           setAdminId(Socket.id, roomDispatch);
           showTost(`you created room : ${room}`,"success");
 
@@ -214,7 +216,7 @@ export const useRoomManger = (startStreming) => {
   const StartUserCamra = (i) => {
     navigator.mediaDevices
       .getUserMedia({
-        audio: false,
+        audio: true,
         video: {
           width: {
             min: 640,

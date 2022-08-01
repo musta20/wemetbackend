@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { SocketContext } from "../contextApi/Contexts/socket";
 import {
   GridItem,
-  Container,
   Badge,
   Button,
   Box,
@@ -42,12 +41,13 @@ export default function Body() {
     });
 
  
-  }, [Rooms]);
+  }, [Rooms,Socket]);
   useEffect(()=>{   //request the currnt live room in the server
     Socket.emit("getroom", "mainrrom", (data) => {
 
+     //setRooms(['fsdfsd','efefe','efefe','efefe','efefe','efefe','efefe','efefe','testtt']);
      setRooms(data);
-    });},[])
+    });},[Socket])
 
   //this function will take the user to call room as viewr
   const GoToCallRoomWatch = (e) => {
@@ -75,7 +75,7 @@ export default function Body() {
 
   //this function display empty room message
   const NoRoome = () => {
-    return (    <Container maxW={'2xl'}>
+    return (  
     <Stack
       textAlign={'center'}
       align={'center'}
@@ -87,31 +87,47 @@ export default function Body() {
              textAlign={"center"}
              fontFamily={"mono"}
              >
-                It's seem like no one is streamming
-                <br />
-                how abut being the frist
+
+It's seem like no one is streaming<br /> howe about being the first
+
+
+      
               </Text>
           </Stack>
-          </Container>
     );
   };
 //console.log(`url(${process.env.REACT_APP_BACKE_END_URL}/imges/${roomName}.png)`)
   //this function will show the live room in the server
   return (
     <>
-      <Box  m={3} p={3}>
+{/*       <Center  m={3} p={3}>
+ */}
+      <div
+className="mainRoomClass"
+      >
       {!Rooms.length && NoRoome()}
+
+      
+        
         <Grid 
-                justifyItems="center"
+        m={5}
+        p={5}
+        w={"full"}
                 gridTemplateColumns={{
-                  base: "1fr  ",
-                  md: "1fr 2fr  3fr"
+                  
+                  base: "1fr",
+                  md: "1fr  1fr ",
+                  lg:"1fr 1fr 1fr"
+                  
                 }}
+
          
-        templateColumns="repeat(4, 1fr)" gap={5}>
+        templateColumns="repeat(4, 1fr)"
+         gap={5}>
           {Rooms.length
             ? Rooms.map((roomName) => (
-                <GridItem key={roomName}>
+                <GridItem
+                                key={roomName}>
                   <div
                     id={roomName}
                     style={{
@@ -153,7 +169,7 @@ export default function Body() {
               ))
             :  null}
         </Grid>
-      </Box>
+      </div>
       <Footer></Footer>
     </>
   );

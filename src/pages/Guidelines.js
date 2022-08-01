@@ -1,14 +1,11 @@
-import React, { Component } from 'react';
-class Guidelines extends Component {
-    state = {  }
-    //© wemet.live LLC • Terms of Service • Privacy Policy • Community Guidelines
-    render() { 
-        return (         <div className="container  mt-3 justify-content-md-center ">
-             <br></br>
-             <br></br>
-             <br></br>
+import { Box , Spacer, Text } from "@chakra-ui/react";
+
+export default function Guidelines (){
+        return (        
+           <Box m={6}>
             
-             <body><h1>Wemet Guidelines</h1>
+            <Text   fontSize={"3xl"}>Wemet Guidelines</Text>
+            <Spacer m={10}></Spacer>
 <p>wemet was created to provide a platform where people could connect with 
     other people of diverse backgrounds and experiences that may differ from their own.
      wemet’s Community Guidelines are intended to further that goal by providing general guidance and explaining what is and isn’t allowed on wemet. They are not intended to comprehensively identify every type of inappropriate or unlawful conduct or content. Users should be guided by common sense and an expectation that they should treat their fellow users with respect.</p>
@@ -29,10 +26,10 @@ class Guidelines extends Component {
 <li><strong>Animal Cruelty.</strong> Conduct or content that involves or promotes harm or cruelty to animals is prohibited.</li>
 <li><strong>Marketing and Advertising.</strong> The Services may not be used to market, advertise or promote any goods or services.</li>
 <li><strong>Bots.</strong> Use of bots of any kind to access or use the Services is prohibited.</li>
-</ul></body>
-        </div>
+</ul>
+
+        </Box>
        );
     }
-}
+
  
-export default Guidelines;
