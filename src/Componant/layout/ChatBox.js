@@ -73,6 +73,7 @@ if(isAudience) return <></>;
         m={1}
           float={"right"}
           aria-label="Chat"
+          className="chatbtn"
           variant={"ghost"}
           onClick={() => openChat(!isOpen)}
           colorScheme={"whiteAlpha"}
@@ -94,6 +95,7 @@ if(isAudience) return <></>;
 
         <Flex w="100%" mt="5">
           <Input
+          className="chatinput"
             placeholder="Type Something..."
             border="1px"
             borderRadius="none"
@@ -113,6 +115,7 @@ if(isAudience) return <></>;
           <IconButton
             type="submit"
             bg="teal"
+            className="sendbtn"
             color="white"
             borderEndRadius={"md"}
             borderRadius="none"

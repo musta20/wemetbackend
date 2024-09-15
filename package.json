@@ -11,7 +11,7 @@
     "@testing-library/user-event": "^13.5.0",
     "ajv": "^8.11.0",
     "framer-motion": "^6.3.16",
-    "mediasoup-client": "^3.6.54",
+    "mediasoup-client": "^3.6.80",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-icons": "^4.4.0",

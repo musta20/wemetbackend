@@ -38,16 +38,21 @@ export const useMediaSoupHelper = () => {
 
   //this function will set listner for in and out calls
   const setMediaSoupListner = () => {
-    //this event new-prouducer triggerd a new user is joined the room and
+     //this event new-prouducer triggerd a new user is joined the room and
     // you gone resive his stream via producerId and socketId is his socket id
     Socket.off("new-producer").on(
       "new-producer",
       async ({ producerId, socketId }) => {
+        console.log(Socket.id);
+        console.log('new-producer')
 
-    /*     console.log(
+        console.log(producerId);
+        console.log(socketId);
+
+        console.log(
           "NEW   JOINED   ===================>>>>>>>>>>>>>>>>>>>>>"
         );
- */
+ 
       
 
         signalNewConsumerTransport(producerId, socketId);
@@ -56,10 +61,17 @@ export const useMediaSoupHelper = () => {
     //this event triggred when user colse his stram you shuld close
     //the connection to prevent memory leak
 
-    Socket.on("producer-closed", ({ remoteProducerId, socketId }) => {
+ 
+    Socket.off("producer-closed").on("producer-closed", async ({ remoteProducerId, socketId }) => {
+      
       //find the specifc transport and close it
+      console.log('producer closed')
 
-//console.log(mediaSoupstate)
+      console.log(socketId);
+      console.log(remoteProducerId);
+      console.log(guestList)
+      console.log("======================= producer-closed  ==========================");
+      
       try {
         const producerToClose = consumerTransports.find(
           (transportData) => transportData.producerId === remoteProducerId
@@ -84,6 +96,9 @@ export const useMediaSoupHelper = () => {
       // hide the video div element
       completeSession(socketId);
     });
+
+
+
   };
   const completeSession = (id) => {
     const copyGuesList = [...guestList];
@@ -264,12 +279,13 @@ export const useMediaSoupHelper = () => {
                 appData: parameters.appData,
               },
               ({ id, producersExist }) => {
-                // Tell the transport that parameters were transmitted and provide it with the
+                 // Tell the transport that parameters were transmitted and provide it with the
                 // server side producer's id.
                 callback({ id });
              //   console.log(producersExist);
                 // if producers exist, then join room
                 //  setTimeout(() => {
+                  console.log('producersExist', producersExist);
                 if (producersExist) getProducers();
 
                 // }, 2000);
@@ -290,7 +306,7 @@ export const useMediaSoupHelper = () => {
   //this function will get all
   // current producer from the server and counsume them
   const getProducers = () => {
-    //console.log("THIS IS GET PRODUCESS");
+    console.log("THIS IS GET PRODUCESS");
     //console.log(roomName)
 
     Socket.emit(
@@ -301,7 +317,7 @@ export const useMediaSoupHelper = () => {
       },
       (producerIds) => {
         // for each of the producer create a consumer
-
+        console.log(producerIds);
         // producerIds.forEach(id => signalNewConsumerTransport(id))
         producerIds.forEach(
           (
@@ -443,11 +459,11 @@ export const useMediaSoupHelper = () => {
       // close video track
     });
 
-    producer.on("transportclose", () => {
-      console.log("transport ended");
+    // producer.on("transportclose", () => {
+    //   console.log("transport ended");
 
-      // close video track
-    });
+    //   // close video track
+    // });
   };
 
   useEffect(() => {
@@ -464,10 +480,10 @@ export const useMediaSoupHelper = () => {
       }
     } else {
       //get the current producers and chek if joining the room is avaliple
+      console.log('bEFOR if DEVICE')
 
       if (device) {
-        //    console.log('GETPRODUCERS getProducers getProducers')
-        setMediaSoupListner();
+         setMediaSoupListner();
 
         getProducers();
 

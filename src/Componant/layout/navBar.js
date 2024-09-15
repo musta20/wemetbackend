@@ -136,6 +136,7 @@ export default function Nav() {
                     onClick={onOpen}
                     aria-label="start meet"
                     variant={"ghost"}
+                    className="startStream"
                     colorScheme={"whiteAlpha"}
                     icon={<FcWebcam size={35} />}
                   />
@@ -165,6 +166,7 @@ export default function Nav() {
               isInvalid={!Warning?.[0]}
               type={"text"}
               name="roomName"
+              className="roomName"
               value={TheRoom}
               onChange={(e) => onchange(e)}
               placeholder="type the room name"
@@ -192,6 +194,7 @@ export default function Nav() {
             <Button
               bgGradient="linear(to-l, #cc6699,  #33ccff)"
               colorScheme={"telegram"}
+              className="startRoom"
               mr={3}
               onClick={GoStream}
             >

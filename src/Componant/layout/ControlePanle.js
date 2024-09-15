@@ -59,7 +59,7 @@ const ControlePanle = () => {
   return (
     <>
       {adminId === Socket.id && (
-        <HStack m={1}>
+        <HStack className="ControlePanle" m={1}>
           <FormControl
             p={1}
             borderRadius={"2xl"}
