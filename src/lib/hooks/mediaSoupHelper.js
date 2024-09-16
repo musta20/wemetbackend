@@ -32,7 +32,7 @@ export const useMediaSoupHelper = () => {
   const Unmount = () => {
     Socket.emit("leave", { name: "leav" }, () => {});
 
-    Socket.disconnect();
+  //  Socket.disconnect();
     restAllState();
   };
 
@@ -43,15 +43,8 @@ export const useMediaSoupHelper = () => {
     Socket.off("new-producer").on(
       "new-producer",
       async ({ producerId, socketId }) => {
-        console.log(Socket.id);
-        console.log('new-producer')
 
-        console.log(producerId);
-        console.log(socketId);
-
-        console.log(
-          "NEW   JOINED   ===================>>>>>>>>>>>>>>>>>>>>>"
-        );
+ 
  
       
 
@@ -65,12 +58,7 @@ export const useMediaSoupHelper = () => {
     Socket.off("producer-closed").on("producer-closed", async ({ remoteProducerId, socketId }) => {
       
       //find the specifc transport and close it
-      console.log('producer closed')
-
-      console.log(socketId);
-      console.log(remoteProducerId);
-      console.log(guestList)
-      console.log("======================= producer-closed  ==========================");
+  
       
       try {
         const producerToClose = consumerTransports.find(
@@ -118,6 +106,14 @@ export const useMediaSoupHelper = () => {
       copyGuesList[indexGuest].id = 0;
       copyGuesList[indexGuest].feed.current.srcObject = null;
       upDateGuestList(copyGuesList, roomDispatch);
+
+
+      if(copyGuesList.every((item) => item.id === 0)){
+       
+        window.location.replace("/");
+        
+      }
+
     }
 
    // console.log(copyGuesList);
@@ -126,7 +122,7 @@ export const useMediaSoupHelper = () => {
 
   //this function will create a device for mediasoup api
   const createDevice = async (routerRtpCapabilities) => {
-  //  console.log("START CREATING THE DIVICE");
+   console.log("START CREATING THE DIVICE");
     try {
       let newDevice = new Device();
 
@@ -306,9 +302,7 @@ export const useMediaSoupHelper = () => {
   //this function will get all
   // current producer from the server and counsume them
   const getProducers = () => {
-    console.log("THIS IS GET PRODUCESS");
-    //console.log(roomName)
-
+ console.log('this FILREDDDDDDDDDDDDDDDDD')
     Socket.emit(
       "getProducers",
       {
@@ -317,7 +311,7 @@ export const useMediaSoupHelper = () => {
       },
       (producerIds) => {
         // for each of the producer create a consumer
-        console.log(producerIds);
+       // console.log(producerIds);
         // producerIds.forEach(id => signalNewConsumerTransport(id))
         producerIds.forEach(
           (
@@ -382,6 +376,7 @@ export const useMediaSoupHelper = () => {
     socketId,
     serverConsumerTransportId
   ) => {
+    console.log("connectRecvTransport");
     // for consumer, we need to tell the server first
     // to create a consumer based on the rtpCapabilities and consume
     // if the router can consume, it will send back a set of params as below
@@ -479,10 +474,12 @@ export const useMediaSoupHelper = () => {
         setMediaSoupListner();
       }
     } else {
+      console.log('THIS FIRED')
       //get the current producers and chek if joining the room is avaliple
-      console.log('bEFOR if DEVICE')
+    //  console.log('bEFOR if DEVICE')
 
       if (device) {
+
          setMediaSoupListner();
 
         getProducers();
@@ -497,6 +494,7 @@ export const useMediaSoupHelper = () => {
       }
     }
   }, [device, isAudience, params, producerTransport]);
+
   useEffect(() => {
 
   }, []);

@@ -19,7 +19,7 @@ import { SocketContext } from "../../contextApi/Contexts/socket";
 //setUserMedia
 export const useRoomManger = (startStreming) => {
  // console.log("useRoomManger");
- const toast = useToast()
+  const toast = useToast()
 
   const navigate = useLocation();
 
@@ -34,13 +34,10 @@ export const useRoomManger = (startStreming) => {
 
   useEffect(() => {
     setRoomName(Room, roomDispatch);
-  //  console.log('the room is ');
-  //  console.log(Room)
-   // console.log(navigate?.state?.IsViewer)
+ 
     if (Socket && !navigate?.state?.IsViewer) StartUserCamra(0);
 
-    // return () => componentWillUnmount();
-  }, []);
+   }, []);
 
   //this function will show the notftion
   const showTost = (data,status) => {
@@ -98,21 +95,23 @@ export const useRoomManger = (startStreming) => {
       "CreateStream",
       FullRoomName,
       ({ status, rtpCapabilities, BossId, room, First }) => {
-       // console.log({ status, rtpCapabilities, BossId, room, First });
+        console.log({ status, rtpCapabilities, BossId, room });
 
         if (!status) {
           //if status came with wrong result and rtpCapabilities
           // that mean you just gone watch  the room
         
           if (rtpCapabilities) {
-            showTost(room,"info");
-            setAdminId(BossId, roomDispatch);
-            
 
+            setAdminId(BossId, roomDispatch);
+
+            showTost(room,"info");
+            
             setIsAudience(true, roomDispatch);
+            
+            startStreming(rtpCapabilities);
 
             // once we have rtpCapabilities from the Router, create Device
-            startStreming(rtpCapabilities);
 
             return;
           }
@@ -123,6 +122,7 @@ export const useRoomManger = (startStreming) => {
           setTimeout(function () {
               document.location.href = "/"
           }, 2000);
+
           return;
         }
 

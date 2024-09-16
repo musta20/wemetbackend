@@ -23,27 +23,21 @@ function Meet() {
   const location = useLocation();
   const Socket = useContext(SocketContext);
 
- 
- 
   useEffect(() => {
-
-    if (
-      (userMediaTrack || location?.state?.IsViewer) &&
-      !adminId &&
-      Socket.connected
-    )
-      CreateOrJoinTheRoom();
-      
-  }, [userMediaTrack, adminId, Socket]);
+        if (
+          (userMediaTrack || location?.state?.IsViewer) &&
+          !adminId &&
+          Socket.connected
+        )
+          CreateOrJoinTheRoom();
+     }, [userMediaTrack, adminId, Socket]);
 
   useEffect(() => {
     return () => Unmount();
   }, []);
 
-
   return (
     <Layout>
-
       <ControlePanle></ControlePanle>
 
       <VideoCards></VideoCards>

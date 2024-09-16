@@ -44,6 +44,15 @@ function ModalBox({ id }) {
     setPrivetMessage("");
 
   };
+
+  const kikUser = () => {
+ 
+
+    Socket.emit("kik", { userId : id  }, ( ) => {
+    //  console.log(room);
+     });
+     onClose();
+  };
   if (id === Socket.id  || isAudience) return <></>;
   return (
     <>
@@ -66,7 +75,9 @@ function ModalBox({ id }) {
           <ModalCloseButton />
           <ModalBody>
             {Socket.id === adminId ? (
-              <Button m={1} colorScheme={"red"}>
+              <Button m={1} 
+              onClick={() =>kikUser()}
+              colorScheme={"red"}>
                 Remove User From Room
               </Button>
             ) : null}

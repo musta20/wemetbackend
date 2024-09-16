@@ -42,6 +42,7 @@ export default function Body() {
 
  
   }, [Rooms,Socket]);
+  
   useEffect(()=>{   //request the currnt live room in the server
     Socket.emit("getroom", "mainrrom", (data) => {
 
