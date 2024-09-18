@@ -22,35 +22,35 @@ export default function Body() {
   const Socket = useContext(SocketContext);
 
   useEffect(() => {
-    //this event delete a room from the list
-    Socket.off("DelteRoom").on("DelteRoom", ( {TheroomName} ) => {
-   
-
+    //This event delete a room from the list
+    Socket.off("DelteRoom").on("DelteRoom", ({ TheroomName }) => {
       let copyRooms = [...Rooms];
-    let newCopy =  copyRooms.filter(room => room !== TheroomName);
+      let newCopy = copyRooms.filter((room) => room !== TheroomName);
 
       setRooms(newCopy);
     });
 
-    //this event add a room from the list
-    Socket.off("AddRoom").on("AddRoom", ( {title} ) => {
-      let copyRoom =[...Rooms]
-      copyRoom.push(title)
+    //This event add a room from the list
+
+    Socket.off("AddRoom").on("AddRoom", ({ title }) => {
+      let copyRoom = [...Rooms];
+      copyRoom.push(title);
 
       setRooms(copyRoom);
     });
+  }, [Rooms, Socket]);
 
- 
-  }, [Rooms,Socket]);
-  
-  useEffect(()=>{   //request the currnt live room in the server
+  useEffect(() => {
+
+    //Request the current live room in the server
+
     Socket.emit("getroom", "mainrrom", (data) => {
+       setRooms(data);
+    });
+  }, [Socket]);
 
-     //setRooms(['fsdfsd','efefe','efefe','efefe','efefe','efefe','efefe','efefe','testtt']);
-     setRooms(data);
-    });},[Socket])
+  //This function will take the user to call room as viewer
 
-  //this function will take the user to call room as viewr
   const GoToCallRoomWatch = (e) => {
     let roomName = e.target.id;
 
@@ -62,7 +62,7 @@ export default function Body() {
     });
   };
 
-  //this function will take the user to room as memper
+  //This function will take the user to room as member
   const join = (e) => {
     let roomName = e.target.id;
 
@@ -74,73 +74,57 @@ export default function Body() {
     });
   };
 
-  //this function display empty room message
+  //This function display empty room message
   const NoRoome = () => {
-    return (  
-    <Stack
-      textAlign={'center'}
-      align={'center'}
-      spacing={{ base: 4, md: 5 }}
-      py={{ base: 10, md: 14 }}>
-           
-              <div className="mainstreamicon"></div>
-             <Text
-             textAlign={"center"}
-             fontFamily={"mono"}
-             >
-
-It's seem like no one is streaming<br /> howe about being the first
-
-
-      
-              </Text>
-          </Stack>
+    return (
+      <Stack
+        textAlign={"center"}
+        align={"center"}
+        spacing={{ base: 4, md: 5 }}
+        py={{ base: 10, md: 14 }}
+      >
+        <div className="mainstreamicon"></div>
+        <Text textAlign={"center"} fontFamily={"mono"}>
+          It's seem like no one is streaming
+          <br /> howe about being the first
+        </Text>
+      </Stack>
     );
   };
-//console.log(`url(${process.env.REACT_APP_BACKE_END_URL}/imges/${roomName}.png)`)
+
   //this function will show the live room in the server
+
   return (
     <>
-{/*       <Center  m={3} p={3}>
- */}
-      <div
-className="mainRoomClass"
-      >
-      {!Rooms.length && NoRoome()}
+      {/*       <Center  m={3} p={3}>
+       */}
+      <div className="mainRoomClass">
+        {!Rooms.length && NoRoome()}
 
-      
-        
-        <Grid 
-        m={5}
-        p={5}
-        w={"full"}
-                gridTemplateColumns={{
-                  
-                  base: "1fr",
-                  md: "1fr  1fr ",
-                  lg:"1fr 1fr 1fr"
-                  
-                }}
-
-         
-        templateColumns="repeat(4, 1fr)"
-         gap={5}>
+        <Grid
+          m={5}
+          p={5}
+          w={"full"}
+          gridTemplateColumns={{
+            base: "1fr",
+            md: "1fr  1fr ",
+            lg: "1fr 1fr 1fr",
+          }}
+          templateColumns="repeat(4, 1fr)"
+          gap={5}
+        >
           {Rooms.length
             ? Rooms.map((roomName) => (
-                <GridItem
-                                key={roomName}>
+                <GridItem key={roomName}>
                   <div
                     id={roomName}
                     style={{
                       width: "280px",
                       height: "200px",
-                      backgroundImage:
-                        `url(${process.env.REACT_APP_BACKE_END_URL}/imges/${roomName}.png)`,
+                      backgroundImage: `url(${process.env.REACT_APP_BACKE_END_URL}/imges/${roomName}.png)`,
                     }}
                   >
-                    <Badge 
-                    m={1}
-                    variant="outline" colorScheme="red">
+                    <Badge m={1} variant="outline" colorScheme="red">
                       LIVE
                     </Badge>
                     <Box p={3} my={20}>
@@ -168,7 +152,7 @@ className="mainRoomClass"
                   </div>
                 </GridItem>
               ))
-            :  null}
+            : null}
         </Grid>
       </div>
       <Footer></Footer>

@@ -16,9 +16,9 @@ import {
 } from "../../contextApi/Actions/roomHelperAction";
 import { SocketContext } from "../../contextApi/Contexts/socket";
 
-//setUserMedia
+
 export const useRoomManger = (startStreming) => {
- // console.log("useRoomManger");
+
   const toast = useToast()
 
   const navigate = useLocation();
@@ -56,14 +56,14 @@ export const useRoomManger = (startStreming) => {
   this function is gone take the room name that 
   passed in the param and send it to the server 
   if you pass is viewer as true that mean you just 
-  gone whatch the stream. else if the room excist try to join it 
-  if not create it and you will resive the frist as true
+  gone watch the stream. else if the room exist try to join it 
+  if not create it and you will receive the first as true
   and set you as the room admin .
   if the room is full you just gone watch ti
   ---------------------------------------------------------
-  upon reseving the rtpCapabilities creat a device 
+  upon receiving the rtpCapabilities create a device 
   if viewer set as true will not  create send transport 
-  and just resice any new procuser the server send 
+  and just receive any new producer from the server send 
   */
 
   const CreateOrJoinTheRoom = () => {
@@ -71,12 +71,12 @@ export const useRoomManger = (startStreming) => {
     let IsViewer = false;
 
     if (navigate?.state?.IsViewer) {
-      // setIsViewer(true);
+
       setIsAudience(true, roomDispatch);
       IsViewer = true;
     }
-   // console.log(navigate?.state?.IsPublic);
 
+    
     if (!navigate?.state?.IsPublic) {
       isRoomPublic(false, roomDispatch);
       IsPublic = false;
@@ -89,7 +89,6 @@ export const useRoomManger = (startStreming) => {
       IsViewer: IsViewer,
     };
 
-   // console.log('CreateStream CREATE STREAM')
 
     Socket.emit(
       "CreateStream",
@@ -129,8 +128,8 @@ export const useRoomManger = (startStreming) => {
         //if this value came as true you are the admin of this room
 
         if (First) {
-         // console.log("setAdminId Socket.id")
-        //  console.log(Socket.id)
+      
+          
           setAdminId(Socket.id, roomDispatch);
           showTost(`you created room : ${room}`,"success");
 
@@ -144,7 +143,7 @@ export const useRoomManger = (startStreming) => {
       }
     );
 
-    //this event triggerd to notify you there is chance to join the room
+    //this event triggered to notify you there is chance to join the room
 
     Socket.on("FreeToJoin", ({ status }) => {
       if (status) {
@@ -156,7 +155,7 @@ export const useRoomManger = (startStreming) => {
       setIsFreeToJoin(false, roomDispatch);
     });
 
-    //this event triggerd when the room admin ban you from the room
+    //this event triggered when the room admin ban you from the room
     Socket.on("GoOut", () => {
       showTost("the admin drop you from this room","info");
       setTimeout(function () {
@@ -164,7 +163,7 @@ export const useRoomManger = (startStreming) => {
       }, 200);
     });
 
-    //this event triggred when you becam admin and the room setting seted
+    //this event trigger when you become admin and the room setting 
     Socket.on("switchAdminSetting", ({ isRoomLocked, isStream, IsPublic }) => {
 
       
@@ -174,21 +173,20 @@ export const useRoomManger = (startStreming) => {
       isRoomStream(isStream, roomDispatch);
     });
 
-    //this event triggred when admin switch to another youser
+    //this event trigger when admin switch to another user
     Socket.on("switchAdmin", ({ admin }) => {
       // if you are the new admin set you as admin
       /* 
       find the new admin in the room and set
       his view to the big view and clear his 
-      postion in the guest list
+      position in the guest list
       */
       const copyUsersGuest = [...guestList];
       const currentUserIndx = copyUsersGuest.findIndex(
         (guest) => guest.id === admin
       );
 
-   //   console.log(currentUserIndx)
-   if(currentUserIndx){
+    if(currentUserIndx){
       copyUsersGuest[0].feed.current.srcObject = copyUsersGuest[currentUserIndx].feed.current.srcObject;
       copyUsersGuest[0].id = admin;
       copyUsersGuest[currentUserIndx].feed.current.srcObject = null;
@@ -199,19 +197,16 @@ export const useRoomManger = (startStreming) => {
 }
     });
 
-    //this event triggerd when you recive a privet message
+    //this event trigger when you recive a privet message
     //it will save to HistoryChat
 
-
-    //this event triggerd when you recive a  message
-    //it will save to HistoryChat
  
   };
 
 
 
   //this function will start accessing the webcam
-  //and make it avalbe if the user is viewer will not connect to
+  //and make it available if the user is viewer will not connect to
   // to the server if not will connect to the server and
   const StartUserCamra = (i) => {
     navigator.mediaDevices
@@ -256,23 +251,7 @@ export const useRoomManger = (startStreming) => {
       });
   };
 
-  //this function will prevent the roomfrom streaming to the public
-  // the server will check if you are the admin
-
-
-  //this function will ban a spesifc user apssed
-  // to it the server will check if you are the admin
-
-  //this function wil just go
-  // to the same page to allow the user
-  // to join this room
-
-  /*
-  this function will add the stream of users 
-  and display it and if the user comming is admin
-  it will put it in the main view
-  */
-
+  
 
 
   return { CreateOrJoinTheRoom };

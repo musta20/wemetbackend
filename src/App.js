@@ -64,7 +64,6 @@ function App() {
     producerTransport: false,
     consumerTransports: [],
     params:{
-      // mediasoup configratio params
       encodings: [
         {
           rid: "r0",
@@ -82,8 +81,7 @@ function App() {
           scalabilityMode: "S1T3",
         },
       ],
-      // https://mediasoup.org/documentation/v3/mediasoup-client/api/#ProducerCodecOptions
-      codecOptions: {
+       codecOptions: {
         videoGoogleStartBitrate: 1000,
       },
     }
